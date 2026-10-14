@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Haftalık Bütçe Defteri</title>
+<meta name="theme-color" content="#7b1e3c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<style>html{-webkit-text-size-adjust:100%}body{margin:0}img{max-width:100%}[hidden]{display:none!important}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: phone-first ledger. Week switcher on top, the week's "left over" number as the summary, then tabs: Hafta / Geçmiş / Ayarlar. */
+:root {
+  --bg: #f4f5f6; --surface: #ffffff; --ink: #15171a; --ink-2: #4c525a; --ink-3: #737a83; --line: #dde0e4;
+  --accent: #7b1e3c; --accent-ink: #ffffff; --accent-soft: #f3e4ea;
+  --good: #0a7a0a; --good-soft: #e3f2e3; --warn: #9a5b00; --warn-soft: #fbefd9;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --f-num: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111315; --surface: #1b1e21; --ink: #eef0f2; --ink-2: #b9bfc6; --ink-3: #8b929a; --line: #2e3338;
+    --accent: #e48aa7; --accent-ink: #1b1e21; --accent-soft: #3a1d27;
+    --good: #6fd36f; --good-soft: #17301a; --warn: #f2b54a; --warn-soft: #3a2c12; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111315; --surface: #1b1e21; --ink: #eef0f2; --ink-2: #b9bfc6; --ink-3: #8b929a; --line: #2e3338;
+  --accent: #e48aa7; --accent-ink: #1b1e21; --accent-soft: #3a1d27;
+  --good: #6fd36f; --good-soft: #17301a; --warn: #f2b54a; --warn-soft: #3a2c12; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 16px 48px; display: grid; gap: 14px; }
+h1 { font-family: var(--f-display); font-weight: 800; font-size: 1.6rem; line-height: 1.1; margin: 0; letter-spacing: -0.02em; }
+h1 span { color: var(--accent); }
+h2 { font-family: var(--f-display); font-weight: 600; font-size: 1.1rem; margin: 0 0 10px; }
+.top { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.status { font-size: 0.8rem; color: var(--ink-3); }
+.status.err { color: var(--warn); }
+.weeknav { display: flex; align-items: center; gap: 8px; }
+.weeknav button { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: 1.2rem; cursor: pointer; }
+.weeknav .lbl { flex: 1; text-align: center; font-weight: 600; min-width: 0; }
+.weeknav .lbl small { display: block; font-weight: 400; color: var(--ink-3); font-size: 0.8rem; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; min-width: 0; }
+.hero { display: grid; gap: 12px; }
+.big { display: grid; gap: 2px; }
+.big .k { font-size: 0.8rem; color: var(--ink-2); font-weight: 600; display: block; }
+.big .v { font-family: var(--f-display); font-weight: 800; font-size: clamp(2.3rem, 10vw, 3.2rem); line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.big .v.neg { color: var(--warn); }
+.big .u { font-size: 0.85rem; color: var(--ink-3); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.tile { display: grid; gap: 2px; padding: 10px 12px; border-radius: 10px; background: var(--bg); }
+.tile .k { font-size: 0.78rem; color: var(--ink-2); }
+.tile .v { font-family: var(--f-num); font-weight: 600; font-size: 1.1rem; font-variant-numeric: tabular-nums; }
+.tile .u { font-size: 0.75rem; color: var(--ink-3); }
+.tabs { display: flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; }
+.tabs button { flex: 1; font: inherit; font-weight: 600; border: 0; background: transparent; color: var(--ink-2); padding: 10px 6px; cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+.fields { display: grid; gap: 12px; align-items: start; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.field { display: grid; gap: 4px; min-width: 0; }
+.field label, .field .lab { font-weight: 600; font-size: 0.88rem; }
+.field .hint { font-size: 0.76rem; color: var(--ink-3); }
+.money { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding-inline: 10px; min-width: 0; }
+.money span { color: var(--ink-3); font-family: var(--f-num); font-size: 0.9rem; }
+.money input { border: 0; background: transparent; color: var(--ink); font-family: var(--f-num); font-size: 1rem; padding: 10px 4px; width: 100%; min-width: 0; outline: none; }
+.money:focus-within, .txt:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.txt { border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; padding: 9px 10px; width: 100%; min-width: 0; outline: none; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; width: fit-content; }
+.seg button { font: inherit; font-weight: 600; font-size: 0.86rem; border: 0; background: var(--bg); color: var(--ink-2); padding: 8px 12px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.sec + .sec { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.sec-title { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; }
+.list { display: grid; gap: 8px; }
+.row { display: flex; gap: 8px; align-items: center; }
+.row .txt { flex: 1 1 auto; width: 0; }
+.row .money { flex: 0 0 auto; width: 110px; }
+.row .del { flex: none; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: var(--ink-3); font-size: 1.1rem; cursor: pointer; }
+.add { margin-top: 10px; font: inherit; font-weight: 600; font-size: 0.88rem; color: var(--accent); background: transparent; border: 1px dashed var(--accent); border-radius: 8px; padding: 8px 14px; cursor: pointer; }
+.empty { color: var(--ink-3); font-size: 0.88rem; margin: 0; }
+.receipt { display: grid; margin: 0; }
+.receipt div { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+.receipt dt { color: var(--ink-2); }
+.receipt dd { margin: 0; font-family: var(--f-num); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.receipt .tot dt { color: var(--ink); font-weight: 600; }
+.receipt .tot { border-bottom: 0; }
+.receipt .tot dd { font-weight: 600; color: var(--accent); font-size: 1.1rem; }
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+th, td { text-align: right; padding: 8px 5px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); font-weight: 600; }
+td { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+tbody tr { cursor: pointer; }
+tbody tr:hover td { background: var(--accent-soft); }
+tr.cur td { background: var(--accent-soft); }
+td.neg { color: var(--warn); }
+.note { font-size: 0.8rem; color: var(--ink-3); margin: 10px 0 0; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { font: inherit; font-weight: 600; font-size: 0.9rem; padding: 9px 14px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); cursor: pointer; display: inline-flex; align-items: center; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.confirm { display: grid; gap: 10px; margin-top: 12px; padding: 12px; border-radius: 10px; background: var(--accent-soft); }
+.banner { background: var(--warn-soft); color: var(--warn); border-radius: 10px; padding: 10px 12px; font-size: 0.88rem; }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <h1>Haftalık <span>Bütçe</span></h1>
+    <span class="status" id="status">Yükleniyor…</span>
+  </div>
+  
+
+  <div class="weeknav">
+    <button type="button" id="prevW" aria-label="Önceki hafta">‹</button>
+    <div class="lbl"><span id="wkLbl">–</span><small id="wkSub">–</small></div>
+    <button type="button" id="nextW" aria-label="Sonraki hafta">›</button>
+  </div>
+
+  <section class="panel hero" aria-live="polite">
+    <div class="big"><span class="k">Bu hafta elinde kalan</span><span class="v" id="hLeft">–</span><span class="u" id="hLeftSub">–</span></div>
+    <div class="tiles" id="hTiles"></div>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tabWeek" aria-selected="true">Hafta</button>
+    <button type="button" role="tab" id="tabHist" aria-selected="false">Geçmiş</button>
+    <button type="button" role="tab" id="tabSet" aria-selected="false">Ayarlar</button>
+  </div>
+
+  <!-- WEEK -->
+  <section class="panel" id="pWeek">
+    <div class="sec">
+      <p class="sec-title">Uber</p>
+      <div class="fields">
+        <div class="field"><label for="wEarn">Kazanç</label><div class="money"><span>$</span><input id="wEarn" inputmode="decimal"></div><span class="hint">Uygulamadaki haftalık, toll hariç</span></div>
+        <div class="field"><label for="wHours">Online saat</label><div class="money"><input id="wHours" inputmode="decimal"><span>sa</span></div></div>
+        <div class="field"><label for="wFuel">Yakıt</label><div class="money"><span>$</span><input id="wFuel" inputmode="decimal"></div><span class="hint">Boşsa ayarlardaki tahmin</span></div>
+      </div>
+    </div>
+    <div class="sec">
+      <p class="sec-title">Cash iş</p>
+      <div class="fields">
+        <div class="field"><label for="wCashH">Saat</label><div class="money"><input id="wCashH" inputmode="decimal"><span>sa</span></div><span class="hint" id="wCashHint">–</span></div>
+      </div>
+    </div>
+    <div class="sec">
+      <p class="sec-title">Bu haftaya özel giderler</p>
+      <div class="list" id="extraList"></div>
+      <button type="button" class="add" id="extraAdd">+ Ekstra gider ekle</button>
+      <p class="note">PS5, tatil, tamir gibi bir kerelik harcamalar. Sadece bu haftadan düşülür.</p>
+    </div>
+    <div class="sec">
+      <p class="sec-title">Haftanın dökümü</p>
+      <dl class="receipt" id="receipt"></dl>
+    </div>
+    <div class="sec">
+      <label class="sec-title" for="wNote" style="display:block">Not</label>
+      <input class="txt" id="wNote" placeholder="Bu haftayla ilgili bir not">
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="panel" id="pHist" hidden>
+    <h2>Ortalamalar</h2>
+    <div class="tiles" id="avgTiles"></div>
+    <div class="sec">
+      <p class="sec-title" id="qTitle">Bu çeyrek kenara ayrılacak</p>
+      <div class="tiles" id="qTiles"></div>
+    </div>
+    <div class="sec">
+      <p class="sec-title">Haftalar</p>
+      <p class="empty" id="histEmpty">Henüz kayıtlı hafta yok. Hafta sekmesinde Uber kazancını girince burada görünür.</p>
+      <div class="tbl-wrap"><table id="histTbl" hidden>
+        <thead><tr><th>Hafta</th><th>Uber</th><th>Saat</th><th>Net/sa</th><th>Ekstra</th><th>Kalan</th></tr></thead>
+        <tbody id="histBody"></tbody>
+      </table></div>
+      <p class="note">Bir satıra dokununca o haftayı açar.</p>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="panel" id="pSet" hidden>
+    <div class="sec">
+      <p class="sec-title">Gelir ve vergi</p>
+      <div class="fields">
+        <div class="field"><label for="sSalary">Maaş (brüt, yıllık)</label><div class="money"><span>$</span><input id="sSalary" inputmode="decimal"></div></div>
+        <div class="field"><label for="sCashRate">Cash iş saatlik</label><div class="money"><span>$</span><input id="sCashRate" inputmode="decimal"></div></div>
+        <div class="field"><span class="lab" id="cashTaxLbl">Cash iş vergisi</span>
+          <div class="seg" role="group" aria-labelledby="cashTaxLbl"><button type="button" id="sCashTaxNo">Vergisiz</button><button type="button" id="sCashTaxYes">Vergiyle</button></div></div>
+        <div class="field"><span class="lab" id="coverLbl">Özel hastane sigortası</span>
+          <div class="seg" role="group" aria-labelledby="coverLbl"><button type="button" id="sCoverNo">Yok</button><button type="button" id="sCoverYes">Var</button></div></div>
+      </div>
+    </div>
+    <div class="sec">
+      <p class="sec-title">Uber masrafları</p>
+      <div class="fields">
+        <div class="field"><label for="sFixed">Sabit masraflar (yıllık)</label><div class="money"><span>$</span><input id="sFixed" inputmode="decimal"></div><span class="hint">Sigorta, servis, rego/CTP, BHSL, telefon. Yakıt hariç. Sadece Uber payı.</span></div>
+        <div class="field"><label for="sWeeks">Yılda kaç hafta Uber</label><div class="money"><input id="sWeeks" inputmode="decimal"><span>hf</span></div></div>
+        <div class="field"><label for="sFuel">Varsayılan yakıt / hafta</label><div class="money"><span>$</span><input id="sFuel" inputmode="decimal"></div><span class="hint">Hafta için yakıt girmezsen bu kullanılır</span></div>
+      </div>
+    </div>
+    <div class="sec">
+      <p class="sec-title">Her hafta tekrarlayan giderler</p>
+      <div class="list" id="recList"></div>
+      <button type="button" class="add" id="recAdd">+ Gider ekle</button>
+      <p class="note">Aylık bir gideri haftalığa çevirmek için 4,33'e böl.</p>
+    </div>
+    <div class="sec">
+      <p class="sec-title">Yedek</p>
+      <div class="btns">
+        <button type="button" class="btn" id="bkDown">Telefona yedek indir</button>
+        <label class="btn ghost" for="bkFile">Yedekten yükle</label>
+        <input type="file" id="bkFile" accept=".json,application/json" hidden>
+      </div>
+      <div class="confirm" id="bkConfirm" hidden>
+        <span id="bkConfirmText"></span>
+        <div class="btns"><button type="button" class="btn" id="bkYes">Evet, yükle</button><button type="button" class="btn ghost" id="bkNo">Vazgeç</button></div>
+      </div>
+      <p class="note" id="bkMsg">Yedek, İndirilenler klasörüne bir .json dosyası olarak iner. Diğer versiyona ya da yeni telefona bu dosyayla taşırsın.</p>
+    </div>
+    <div class="sec">
+      <p class="note" style="margin:0">Hesap: 2026–27 vergi oranları ve Medicare %2. Uber kârı ve vergili cash, maaşının üstüne eklenir; MLS eşikleri $105k / $123k / $164k. GST kazancın 1/11'i, yakıt ve sabit masrafların %80'inden kredi düşülür. Tahmindir, vergi danışmanlığı değildir.</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(function () {
+  const MODE = 'local';
+  const LS_KEY = 'haftalik-butce-v1';
+  // ---------- defaults ----------
+  const DEF_SET = { salary: 100000, fixed: 10000, weeksPerYear: 48, cover: false, fuelDefault: 180, cashRate: 30, cashTax: false, recurring: [] };
+  let S = JSON.parse(JSON.stringify(DEF_SET));
+  const WEEKS = new Map(); // id -> data
+  let db = null, settingsKnown = false;
+
+  // ---------- tax engine (2026-27 resident) ----------
+  const BR = [[18200, 0], [45000, 0.15], [135000, 0.30], [190000, 0.37], [Infinity, 0.45]];
+  function itax(ti) { let t = 0, p = 0; for (const [cap, r] of BR) { if (ti > p) t += (Math.min(ti, cap) - p) * r; p = cap; }
+    let l = 0; if (ti <= 37500) l = 700; else if (ti <= 45000) l = 700 - 0.05 * (ti - 37500); else if (ti <= 66667) l = 325 - 0.015 * (ti - 45000);
+    return Math.max(0, t - l); }
+  function mls(ti, c) { if (c || ti <= 105000) return 0; if (ti <= 123000) return 0.01 * ti; if (ti <= 164000) return 0.0125 * ti; return 0.015 * ti; }
+  const ttax = (ti, c) => itax(ti) + 0.02 * ti + mls(ti, c);
+  const sum = (arr) => (arr || []).reduce((a, x) => a + (+x.amount || 0), 0);
+
+  function weekCalc(w) {
+    const N = Math.max(1, S.weeksPerYear);
+    const E = +w.uberEarn || 0, H = +w.uberHours || 0;
+    const fuel = E > 0 ? (w.fuel == null || w.fuel === '' ? S.fuelDefault : +w.fuel) : 0;
+    const fx = E > 0 ? S.fixed / N : 0;
+    const go = E / 11, gc = fuel / 11 + fx * 0.8 / 11, gst = go - gc;
+    const pa = Math.max(0, ((E - go) - (fuel + fx - gc)) * N);
+    const uberTax = (ttax(S.salary + pa, S.cover) - ttax(S.salary, S.cover)) / N;
+    const uberNet = E - gst - fuel - fx - uberTax;
+    const cashGross = (+w.cashHours || 0) * S.cashRate;
+    const cashA = cashGross * N;
+    const cashTax = S.cashTax ? (ttax(S.salary + pa + cashA, S.cover) - ttax(S.salary + pa, S.cover)) / N : 0;
+    const cashNet = cashGross - cashTax;
+    const salaryNet = (S.salary - ttax(S.salary, S.cover)) / 52;
+    const rec = sum(S.recurring), extra = sum(w.extras);
+    const income = salaryNet + uberNet + cashNet;
+    return { E, H, fuel, fx, gst, uberTax, uberNet, netH: H > 0 ? uberNet / H : 0, cashGross, cashTax, cashNet, salaryNet, rec, extra, income, left: income - rec - extra, setAside: gst + uberTax + cashTax };
+  }
+
+  // ---------- dates ----------
+  const MONTHS = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
+  const pad = (n) => String(n).padStart(2, '0');
+  const idOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const fromId = (id) => { const [y, m, d] = id.split('-').map(Number); return new Date(y, m - 1, d); };
+  function mondayOf(d) { const x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); const wd = (x.getDay() + 6) % 7; x.setDate(x.getDate() - wd); return x; }
+  function weekLabel(id) { const a = fromId(id), b = new Date(a); b.setDate(b.getDate() + 6);
+    return a.getMonth() === b.getMonth() ? `${a.getDate()}–${b.getDate()} ${MONTHS[a.getMonth()]}` : `${a.getDate()} ${MONTHS[a.getMonth()]} – ${b.getDate()} ${MONTHS[b.getMonth()]}`; }
+  function quarterOf(id) { const d = fromId(id); const m = d.getMonth(); const fy = m >= 6 ? d.getFullYear() + 1 : d.getFullYear();
+    const q = m >= 6 && m <= 8 ? 1 : m >= 9 ? 2 : m <= 2 ? 3 : 4; const names = { 1: 'Tem–Eyl', 2: 'Eki–Ara', 3: 'Oca–Mar', 4: 'Nis–Haz' };
+    return { key: fy + '-Q' + q, name: names[q] + ' ' + (q <= 2 ? d.getFullYear() : d.getFullYear()) }; }
+  const thisWeek = idOf(mondayOf(new Date()));
+  let cur = thisWeek;
+
+  // ---------- format ----------
+  const nf0 = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 });
+  const nf2 = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const usd = (v) => (v < -0.5 ? '−$' : '$') + nf0.format(Math.abs(Math.round(v)));
+  const usd2 = (v) => (v < 0 ? '−$' : '$') + nf2.format(Math.abs(v));
+  const parse = (v) => { const s = String(v).trim(); if (s === '') return ''; const n = parseFloat(s.replace(/[\s$]/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.')); return isFinite(n) ? n : ''; };
+  const fmtIn = (v) => (v === '' || v == null ? '' : nf0.format(v));
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // ---------- saving (one write at a time per doc, debounced) ----------
+  const queues = {};
+  function setStatus(t, err) { const s = $('status'); s.textContent = t; s.className = 'status' + (err ? ' err' : ''); }
+  const hasData = (w) => w && ((+w.uberEarn || 0) > 0 || (+w.uberHours || 0) > 0 || (+w.cashHours || 0) > 0 || (w.extras || []).length > 0 || (w.note || '') !== '');
+  const clone = (o) => JSON.parse(JSON.stringify(o));
+  function applySettings(v) { S = Object.assign(clone(DEF_SET), clone(v || {})); if (!Array.isArray(S.recurring)) S.recurring = []; }
+  function normWeek(w) { const v = clone(w || {}); if (!Array.isArray(v.extras)) v.extras = []; return v; }
+  let lsTimer = null;
+  function saveLocal() {
+    const weeks = {}; WEEKS.forEach((w, id) => { if (hasData(w)) weeks[id] = w; });
+    try { localStorage.setItem(LS_KEY, JSON.stringify({ settings: S, weeks })); setStatus('Telefona kaydedildi'); }
+    catch (e) { setStatus('Kaydedilemedi (telefon hafızası)', true); }
+  }
+  function scheduleSave(path, getBody) {
+    if (MODE === 'local') { clearTimeout(lsTimer); setStatus('Kaydediliyor…'); lsTimer = setTimeout(saveLocal, 400); return; }
+    if (!db) return;
+    const q = queues[path] || (queues[path] = { timer: null, busy: false, dirty: false });
+    q.getBody = getBody; clearTimeout(q.timer); setStatus('Kaydediliyor…');
+    q.timer = setTimeout(() => flush(path), 700);
+  }
+  async function flush(path) {
+    const q = queues[path]; if (q.busy) { q.dirty = true; return; }
+    q.busy = true; q.dirty = false;
+    try { await db.doc(path).set(q.getBody()); setStatus('Kaydedildi'); }
+    catch (e) { setStatus(e && e.code === 'quota_exceeded' ? 'Kayıt alanı doldu' : 'Kaydedilemedi, tekrar dene', true); }
+    q.busy = false; if (q.dirty) flush(path);
+  }
+  const saveSettings = () => scheduleSave('config/settings', () => JSON.parse(JSON.stringify(S)));
+  function curWeek() { if (!WEEKS.has(cur)) WEEKS.set(cur, { start: cur, uberEarn: '', uberHours: '', fuel: '', cashHours: '', extras: [], note: '' }); return WEEKS.get(cur); }
+  const saveWeek = (id) => scheduleSave('weeks/' + id, () => JSON.parse(JSON.stringify(WEEKS.get(id))));
+
+  // ---------- bindings ----------
+  const focused = (el) => document.activeElement === el;
+  function bindNum(el, get, set) {
+    el.addEventListener('input', () => { set(parse(el.value)); renderCalc(); });
+    el.addEventListener('blur', () => { el.value = fmtIn(get()); });
+  }
+  bindNum($('wEarn'), () => curWeek().uberEarn, (v) => { curWeek().uberEarn = v; saveWeek(cur); });
+  bindNum($('wHours'), () => curWeek().uberHours, (v) => { curWeek().uberHours = v; saveWeek(cur); });
+  bindNum($('wFuel'), () => curWeek().fuel, (v) => { curWeek().fuel = v; saveWeek(cur); });
+  bindNum($('wCashH'), () => curWeek().cashHours, (v) => { curWeek().cashHours = v; saveWeek(cur); });
+  $('wNote').addEventListener('input', () => { curWeek().note = $('wNote').value; saveWeek(cur); });
+  [['sSalary', 'salary'], ['sCashRate', 'cashRate'], ['sFixed', 'fixed'], ['sWeeks', 'weeksPerYear'], ['sFuel', 'fuelDefault']].forEach(([id, k]) =>
+    bindNum($(id), () => S[k], (v) => { S[k] = v === '' ? 0 : v; saveSettings(); }));
+  function seg(no, yes, key) {
+    $(no).addEventListener('click', () => { S[key] = false; saveSettings(); renderAll(); });
+    $(yes).addEventListener('click', () => { S[key] = true; saveSettings(); renderAll(); });
+  }
+  seg('sCashTaxNo', 'sCashTaxYes', 'cashTax'); seg('sCoverNo', 'sCoverYes', 'cover');
+
+  // editable lists (name + amount)
+  function drawList(box, arr, onChange, prefix) {
+    if (box.contains(document.activeElement)) return; // don't rebuild under the user's fingers
+    box.innerHTML = arr.length ? arr.map((x, i) => `<div class="row">
+      <input class="txt" id="${prefix}N${i}" value="${esc(x.name)}" aria-label="Gider adı">
+      <div class="money"><span>$</span><input id="${prefix}V${i}" inputmode="decimal" value="${fmtIn(x.amount)}" aria-label="Tutar"></div>
+      <button type="button" class="del" data-i="${i}" aria-label="Sil">×</button></div>`).join('') : '<p class="empty">Henüz gider yok.</p>';
+    arr.forEach((x, i) => {
+      $(prefix + 'N' + i).addEventListener('input', (e) => { x.name = e.target.value; onChange(); });
+      const v = $(prefix + 'V' + i);
+      v.addEventListener('input', () => { const n = parse(v.value); x.amount = n === '' ? 0 : n; onChange(); renderCalc(); });
+      v.addEventListener('blur', () => { v.value = fmtIn(x.amount); });
+    });
+    box.querySelectorAll('.del').forEach((b) => b.addEventListener('click', () => { arr.splice(+b.dataset.i, 1); onChange(); box.innerHTML = ''; drawList(box, arr, onChange, prefix); renderCalc(); }));
+  }
+  function addRow(box, arr, onChange, prefix, name) {
+    arr.push({ name, amount: 0 }); onChange(); box.innerHTML = ''; drawList(box, arr, onChange, prefix); renderCalc();
+    const n = $(prefix + 'N' + (arr.length - 1)); if (n) { n.focus(); n.select(); }
+  }
+  $('extraAdd').addEventListener('click', () => { const w = curWeek(); w.extras = w.extras || []; addRow($('extraList'), w.extras, () => saveWeek(cur), 'ex', 'Yeni harcama'); });
+  $('recAdd').addEventListener('click', () => addRow($('recList'), S.recurring, saveSettings, 'rc', 'Yeni gider'));
+
+  // tabs
+  const tabs = [['tabWeek', 'pWeek'], ['tabHist', 'pHist'], ['tabSet', 'pSet']];
+  function showTab(t) { tabs.forEach(([b, p]) => { $(b).setAttribute('aria-selected', String(b === t)); $(p).hidden = b !== t; }); }
+  tabs.forEach(([b]) => $(b).addEventListener('click', () => showTab(b)));
+
+  // week nav
+  function go(delta) { const d = fromId(cur); d.setDate(d.getDate() + 7 * delta); cur = idOf(d); renderAll(true); }
+  $('prevW').addEventListener('click', () => go(-1));
+  $('nextW').addEventListener('click', () => go(1));
+
+  // ---------- render ----------
+  function tile(k, v, u) { return `<div class="tile"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${u}</span></div>`; }
+  function renderInputs(force) {
+    const w = WEEKS.get(cur) || {};
+    [['wEarn', w.uberEarn], ['wHours', w.uberHours], ['wFuel', w.fuel], ['wCashH', w.cashHours]].forEach(([id, v]) => { if (force || !focused($(id))) $(id).value = fmtIn(v); });
+    if (force || !focused($('wNote'))) $('wNote').value = w.note || '';
+    $('wFuel').placeholder = nf0.format(S.fuelDefault);
+    [['sSalary', S.salary], ['sCashRate', S.cashRate], ['sFixed', S.fixed], ['sWeeks', S.weeksPerYear], ['sFuel', S.fuelDefault]].forEach(([id, v]) => { if (!focused($(id))) $(id).value = fmtIn(v); });
+    $('sCashTaxNo').setAttribute('aria-pressed', String(!S.cashTax)); $('sCashTaxYes').setAttribute('aria-pressed', String(!!S.cashTax));
+    $('sCoverNo').setAttribute('aria-pressed', String(!S.cover)); $('sCoverYes').setAttribute('aria-pressed', String(!!S.cover));
+    if (force) $('extraList').innerHTML = '';
+    drawList($('extraList'), (curWeek().extras = curWeek().extras || []), () => saveWeek(cur), 'ex');
+    drawList($('recList'), S.recurring, saveSettings, 'rc');
+  }
+  function renderCalc() {
+    const w = WEEKS.get(cur) || { extras: [] };
+    const c = weekCalc(w);
+    $('wkLbl').textContent = weekLabel(cur) + (cur === thisWeek ? ' · bu hafta' : '');
+    $('wkSub').textContent = WEEKS.has(cur) && (w.uberEarn !== '' || w.cashHours !== '' || (w.extras || []).length) ? 'Kayıtlı' : 'Henüz kayıt yok';
+    $('hLeft').textContent = usd(c.left); $('hLeft').className = 'v' + (c.left < 0 ? ' neg' : '');
+    $('hLeftSub').textContent = `Gelir ${usd(c.income)} − giderler ${usd(c.rec + c.extra)}`;
+    $('hTiles').innerHTML = tile('Maaş', usd(c.salaryNet), 'Net') +
+      tile('Uber', usd(c.uberNet), c.E > 0 ? `Brüt ${usd(c.E)} · ${usd2(c.netH)}/sa` : 'Girilmedi') +
+      tile('Cash iş', usd(c.cashNet), c.cashGross > 0 ? (S.cashTax ? 'Vergi düşülmüş' : 'Vergisiz') : 'Girilmedi') +
+      tile('Giderler', usd(c.rec + c.extra), c.extra > 0 ? `Sabit ${usd(c.rec)} + ekstra ${usd(c.extra)}` : 'Her hafta tekrarlayan');
+    $('wCashHint').textContent = `${usd2(S.cashRate)}/sa × saat = ${usd(c.cashGross)}`;
+    const rows = [['Maaş (net)', c.salaryNet]];
+    if (c.E > 0) rows.push(['Uber kazancı', c.E], ['GST (net)', -c.gst], ['Yakıt', -c.fuel], ['Sabit masraf payı', -c.fx], ['Uber vergisi (MLS dahil)', -c.uberTax]);
+    if (c.cashGross > 0) { rows.push(['Cash iş', c.cashGross]); if (c.cashTax > 0) rows.push(['Cash vergisi', -c.cashTax]); }
+    if (c.rec > 0) rows.push(['Tekrarlayan giderler', -c.rec]);
+    (w.extras || []).forEach((x) => { if (+x.amount) rows.push([x.name || 'Ekstra', -x.amount]); });
+    $('receipt').innerHTML = rows.map((r) => `<div><dt>${esc(r[0])}</dt><dd>${usd(r[1])}</dd></div>`).join('') + `<div class="tot"><dt>Elinde kalan</dt><dd>${usd(c.left)}</dd></div>`;
+    renderHist();
+  }
+  function renderHist() {
+    const ids = [...WEEKS.keys()].filter((id) => { const w = WEEKS.get(id); return (+w.uberEarn || 0) > 0 || (+w.cashHours || 0) > 0 || sum(w.extras) > 0; }).sort().reverse();
+    $('histEmpty').hidden = ids.length > 0; $('histTbl').hidden = ids.length === 0;
+    const cs = ids.map((id) => [id, weekCalc(WEEKS.get(id))]);
+    $('histBody').innerHTML = cs.map(([id, c]) => `<tr data-id="${id}" class="${id === cur ? 'cur' : ''}"><td>${weekLabel(id)}</td><td>${usd(c.E)}</td><td>${nf0.format(c.H)}</td><td>${c.H > 0 ? usd2(c.netH) : '–'}</td><td>${c.extra > 0 ? usd(c.extra) : '–'}</td><td class="${c.left < 0 ? 'neg' : ''}">${usd(c.left)}</td></tr>`).join('');
+    $('histBody').querySelectorAll('tr').forEach((tr) => tr.addEventListener('click', () => { cur = tr.dataset.id; showTab('tabWeek'); renderAll(true); }));
+    const uw = cs.filter(([, c]) => c.E > 0), n = uw.length;
+    const avg = (f) => n ? uw.reduce((a, [, c]) => a + f(c), 0) / n : 0;
+    const hrs = uw.reduce((a, [, c]) => a + c.H, 0);
+    const totalLeft = cs.reduce((a, [, c]) => a + c.left, 0);
+    $('avgTiles').innerHTML = tile('Uber brüt / hafta', usd(avg((c) => c.E)), n + ' hafta ortalaması') +
+      tile('Uber net / hafta', usd(avg((c) => c.uberNet)), hrs > 0 ? 'Saatte ' + usd2(uw.reduce((a, [, c]) => a + c.uberNet, 0) / hrs) : '–') +
+      tile('Kalan / hafta', usd(cs.length ? totalLeft / cs.length : 0), cs.length + ' kayıtlı hafta') +
+      tile('Toplam kalan', usd(totalLeft), 'Kayıtlı haftaların toplamı');
+    const q = quarterOf(cur);
+    const inQ = cs.filter(([id]) => quarterOf(id).key === q.key);
+    const qg = inQ.reduce((a, [, c]) => a + c.gst, 0), qt = inQ.reduce((a, [, c]) => a + c.uberTax + c.cashTax, 0);
+    $('qTitle').textContent = 'Kenara ayrılacak · ' + q.name;
+    $('qTiles').innerHTML = tile('GST (BAS)', usd(qg), "Çeyrek sonu BAS'ta ödenir") + tile('Gelir vergisi', usd(qt), 'Yıl sonu için biriktir') + tile('Toplam', usd(qg + qt), inQ.length + ' haftadan');
+  }
+  function renderAll(force) { renderInputs(force); renderCalc(); }
+
+  renderAll(true);
+  showTab('tabWeek');
+
+  // ---------- backup ----------
+  const bkMsg = (t) => { $('bkMsg').textContent = t; };
+  function backupObj() { const weeks = {}; WEEKS.forEach((w, id) => { if (hasData(w)) weeks[id] = w; }); return { app: 'haftalik-butce', version: 1, exportedAt: new Date().toISOString(), settings: S, weeks }; }
+  $('bkDown').addEventListener('click', async () => {
+    const name = 'butce-yedek-' + idOf(new Date()) + '.json';
+    const text = JSON.stringify(backupObj(), null, 2);
+    if (MODE === 'cloud') {
+      let dl = null;
+      try { dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null; } catch (e) { dl = null; }
+      if (!dl) { bkMsg('Bu görünümde dosya indirilemiyor. Claude uygulamasından ya da claude.ai\'den dene.'); return; }
+      try { await dl.save({ filename: name, data: text }); bkMsg('Yedek indirildi: ' + name); }
+      catch (e) { bkMsg(e && e.code === 'declined' ? 'İndirme iptal edildi.' : e && e.code === 'rate_limited' ? 'Açık bir indirme penceresi var, onu kapatıp tekrar dene.' : 'Yedek indirilemedi.'); }
+    } else {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = name;
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      bkMsg('Yedek indirildi: ' + name + ' (İndirilenler klasörü)');
+    }
+  });
+  let pending = null;
+  $('bkFile').addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0]; e.target.value = ''; if (!f) return;
+    try {
+      const o = JSON.parse(await f.text());
+      if (!o || o.app !== 'haftalik-butce' || typeof o.weeks !== 'object' || !o.settings) throw new Error('bad');
+      pending = o;
+      $('bkConfirmText').textContent = `Bu yedekte ${Object.keys(o.weeks).length} hafta ve ayarlar var (${String(o.exportedAt || '').slice(0, 10)}). Ayarlar ve aynı tarihli haftalar yedektekiyle değişir, diğer haftalar kalır.`;
+      $('bkConfirm').hidden = false;
+    } catch (_) { bkMsg('Bu dosya bir bütçe yedeği değil.'); }
+  });
+  $('bkNo').addEventListener('click', () => { pending = null; $('bkConfirm').hidden = true; });
+  $('bkYes').addEventListener('click', async () => {
+    const o = pending; pending = null; $('bkConfirm').hidden = true; if (!o) return;
+    const ids = Object.keys(o.weeks).filter((id) => /^\d{4}-\d{2}-\d{2}$/.test(id));
+    applySettings(o.settings); ids.forEach((id) => WEEKS.set(id, normWeek(o.weeks[id])));
+    renderAll(true);
+    if (MODE === 'local') { saveLocal(); bkMsg('Yedek yüklendi: ' + ids.length + ' hafta.'); return; }
+    if (!db) { bkMsg('Kayıt kapalı olduğu için yedek sadece ekranda gösteriliyor.'); return; }
+    setStatus('Yedek kaydediliyor…');
+    try {
+      await db.doc('config/settings').set(clone(S));
+      for (const id of ids) await db.doc('weeks/' + id).set(clone(WEEKS.get(id)));
+      setStatus('Kaydedildi'); bkMsg('Yedek yüklendi: ' + ids.length + ' hafta.');
+    } catch (e) { setStatus('Yedek kaydedilemedi', true); bkMsg('Yedeğin bir kısmı kaydedilemedi, tekrar dene.'); }
+  });
+
+  // ---------- data ----------
+  if (MODE === 'local') {
+    try {
+      const o = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+      if (o) { applySettings(o.settings); Object.entries(o.weeks || {}).forEach(([id, w]) => WEEKS.set(id, normWeek(w))); }
+      setStatus(o ? 'Telefonda kayıtlı' : 'Telefonda · henüz kayıt yok');
+    } catch (e) { setStatus('Kayıt okunamadı', true); }
+    renderAll(true);
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  } else (async () => {
+    let d = null;
+    try { d = window.claude && window.claude.use ? await window.claude.use('db') : null; } catch (e) { d = null; }
+    if (!d) { $('offline').hidden = false; setStatus('Kayıt kapalı', true); return; }
+    db = d; setStatus('Bağlandı');
+    db.doc('config/settings').onSnapshot((snap) => {
+      if (snap.exists) applySettings(snap.data());
+      settingsKnown = true; renderAll(false);
+    }, () => setStatus('Ayarlar okunamadı', true));
+    db.collection('weeks').onSnapshot((qs) => {
+      qs.docChanges().forEach((ch) => {
+        const id = ch.doc.id;
+        if (ch.type === 'removed') { WEEKS.delete(id); return; }
+        const q = queues['weeks/' + id];
+        if (q && (q.busy || q.timer) && ch.doc.metadata.hasPendingWrites) return;
+        WEEKS.set(id, normWeek(ch.doc.data()));
+      });
+      renderAll(false);
+    }, () => setStatus('Haftalar okunamadı', true));
+  })();
+})();
+</script>
+
+</body>
+</html>
