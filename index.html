@@ -1938,7 +1938,7 @@ async function sbFetch(path, opts, auth) {
   try { r = await fetch(SB_URL + path, { method: opts.method || 'GET', headers: h, body: opts.body != null ? JSON.stringify(opts.body) : undefined, cache: 'no-store' }); }
   catch (e) { const er = new Error('network'); er.network = true; throw er; }
   const txt = await r.text(); let j = null; try { j = txt ? JSON.parse(txt) : null; } catch (e) {}
-  if (!r.ok) { const er = new Error((j && (j.msg || j.message || j.error_description || j.error)) || 'HTTP ' + r.status); er.status = r.status; throw er; }
+  if (!r.ok) { const er = new Error((j && (j.msg || j.message || j.error_description || j.error)) || 'HTTP ' + r.status); er.status = r.status; er.code = j && (j.error_code || j.code); throw er; }
   return j;
 }
 function setSession(j) {
@@ -1953,8 +1953,25 @@ async function rest(method, path, body, headers) {
   try { return await sbFetch(path, { method, body, headers }, true); }
   catch (e) { if (e.status === 401 && SY.session) { await ensureFresh(true); return sbFetch(path, { method, body, headers }, true); } throw e; }
 }
-async function sendOtp(email) { return sbFetch('/auth/v1/otp', { method: 'POST', body: { email, create_user: true } }, false); }
-async function verifyOtp(email, token) { setSession(await sbFetch('/auth/v1/verify', { method: 'POST', body: { type: 'email', email, token } }, false)); }
+async function signInPassword(email, password) { setSession(await sbFetch('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password } }, false)); return true; }
+// returns true when signed in, false when the account needs email confirmation first
+async function signUpPassword(email, password) {
+  const j = await sbFetch('/auth/v1/signup', { method: 'POST', body: { email, password } }, false);
+  if (j && j.access_token) { setSession(j); return true; }
+  if (j && Array.isArray(j.identities) && !j.identities.length) { const e = new Error('User already registered'); e.code = 'user_already_exists'; e.status = 422; throw e; }
+  return false;
+}
+function authErrorMsg(e) {
+  const c = String(e.code || ''), m = String(e.message || '').toLowerCase();
+  if (e.network) return T('Bağlantı kurulamadı. İnternetini kontrol et.');
+  if (c === 'invalid_credentials' || /invalid login credentials/.test(m)) return T('E-posta ya da şifre yanlış.');
+  if (c === 'user_already_exists' || c === 'email_exists' || /already registered/.test(m)) return T('Bu e-postayla zaten bir hesap var. "Giriş yap"ı kullan.');
+  if (c === 'weak_password' || /password should/.test(m)) return T('Şifre çok zayıf. En az 8 karakter kullan; harf ve rakam karıştır.');
+  if (c === 'email_not_confirmed' || /not confirmed/.test(m)) return T("E-posta adresin henüz onaylanmamış. Gelen e-postadaki bağlantıya tıkla ya da Supabase'te e-posta onayını kapat.");
+  if (e.status === 429 || /rate limit/.test(m)) return T('Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.');
+  if (c === 'signup_disabled') return T("Supabase'te yeni hesap açma kapalı.");
+  return T('Giriş yapılamadı: {x}', { x: e.message });
+}
 
 // ---------- status ----------
 U.sync = { state: SY.session ? (navigator.onLine === false ? 'offline' : 'ok') : 'off', msg: '' };
@@ -2060,16 +2077,13 @@ const fmtDT = (t) => (t ? new Intl.DateTimeFormat(LOC, { day: 'numeric', month: 
 function vAccount() {
   const s = SY.session, st = U.sync.state;
   if (!s) {
-    const sent = U.otp && U.otp.sent;
+    const A = U.auth || {};
     return `<div class="card stack">${head('cloud', T('Hesap ve senkron'))}
-      <p class="note" style="margin:0">${T('Verilerini telefonun ve bilgisayarın arasında eşitlemek için e-postanla giriş yap. Şifre yok; e-postana 6 haneli bir kod gelir.')}</p>
-      ${sent ? `<p style="margin:0">${esc(T('{e} adresine 6 haneli kod gönderildi.', { e: U.otp.email }))}</p>
-        <div class="field"><label for="syCode">${T('Kod')}</label><input class="txt" id="syCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="123456" style="font-size:1.3rem;letter-spacing:0.2em"></div>
-        <button type="button" class="btn" data-act="syVerify" id="syVerify" ${U.otp.busy ? 'disabled' : ''}>${ico('check')}${T('Giriş yap')}</button>
-        <div class="btns"><button type="button" class="link" data-act="sySend" data-again="1">${T('Kodu tekrar gönder')}</button><button type="button" class="link" data-act="syReset">${T('E-postayı değiştir')}</button></div>`
-      : `<div class="field"><label for="syEmail">${T('E-posta')}</label><input class="txt" id="syEmail" type="email" inputmode="email" autocomplete="email" value="${esc((U.otp && U.otp.email) || SY.lastEmail || '')}" placeholder="ad@ornek.com"></div>
-        <button type="button" class="btn" data-act="sySend" id="sySend" ${U.otp && U.otp.busy ? 'disabled' : ''}>${ico('upload')}${U.otp && U.otp.busy ? T('Kod gönderiliyor…') : T('Kod gönder')}</button>`}
-      ${U.otp && U.otp.msg ? `<div class="status-msg ${U.otp.err ? 'err' : ''}" id="syMsg">${esc(U.otp.msg)}</div>` : ''}</div>
+      <p class="note" style="margin:0">${T('Verilerini telefonun ve bilgisayarın arasında eşitlemek için e-posta ve şifreyle giriş yap. İlk kez kullanıyorsan "Hesap oluştur"a dokun.')}</p>
+      <div class="field"><label for="syEmail">${T('E-posta')}</label><input class="txt" id="syEmail" type="email" inputmode="email" autocomplete="email" value="${esc(A.email || SY.lastEmail || '')}" placeholder="ad@ornek.com"></div>
+      <div class="field"><label for="syPass">${T('Şifre')}</label><div class="row"><input class="txt" id="syPass" type="${A.show ? 'text' : 'password'}" autocomplete="current-password" minlength="8" placeholder="${T('En az 8 karakter')}"><button type="button" class="del" data-act="syShow" id="syShow" aria-pressed="${!!A.show}" aria-label="${A.show ? T('Şifreyi gizle') : T('Şifreyi göster')}">${ico(A.show ? 'eyeoff' : 'eye')}</button></div></div>
+      <div class="btns"><button type="button" class="btn" data-act="syLogin" id="syLogin" ${A.busy ? 'disabled' : ''}>${ico('check')}${A.busy === 'login' ? T('Giriş yapılıyor…') : T('Giriş yap')}</button><button type="button" class="btn ghost" data-act="sySignup" id="sySignup" ${A.busy ? 'disabled' : ''}>${A.busy === 'signup' ? T('Hesap oluşturuluyor…') : T('Hesap oluştur')}</button></div>
+      ${A.msg ? `<div class="status-msg ${A.err ? 'err' : ''}" id="syMsg">${esc(A.msg)}</div>` : ''}</div>
       <p class="note" style="margin:0 4px">${T('Giriş yapmazsan uygulama sadece bu cihazda çalışmaya devam eder.')}</p>`;
   }
   const devs = U.devices;
@@ -2520,20 +2534,18 @@ document.addEventListener('click', (e) => {
     case 'delDaily': { const inSheet = U.sheet && U.sheet.kind === 'daily'; deleteDaily(id); if (inSheet) closeOverlay(); break; }
     case 'undo': undoDelete(); break;
     // account & sync
-    case 'sySend': {
-      const email = (b.dataset.again ? (U.otp && U.otp.email) || '' : val('syEmail')).trim().toLowerCase();
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { U.otp = { email, msg: T('Geçerli bir e-posta adresi gir.'), err: true }; renderPage(); break; }
-      U.otp = { email, busy: true, sent: !!b.dataset.again }; renderPage();
-      sendOtp(email).then(() => { U.otp = { email, sent: true }; SY.lastEmail = email; saveSync(); renderPage(); const c = $('syCode'); if (c) c.focus(); })
-        .catch((err) => { U.otp = { email, sent: !!b.dataset.again, err: true, msg: err.network ? T('Bağlantı kurulamadı. İnternetini kontrol et.') : T('Kod gönderilemedi: {x}', { x: err.message }) }; renderPage(); });
-      break;
-    }
-    case 'syReset': U.otp = { email: U.otp ? U.otp.email : '' }; renderPage(); break;
-    case 'syVerify': {
-      const code = val('syCode').replace(/\D/g, ''); if (code.length < 6) { U.otp.msg = T('E-postana gelen 6 haneli kodu gir.'); U.otp.err = true; renderPage(); break; }
-      U.otp.busy = true; renderPage();
-      verifyOtp(U.otp.email, code).then(() => { U.otp = null; toast(T('Giriş yapıldı')); setSyncState('syncing'); renderPage(); syncAll().then(loadDevices); })
-        .catch((err) => { U.otp.busy = false; U.otp.err = true; U.otp.msg = err.network ? T('Bağlantı kurulamadı. İnternetini kontrol et.') : T('Kod hatalı ya da süresi dolmuş.'); renderPage(); });
+    case 'syShow': { const keep = [val('syEmail'), val('syPass')]; U.auth = Object.assign({}, U.auth, { show: !(U.auth && U.auth.show), email: keep[0], msg: U.auth && U.auth.msg, err: U.auth && U.auth.err }); renderPage(); $('syPass').value = keep[1]; $('syPass').focus(); break; }
+    case 'syLogin': case 'sySignup': {
+      const email = val('syEmail').trim().toLowerCase(), pass = val('syPass'), show = !!(U.auth && U.auth.show), mode = a === 'syLogin' ? 'login' : 'signup';
+      const fail = (msg) => { U.auth = { email, show, msg, err: true }; renderPage(); $('syPass').value = pass; };
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { fail(T('Geçerli bir e-posta adresi gir.')); break; }
+      if (pass.length < 8) { fail(T('Şifre en az 8 karakter olmalı.')); break; }
+      U.auth = { email, show, busy: mode }; renderPage(); $('syPass').value = pass;
+      SY.lastEmail = email; saveSync();
+      (mode === 'login' ? signInPassword(email, pass) : signUpPassword(email, pass)).then((ok) => {
+        if (!ok) { U.auth = { email, show, msg: T("Hesabın oluşturuldu. Supabase'te e-posta onayı açık; onayı kapat ya da gelen e-postadaki bağlantıya tıkla, sonra giriş yap.") }; renderPage(); return; }
+        U.auth = null; toast(T(mode === 'login' ? 'Giriş yapıldı' : 'Hesabın oluşturuldu, giriş yapıldı')); setSyncState('syncing'); renderPage(); syncAll().then(loadDevices);
+      }).catch((err) => fail(authErrorMsg(err)));
       break;
     }
     case 'sySync': syncAll().then(loadDevices); break;
@@ -3016,9 +3028,7 @@ const EN = {
   'Senkron durumu: {x}': 'Sync status: {x}', 'Hangi verilerin kullanılacağını seçmen gerekiyor.': 'Choose which data to keep to finish syncing.',
   'Oturum süresi doldu, yeniden giriş yap.': 'Your session expired. Please sign in again.', 'Senkron hatası: {x}': 'Sync error: {x}',
   'Çıkış yapıldı. Bu cihazdaki verilerin duruyor.': 'Signed out. Your data on this device is still here.', 'Hesap ve senkron': 'Account & sync',
-  'Verilerini telefonun ve bilgisayarın arasında eşitlemek için e-postanla giriş yap. Şifre yok; e-postana 6 haneli bir kod gelir.': "Sign in with your email to sync between your phone and computer. No password: we'll email you a 6-digit code.",
-  '{e} adresine 6 haneli kod gönderildi.': 'We sent a 6-digit code to {e}.', 'Kod': 'Code', 'Giriş yap': 'Sign in', 'Kodu tekrar gönder': 'Resend code', 'E-postayı değiştir': 'Change email',
-  'E-posta': 'Email', 'Kod gönderiliyor…': 'Sending code…', 'Kod gönder': 'Send code', 'Giriş yapmazsan uygulama sadece bu cihazda çalışmaya devam eder.': "If you don't sign in, the app keeps working on this device only.",
+  'Giriş yap': 'Sign in', 'E-posta': 'Email', 'Giriş yapmazsan uygulama sadece bu cihazda çalışmaya devam eder.': "If you don't sign in, the app keeps working on this device only.",
   'Giriş yapıldı': 'Signed in', 'Son eşitleme': 'Last sync', 'Henüz eşitlenmedi': 'Not synced yet', 'Şimdi eşitle': 'Sync now', 'Çıkış yap': 'Sign out',
   "Veriler bu cihazda kalır ve Supabase'deki hesabına da kaydedilir; sadece sen görebilirsin. Çıkış yapınca bu cihazdaki veriler silinmez.": "Your data stays on this device and is also saved to your Supabase account, where only you can see it. Signing out doesn't delete data on this device.",
   'Cihazlar': 'Devices', 'Bu cihazın adı': 'This device name', 'bu cihaz': 'this device', 'Son görülme: {t}': 'Last seen {t}', 'Cihazı kaldır': 'Remove device',
@@ -3032,8 +3042,18 @@ const EN = {
   'Her gün': 'Every day', 'Alışkanlık hatırlatması': 'Habit reminder', 'Haftalık giriş': 'Weekly entry', 'Her pazar: Uber kazancı ve harcamalar': 'Every Sunday: Uber earnings and spending',
   'BAS hatırlatması': 'BAS reminder', 'BAS son gününden 14 ve 3 gün önce': '14 and 3 days before each BAS due date', 'Giriş yapılmadı': 'Not signed in',
   '{n} hatırlatma açık': pl('{n} reminder on', '{n} reminders on'), 'Android uygulamasında': 'In the Android app', 'Geçerli bir e-posta adresi gir.': 'Enter a valid email address.',
-  'Bağlantı kurulamadı. İnternetini kontrol et.': "Couldn't connect. Check your internet.", 'Kod gönderilemedi: {x}': "Couldn't send the code: {x}", 'E-postana gelen 6 haneli kodu gir.': 'Enter the 6-digit code from your email.',
-  'Kod hatalı ya da süresi dolmuş.': 'That code is wrong or has expired.', 'Cihaz kaldırılamadı.': "Couldn't remove the device.", 'Bildirimler': 'Notifications'
+  'Bağlantı kurulamadı. İnternetini kontrol et.': "Couldn't connect. Check your internet.", 'Cihaz kaldırılamadı.': "Couldn't remove the device.", 'Bildirimler': 'Notifications',
+  // round 5: password sign-in
+  'Verilerini telefonun ve bilgisayarın arasında eşitlemek için e-posta ve şifreyle giriş yap. İlk kez kullanıyorsan "Hesap oluştur"a dokun.': 'Sign in with email and password to sync between your phone and computer. First time? Tap "Create account".',
+  'Şifre': 'Password', 'En az 8 karakter': 'At least 8 characters', 'Şifreyi göster': 'Show password', 'Şifreyi gizle': 'Hide password', 'Giriş yapılıyor…': 'Signing in…',
+  'Hesap oluştur': 'Create account', 'Hesap oluşturuluyor…': 'Creating account…', 'Şifre en az 8 karakter olmalı.': 'Password must be at least 8 characters.',
+  "Hesabın oluşturuldu. Supabase'te e-posta onayı açık; onayı kapat ya da gelen e-postadaki bağlantıya tıkla, sonra giriş yap.": 'Your account was created. Email confirmation is on in Supabase: turn it off or click the link in the email you receive, then sign in.',
+  'Hesabın oluşturuldu, giriş yapıldı': 'Account created and signed in', 'E-posta ya da şifre yanlış.': 'Wrong email or password.',
+  'Bu e-postayla zaten bir hesap var. "Giriş yap"ı kullan.': 'An account with this email already exists. Use "Sign in".',
+  'Şifre çok zayıf. En az 8 karakter kullan; harf ve rakam karıştır.': 'That password is too weak. Use at least 8 characters with letters and numbers.',
+  "E-posta adresin henüz onaylanmamış. Gelen e-postadaki bağlantıya tıkla ya da Supabase'te e-posta onayını kapat.": "Your email isn't confirmed yet. Click the link in the email or turn off email confirmation in Supabase.",
+  'Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.': 'Too many attempts. Try again in a few minutes.', "Supabase'te yeni hesap açma kapalı.": 'New sign-ups are disabled in Supabase.',
+  'Giriş yapılamadı: {x}': "Couldn't sign in: {x}"
 };
 
 // ===================== init =====================
