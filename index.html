@@ -2185,14 +2185,19 @@ function taxQuarter(key) {
   const profit = (gross - gross / 11) - (fees - fees / 11) - exEx;
   return { key, qi, E, nWeeks: weeks.length, ex, exTotal, exact, gross, fees, g1A, g1B, credit, gst: g1A - g1B, exEx, profit };
 }
-// income tax share: FY-to-date Uber profit (Q1..this quarter) annualised, taxed on top of salary with the budget engine,
-// the effective extra rate is then applied to this quarter's profit.
+// income tax share: average weekly Uber profit over the weeks driven so far this FY (Q1..this quarter) x weeks per year
+// = estimated annual Uber profit, taxed on top of salary. Income tax + Medicare and the MLS are split so the MLS,
+// which applies to the whole income once over the threshold, is spread over the whole year's Uber profit.
 function taxShare(key) {
-  const { fy, q } = qParts(key); let P = 0; for (let i = 1; i <= q; i++) P += taxQuarter(fy + '-Q' + i).profit;
-  const A = P * 4 / q, tq = taxQuarter(key);
-  if (A <= 0 || tq.profit <= 0) return { A, rate: 0, tax: 0 };
-  const rate = (ttax(S.salary + A, S.cover) - ttax(S.salary, S.cover)) / A;
-  return { A, rate, tax: rate * tq.profit };
+  const { fy, q } = qParts(key); let P = 0, n = 0;
+  for (let i = 1; i <= q; i++) { const x = taxQuarter(fy + '-Q' + i); P += x.profit; n += x.nWeeks; }
+  const tq = taxQuarter(key), N = Math.max(1, +S.weeksPerYear || 48);
+  const A = n > 0 ? P / n * N : P;
+  if (A <= 0 || tq.profit <= 0) return { A, rate: 0, tax: 0, incTax: 0, mlsTax: 0, mlsRate: 0 };
+  const inc = (itax(S.salary + A) + 0.02 * (S.salary + A)) - (itax(S.salary) + 0.02 * S.salary);
+  const m = mls(S.salary + A, S.cover) - mls(S.salary, S.cover);
+  const incTax = inc / A * tq.profit, mlsTax = m / A * tq.profit;
+  return { A, rate: (inc + m) / A, tax: incTax + mlsTax, incTax, mlsTax, mlsRate: mls(S.salary + A, false) / (S.salary + A) };
 }
 function taxFull(key) {
   const tq = taxQuarter(key), ts = taxShare(key);
@@ -2227,8 +2232,10 @@ function paraTax() {
     ${f.exact ? row('taxFees', T('Uber ücretleri (GST hariç)'), '−' + usd2(f.fees - f.fees / 11)) : ''}
     ${row('taxExp', T('Giderler (GST hariç, iş payı)'), '−' + usd2(f.exEx))}
     ${row('taxProfit', T('Uber kârı'), usd2(f.profit))}
-    ${row('taxShare', T('Gelir vergisi payı'), usd2(f.tax))}
+    ${row('taxShare', T('Gelir vergisi + Medicare'), usd2(f.incTax))}
+    ${f.mlsTax > 0.005 ? row('taxMls', T('MLS (hastane sigortası yok)'), usd2(f.mlsTax)) : ''}
     <div class="tot"><dt>${T('Kenara ayrılması gereken')}</dt><dd>${usd2(f.need)}</dd></div></dl>
+    ${f.mlsTax > 0.005 ? `<p class="note">${T('Toplam gelirin {t} eşiğini geçtiği için tüm gelirine %{r} Medicare Levy Surcharge eklenir (yılda yaklaşık {y}). Özel hastane sigortan varsa Ayarlar → Para’da “Var” seç, bu satır kalkar.', { t: '$105.000', r: String(+(f.mlsRate * 100).toFixed(2)).replace('.', LOC === 'tr-TR' ? ',' : '.'), y: usd(mls(S.salary + f.A, false)) })}</p>` : ''}
     <p class="note">${f.exact ? T('1A, girdiğin yolcu ücretlerinin 1/11’i. Uber ücretlerinin GST’si 1B’ye eklendi.') : T('1A, Uber kazancının 1/11’i olarak tahmin edildi. Uber’in vergi özetindeki rakamları girersen kesin hesap yapılır.')} ${f.gst < 0 ? T('GST eksi çıktı: bu çeyrekte iade alırsın.') : ''}</p>
     <details class="fold" ${f.exact ? 'open' : ''}><summary>${T('Uber vergi özetinden kesin rakam gir')}</summary><div class="fields">
       <div class="field"><label for="tsGross">${T('Toplam yolcu ücretleri (GST dahil)')}</label><div class="money"><span>$</span><input id="tsGross" data-tsum="grossFares" inputmode="decimal" value="${fmtIn2(sm.grossFares)}"></div></div>
@@ -2240,7 +2247,7 @@ function paraTax() {
     ${f.ex.length ? `<div class="list">${expList}</div><p class="note">${T('Bu çeyrekte toplam {x}. Araç giderlerinde iş payı, ayarlardaki logbook yüzdesinden gelir.', { x: usd2(f.exTotal) })}</p>`
       : empty('receipt', T('Bu çeyrekte gider yok'), T('Yakıt, servis, lastik, telefon gibi Uber giderlerini fişleriyle kaydet. GST kredisi ve kâr hesabı bunlardan çıkar.'), `<button type="button" class="btn sm" data-act="newUexp">${ico('plus')}${T('Gider ekle')}</button>`)}</div>
   <div class="card">${head('cal', T('{fy} mali yılı (şu ana kadar)', { fy: fyName(fy) }))}<div class="tiles" id="taxFy">${tile(T('Uber kazancı'), usd(fE), qi.q === 1 ? 'Q1' : T('Q1–Q{n}', { n: qi.q }))}${tile(T('Ödenecek GST'), usd(fG), 'BAS')}${tile(T('Gelir vergisi payı'), usd(fT), T('Yıl sonu için'))}${tile(T('Ayrılacak / ayrılan'), usd(fG + fT) + ' / ' + usd(fS), T('Toplam'))}</div>
-    <p class="note">${T('Gelir vergisi payı: mali yılın bu çeyreğe kadarki Uber kârı yıllığa çevrilir, maaşının üstüne eklenince çıkan ek vergi (Medicare %2 ve MLS dahil) oranıyla bu çeyreğin kârı çarpılır.')} ${T("Tahmindir; kesin rakamlar için Uber'in vergi özetini kullan.")}</p></div>`;
+    <p class="note">${T('Gelir vergisi payı: bu mali yılda Uber yaptığın haftaların ortalama kârı, yılda kaç hafta Uber yaptığınla çarpılıp yıllık kâr tahmin edilir. Bu kâr maaşının üstüne eklenince çıkan ek vergi (Medicare %2 ve MLS dahil) oranıyla bu çeyreğin kârı çarpılır.')} ${T("Tahmindir; kesin rakamlar için Uber'in vergi özetini kullan.")}</p></div>`;
 }
 const fmtIn2 = (v) => (v === '' || v == null ? '' : nf2.format(v));
 function uexpSheet(sh) {
@@ -2950,7 +2957,9 @@ const EN = {
   'BAS son günü: {d}': 'BAS due {d}', '{n} gün kaldı': pl('{n} day left', '{n} days left'), '{n} gün geçti': pl('{n} day overdue', '{n} days overdue'), 'Çeyrek dökümü': 'Quarter breakdown',
   'Uber vergi özeti': 'Uber tax summary', 'Tahmin': 'Estimate', 'Yolcu ücretleri (GST dahil)': 'Rider fares (incl. GST)', 'Uber kazancı ({n} hafta)': pl('Uber earnings ({n} week)', 'Uber earnings ({n} weeks)'),
   'Satışlardaki GST (1A)': 'GST on sales (1A)', 'GST kredileri (1B)': 'GST credits (1B)', 'Ödenecek GST': 'GST payable', 'Uber ücretleri (GST hariç)': 'Uber fees (excl. GST)',
-  'Giderler (GST hariç, iş payı)': 'Expenses (excl. GST, work share)', 'Uber kârı': 'Uber profit', 'Gelir vergisi payı': 'Income tax share',
+  'Giderler (GST hariç, iş payı)': 'Expenses (excl. GST, work share)', 'Uber kârı': 'Uber profit', 'Gelir vergisi payı': 'Income tax share', 'Gelir vergisi + Medicare': 'Income tax + Medicare', 'MLS (hastane sigortası yok)': 'MLS (no hospital cover)',
+  'Toplam gelirin {t} eşiğini geçtiği için tüm gelirine %{r} Medicare Levy Surcharge eklenir (yılda yaklaşık {y}). Özel hastane sigortan varsa Ayarlar → Para’da “Var” seç, bu satır kalkar.': 'Your total income goes over {t}, so a {r}% Medicare Levy Surcharge applies to all of it (about {y} a year). If you have private hospital cover, choose “Yes” in Settings → Money and this line goes away.',
+  'Gelir vergisi payı: bu mali yılda Uber yaptığın haftaların ortalama kârı, yılda kaç hafta Uber yaptığınla çarpılıp yıllık kâr tahmin edilir. Bu kâr maaşının üstüne eklenince çıkan ek vergi (Medicare %2 ve MLS dahil) oranıyla bu çeyreğin kârı çarpılır.': "Income tax share: your average weekly Uber profit this financial year is multiplied by the weeks you drive per year to estimate annual profit. That is added on top of your salary, and the extra tax rate it creates (incl. the 2% Medicare levy and MLS) is applied to this quarter's profit.",
   '1A, girdiğin yolcu ücretlerinin 1/11’i. Uber ücretlerinin GST’si 1B’ye eklendi.': '1A is 1/11 of the rider fares you entered. The GST on Uber fees is added to 1B.',
   '1A, Uber kazancının 1/11’i olarak tahmin edildi. Uber’in vergi özetindeki rakamları girersen kesin hesap yapılır.': "1A is estimated as 1/11 of your Uber earnings. Enter the figures from Uber's tax summary for an exact result.",
   'GST eksi çıktı: bu çeyrekte iade alırsın.': "GST is negative: you'll get a refund this quarter.", 'Uber vergi özetinden kesin rakam gir': "Enter exact figures from Uber's tax summary",
