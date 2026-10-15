@@ -17,24 +17,25 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-/* Momentum: warm paper base, one card shape, each area owns one accent (Para maroon, Gelişim eucalyptus, Sağlık slate, Yatırım navy); gold is reserved for milestones. */
+/* Momentum: warm paper base, one card shape, each area owns one accent (Para bordo, Gelişim eucalyptus, Sağlık slate, Yatırım navy); gold is reserved for milestones.
+   Bordo stays bordo in both themes: dark mode fills with deep wine + light text, and uses a desaturated claret for text/lines (never pink). */
 :root {
   --bg: #f6f3ee; --surface: #fffdfa; --surface-2: #f1ece5; --surface-3: #e9e2d8;
-  --ink: #1f1b17; --ink-2: #554d45; --ink-3: #6f665d; --line: #e6dfd5; --line-strong: #d1c7b9;
-  --bug: #2b2520; --bug-ink: #fffdfa; --bug-soft: #ebe5dc; --bug-text: #2b2520;
-  --para: #7b1e3c; --para-ink: #ffffff; --para-soft: #f5e3e9; --para-text: #7b1e3c;
-  --gel: #2f6b55; --gel-ink: #ffffff; --gel-soft: #e0ede6; --gel-text: #285c49;
-  --sag: #3b5b8c; --sag-ink: #ffffff; --sag-soft: #e3e9f3; --sag-text: #34517d;
-  --yat: #1f2a44; --yat-ink: #ffffff; --yat-soft: #e2e5ee; --yat-text: #1f2a44;
-  --gold: #9c6b0c; --gold-soft: #f6ead0; --gold-line: #d9b45c;
-  --gain: #3a7448; --gain-soft: #e3efe4; --loss: #a5463c; --loss-soft: #f6e2df;
+  --ink: #1f1b17; --ink-2: #554d45; --ink-3: #6b625a; --line: #e6dfd5; --line-strong: #d1c7b9;
+  --bug: #2b2520; --bug-ink: #fffdfa; --bug-soft: #ebe5dc; --bug-text: #2b2520; --bug-line: #2b2520;
+  --para: #7b1e3c; --para-ink: #fff8f4; --para-soft: #efe3dc; --para-text: #7b1e3c; --para-line: #7b1e3c;
+  --gel: #2b6a5a; --gel-ink: #ffffff; --gel-soft: #dfece7; --gel-text: #245a4d; --gel-line: #2b6a5a;
+  --sag: #3b5b8c; --sag-ink: #ffffff; --sag-soft: #e3e9f2; --sag-text: #34517d; --sag-line: #3b5b8c;
+  --yat: #1f2a44; --yat-ink: #ffffff; --yat-soft: #e2e5ee; --yat-text: #1f2a44; --yat-line: #1f2a44;
+  --gold: #885d0a; --gold-soft: #f6ead0; --gold-line: #d4ab4f;
+  --gain: #3c7334; --gain-soft: #e4efdc; --loss: #b0402a; --loss-ink: #ffffff; --loss-soft: #f8e4da;
   --warn: #94500a; --warn-soft: #f9ecd9;
-  --hero-para: #721b38; --hero-para-tile: #86304f; --hero-para-line: #8f3a58;
+  --hero-para: #6b1832; --hero-para-tile: #7e2640; --hero-para-line: #8b3149;
   --hero-yat: #1f2a44; --hero-yat-tile: #2c3a5c; --hero-yat-line: #34446a;
-  --hero-ink: #ffffff; --hero-ink-2: #e9dfe3; --hero-warn: #ffcf8f; --hero-gain: #a6e3b4; --hero-loss: #ffb7ab;
+  --hero-ink: #ffffff; --hero-ink-2: #ece1da; --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
   --tabbar: rgba(255, 253, 250, 0.94); --scrim: rgba(24, 18, 14, 0.42);
   --card-shadow: 0 1px 2px rgba(50, 35, 20, 0.05), 0 8px 22px -16px rgba(50, 35, 20, 0.22);
-  --hero-shadow: 0 14px 30px -18px rgba(60, 30, 20, 0.6);
+  --hero-shadow: 0 14px 30px -18px rgba(60, 20, 25, 0.6);
   --f-display: "Bricolage Grotesque", "Segoe UI", Roboto, system-ui, sans-serif;
   --f-body: "Figtree", "Segoe UI", Roboto, system-ui, sans-serif;
 }
@@ -42,17 +43,17 @@
   :root:not([data-theme="light"]) {
     --bg: #14110f; --surface: #1e1a17; --surface-2: #28231f; --surface-3: #332c27;
     --ink: #f3eee8; --ink-2: #cdc3b8; --ink-3: #a3988d; --line: #332c27; --line-strong: #4a4039;
-    --bug: #ece5dc; --bug-ink: #14110f; --bug-soft: #312a25; --bug-text: #ece5dc;
-    --para: #e98aa9; --para-ink: #2a0c18; --para-soft: #3e2029; --para-text: #f0a3bc;
-    --gel: #74c3a1; --gel-ink: #0d1a14; --gel-soft: #1c3a2e; --gel-text: #8fd3b5;
-    --sag: #8fb0e3; --sag-ink: #0f1726; --sag-soft: #1f2b40; --sag-text: #a9c3ec;
-    --yat: #a4b4da; --yat-ink: #10141f; --yat-soft: #252c3d; --yat-text: #bac7e6;
+    --bug: #ece5dc; --bug-ink: #14110f; --bug-soft: #312a25; --bug-text: #ece5dc; --bug-line: #ece5dc;
+    --para: #7b1e3c; --para-ink: #f8ece6; --para-soft: #3a1a20; --para-text: #d0867c; --para-line: #c47a70;
+    --gel: #6fc2ad; --gel-ink: #0c1a16; --gel-soft: #18362f; --gel-text: #8dd2c0; --gel-line: #6fc2ad;
+    --sag: #8fb0e3; --sag-ink: #0f1726; --sag-soft: #1f2b40; --sag-text: #a9c3ec; --sag-line: #8fb0e3;
+    --yat: #a4b4da; --yat-ink: #10141f; --yat-soft: #252c3d; --yat-text: #bac7e6; --yat-line: #a4b4da;
     --gold: #e4b552; --gold-soft: #3a2f17; --gold-line: #a07d2c;
-    --gain: #86c99a; --gain-soft: #1f3326; --loss: #ee968a; --loss-soft: #3d2420;
+    --gain: #9fcf82; --gain-soft: #22331b; --loss: #ff8a66; --loss-ink: #2a0f08; --loss-soft: #3d221a;
     --warn: #f2b54a; --warn-soft: #3a2c12;
-    --hero-para: #5c1731; --hero-para-tile: #73243f; --hero-para-line: #7f304d;
+    --hero-para: #5a1428; --hero-para-tile: #6e1e35; --hero-para-line: #7b2a42;
     --hero-yat: #1a2236; --hero-yat-tile: #263150; --hero-yat-line: #303d60;
-    --hero-ink: #ffffff; --hero-ink-2: #ddd3d8; --hero-warn: #ffcf8f; --hero-gain: #a6e3b4; --hero-loss: #ffb7ab;
+    --hero-ink: #ffffff; --hero-ink-2: #e3d6cf; --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
     --tabbar: rgba(30, 26, 23, 0.95); --scrim: rgba(0, 0, 0, 0.6);
     --card-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 22px -16px rgba(0, 0, 0, 0.7);
     --hero-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.8);
@@ -62,17 +63,17 @@
 :root[data-theme="dark"] {
   --bg: #14110f; --surface: #1e1a17; --surface-2: #28231f; --surface-3: #332c27;
   --ink: #f3eee8; --ink-2: #cdc3b8; --ink-3: #a3988d; --line: #332c27; --line-strong: #4a4039;
-  --bug: #ece5dc; --bug-ink: #14110f; --bug-soft: #312a25; --bug-text: #ece5dc;
-  --para: #e98aa9; --para-ink: #2a0c18; --para-soft: #3e2029; --para-text: #f0a3bc;
-  --gel: #74c3a1; --gel-ink: #0d1a14; --gel-soft: #1c3a2e; --gel-text: #8fd3b5;
-  --sag: #8fb0e3; --sag-ink: #0f1726; --sag-soft: #1f2b40; --sag-text: #a9c3ec;
-  --yat: #a4b4da; --yat-ink: #10141f; --yat-soft: #252c3d; --yat-text: #bac7e6;
+  --bug: #ece5dc; --bug-ink: #14110f; --bug-soft: #312a25; --bug-text: #ece5dc; --bug-line: #ece5dc;
+  --para: #7b1e3c; --para-ink: #f8ece6; --para-soft: #3a1a20; --para-text: #d0867c; --para-line: #c47a70;
+  --gel: #6fc2ad; --gel-ink: #0c1a16; --gel-soft: #18362f; --gel-text: #8dd2c0; --gel-line: #6fc2ad;
+  --sag: #8fb0e3; --sag-ink: #0f1726; --sag-soft: #1f2b40; --sag-text: #a9c3ec; --sag-line: #8fb0e3;
+  --yat: #a4b4da; --yat-ink: #10141f; --yat-soft: #252c3d; --yat-text: #bac7e6; --yat-line: #a4b4da;
   --gold: #e4b552; --gold-soft: #3a2f17; --gold-line: #a07d2c;
-  --gain: #86c99a; --gain-soft: #1f3326; --loss: #ee968a; --loss-soft: #3d2420;
+  --gain: #9fcf82; --gain-soft: #22331b; --loss: #ff8a66; --loss-ink: #2a0f08; --loss-soft: #3d221a;
   --warn: #f2b54a; --warn-soft: #3a2c12;
-  --hero-para: #5c1731; --hero-para-tile: #73243f; --hero-para-line: #7f304d;
+  --hero-para: #5a1428; --hero-para-tile: #6e1e35; --hero-para-line: #7b2a42;
   --hero-yat: #1a2236; --hero-yat-tile: #263150; --hero-yat-line: #303d60;
-  --hero-ink: #ffffff; --hero-ink-2: #ddd3d8; --hero-warn: #ffcf8f; --hero-gain: #a6e3b4; --hero-loss: #ffb7ab;
+  --hero-ink: #ffffff; --hero-ink-2: #e3d6cf; --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
   --tabbar: rgba(30, 26, 23, 0.95); --scrim: rgba(0, 0, 0, 0.6);
   --card-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 22px -16px rgba(0, 0, 0, 0.7);
   --hero-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.8);
@@ -81,11 +82,11 @@
 :root[data-theme="light"] { color-scheme: light; }
 
 /* area accent scopes */
-.a-bug { --acc: var(--bug); --acc-ink: var(--bug-ink); --acc-soft: var(--bug-soft); --acc-text: var(--bug-text); }
-.a-para { --acc: var(--para); --acc-ink: var(--para-ink); --acc-soft: var(--para-soft); --acc-text: var(--para-text); --hero-bg: var(--hero-para); --hero-tile: var(--hero-para-tile); --hero-line: var(--hero-para-line); }
-.a-gel { --acc: var(--gel); --acc-ink: var(--gel-ink); --acc-soft: var(--gel-soft); --acc-text: var(--gel-text); }
-.a-sag { --acc: var(--sag); --acc-ink: var(--sag-ink); --acc-soft: var(--sag-soft); --acc-text: var(--sag-text); }
-.a-yat { --acc: var(--yat); --acc-ink: var(--yat-ink); --acc-soft: var(--yat-soft); --acc-text: var(--yat-text); --hero-bg: var(--hero-yat); --hero-tile: var(--hero-yat-tile); --hero-line: var(--hero-yat-line); }
+.a-bug { --acc: var(--bug); --acc-ink: var(--bug-ink); --acc-soft: var(--bug-soft); --acc-text: var(--bug-text); --acc-line: var(--bug-line); }
+.a-para { --acc: var(--para); --acc-ink: var(--para-ink); --acc-soft: var(--para-soft); --acc-text: var(--para-text); --acc-line: var(--para-line); --hero-bg: var(--hero-para); --hero-tile: var(--hero-para-tile); --hero-line: var(--hero-para-line); }
+.a-gel { --acc: var(--gel); --acc-ink: var(--gel-ink); --acc-soft: var(--gel-soft); --acc-text: var(--gel-text); --acc-line: var(--gel-line); }
+.a-sag { --acc: var(--sag); --acc-ink: var(--sag-ink); --acc-soft: var(--sag-soft); --acc-text: var(--sag-text); --acc-line: var(--sag-line); }
+.a-yat { --acc: var(--yat); --acc-ink: var(--yat-ink); --acc-soft: var(--yat-soft); --acc-text: var(--yat-text); --acc-line: var(--yat-line); --hero-bg: var(--hero-yat); --hero-tile: var(--hero-yat-tile); --hero-line: var(--hero-yat-line); }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; background: var(--bg); }
@@ -96,7 +97,7 @@ button { cursor: pointer; }
 .sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
 .i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .num, .tile .v, .receipt dd, td, .month .mv, .wk .wr, .money input, .big .v { font-variant-numeric: tabular-nums; }
-:focus-visible { outline: 2px solid var(--acc, var(--ink)); outline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--acc-line, var(--ink)); outline-offset: 2px; }
 h1, h2, h3 { font-family: var(--f-display); margin: 0; letter-spacing: -0.01em; }
 
 .wrap { max-width: 560px; margin: 0 auto; padding: calc(8px + env(safe-area-inset-top, 0px)) 16px calc(168px + env(safe-area-inset-bottom, 0px)); }
@@ -156,7 +157,7 @@ main { display: grid; gap: 12px; min-width: 0; }
 .money span { color: var(--ink-3); font-size: 0.95rem; font-weight: 600; }
 .money input { border: 0; background: transparent; color: var(--ink); font-size: 1.05rem; font-weight: 600; padding: 10px 6px; width: 100%; min-width: 0; outline: none; }
 .money input::placeholder { color: var(--ink-3); font-weight: 500; }
-.money:focus-within, .txt:focus { border-color: var(--acc); box-shadow: 0 0 0 3px var(--acc-soft); }
+.money:focus-within, .txt:focus { border-color: var(--acc-line); box-shadow: 0 0 0 3px var(--acc-soft); }
 .txt { border: 1.5px solid var(--line); border-radius: 12px; background: var(--surface-2); color: var(--ink); padding: 11px 12px; min-height: 48px; width: 100%; min-width: 0; outline: none; }
 textarea.txt { resize: vertical; min-height: 72px; line-height: 1.4; }
 select.txt { appearance: auto; }
@@ -166,9 +167,9 @@ select.txt { appearance: auto; }
 .row .money { flex: 0 0 auto; width: 112px; }
 .del { flex: none; width: 44px; height: 44px; border: 0; border-radius: 12px; background: var(--surface-2); color: var(--ink-3); display: grid; place-items: center; }
 .del .i { width: 18px; height: 18px; }
-.del.arm { width: auto; padding: 0 12px; background: var(--loss); color: #fff; font-weight: 600; font-size: 0.85rem; }
+.del.arm { width: auto; padding: 0 12px; background: var(--loss); color: var(--loss-ink); font-weight: 600; font-size: 0.85rem; }
 .list { display: grid; gap: 8px; }
-.add { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 600; font-size: 0.9rem; color: var(--acc-text); background: transparent; border: 1.5px dashed var(--acc); border-radius: 12px; padding: 8px 14px 8px 11px; }
+.add { margin-top: 10px; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-weight: 600; font-size: 0.9rem; color: var(--acc-text); background: transparent; border: 1.5px dashed var(--acc-line); border-radius: 12px; padding: 8px 14px 8px 11px; }
 .add .i { width: 18px; height: 18px; stroke-width: 2.2; }
 .empty-txt { color: var(--ink-3); font-size: 0.88rem; margin: 0; padding: 12px; border: 1.5px dashed var(--line-strong); border-radius: 12px; text-align: center; }
 
@@ -176,11 +177,13 @@ select.txt { appearance: auto; }
 .btns { display: flex; flex-wrap: wrap; gap: 8px; }
 .btn { font-weight: 600; font-size: 0.92rem; min-height: 46px; padding: 10px 16px; border-radius: 13px; border: 1.5px solid var(--acc); background: var(--acc); color: var(--acc-ink); display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .btn .i { width: 18px; height: 18px; }
-.btn.ghost { background: transparent; color: var(--acc-text); }
+.btn.ghost { background: transparent; border-color: var(--acc-line); color: var(--acc-text); }
 .btn.soft { background: var(--surface-2); border-color: var(--surface-2); color: var(--ink); }
 .btn.sm { min-height: 44px; padding: 6px 12px; font-size: 0.86rem; border-radius: 11px; }
 .btn.wide { width: 100%; }
 .btn:disabled { opacity: 0.45; cursor: default; }
+.btn:not(:disabled):active, .iconbtn:active, .add:active, .seg button:active { transform: translateY(1px); }
+.btn, .iconbtn, .add { transition: transform 0.08s ease, background-color 0.15s ease; }
 .confirm { display: grid; gap: 10px; margin-top: 12px; padding: 14px; border-radius: 14px; background: var(--acc-soft); font-size: 0.9rem; }
 
 /* tiles */
@@ -192,7 +195,7 @@ select.txt { appearance: auto; }
 .tile .u { font-size: 0.74rem; color: var(--ink-3); line-height: 1.35; }
 
 /* hero (Para, Yatırım) */
-.hero { position: relative; overflow: hidden; isolation: isolate; display: grid; gap: 16px; background: var(--hero-bg); color: var(--hero-ink); border-radius: 16px; padding: 18px 16px 16px; box-shadow: var(--hero-shadow); }
+.hero { position: relative; overflow: hidden; isolation: isolate; display: grid; gap: 16px; background: var(--hero-bg); background-image: radial-gradient(120% 85% at 100% 0%, var(--hero-tile) 0%, transparent 60%); color: var(--hero-ink); border-radius: 16px; padding: 18px 16px 16px; box-shadow: var(--hero-shadow); }
 .hero-deco { position: absolute; z-index: -1; right: -56px; top: -64px; width: 210px; height: 210px; fill: none; stroke: var(--hero-line); stroke-width: 1.5; }
 .big { display: grid; gap: 4px; min-width: 0; }
 .big .k { font-size: 0.9rem; color: var(--hero-ink-2); font-weight: 600; display: flex; align-items: center; gap: 6px; }
@@ -237,7 +240,7 @@ select.txt { appearance: auto; }
 .group-title { display: flex; align-items: center; gap: 10px; margin: 10px 2px -2px; font-family: var(--f-display); font-weight: 700; font-size: 1.15rem; }
 .quick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .quick button { display: grid; justify-items: center; gap: 6px; padding: 14px 4px; min-height: 88px; border-radius: 14px; border: 0; background: var(--surface); color: var(--ink); font-weight: 600; font-size: 0.84rem; box-shadow: var(--card-shadow); }
-.quick button[aria-pressed="true"] { outline: 2px solid var(--acc); }
+.quick button[aria-pressed="true"] { outline: 2px solid var(--acc-line); }
 .quick .ico { width: 38px; height: 38px; }
 
 /* Bugün */
@@ -266,7 +269,7 @@ select.txt { appearance: auto; }
 .htile .chk .i { width: 16px; height: 16px; stroke-width: 3; opacity: 0; }
 .htile span.n { font-weight: 600; font-size: 0.9rem; line-height: 1.25; min-width: 0; overflow-wrap: anywhere; }
 .htile[aria-pressed="true"] { background: var(--acc-soft); border-color: transparent; }
-.htile[aria-pressed="true"] .chk { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+.htile[aria-pressed="true"] .chk { background: var(--acc); border-color: var(--acc-line); color: var(--acc-ink); }
 .htile[aria-pressed="true"] .chk .i { opacity: 1; }
 .htile[aria-pressed="true"] span.n { color: var(--ink-2); }
 .task { display: flex; align-items: center; gap: 6px; min-height: 52px; padding: 4px 4px 4px 2px; border-bottom: 1px solid var(--line); }
@@ -274,7 +277,7 @@ select.txt { appearance: auto; }
 .tick { flex: none; width: 44px; height: 44px; border: 0; background: none; display: grid; place-items: center; padding: 0; }
 .tick span { width: 24px; height: 24px; border-radius: 8px; border: 2px solid var(--line-strong); display: grid; place-items: center; }
 .tick .i { width: 14px; height: 14px; stroke-width: 3; opacity: 0; }
-.done > .tick span, .tick[aria-pressed="true"] span { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
+.done > .tick span, .tick[aria-pressed="true"] span { background: var(--acc); border-color: var(--acc-line); color: var(--acc-ink); }
 .done > .tick .i, .tick[aria-pressed="true"] .i { opacity: 1; }
 .task .t { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: 0.95rem; }
 .task.done .t { color: var(--ink-3); text-decoration: line-through; }
@@ -298,7 +301,7 @@ select.txt { appearance: auto; }
 .mood[aria-pressed="true"] { background: var(--acc); border-color: var(--acc); color: var(--acc-ink); }
 .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
 .tagbtn { min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); font-weight: 600; font-size: 0.86rem; }
-.tagbtn[aria-pressed="true"] { background: var(--acc-soft); border-color: var(--acc); color: var(--acc-text); }
+.tagbtn[aria-pressed="true"] { background: var(--acc-soft); border-color: var(--acc-line); color: var(--acc-text); }
 .pline { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; text-align: left; color: var(--ink); }
 .pline .t { flex: 1; min-width: 0; font-weight: 600; }
 
@@ -349,7 +352,7 @@ td.neg { color: var(--warn); }
 .month.has .mv { color: var(--acc-text); }
 .month.neg .mv { color: var(--warn); }
 .month.now { border-color: var(--line-strong); }
-.month[aria-pressed="true"] { border-color: var(--acc); background: var(--surface); box-shadow: 0 0 0 1.5px var(--acc) inset; }
+.month[aria-pressed="true"] { border-color: var(--acc-line); background: var(--surface); box-shadow: 0 0 0 1.5px var(--acc-line) inset; }
 .wklist { display: grid; gap: 8px; margin-top: 10px; }
 .wk { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 60px; color: var(--ink); text-align: left; background: var(--surface-2); border: 0; border-radius: 14px; padding: 10px 14px; width: 100%; }
 .wk .wl { font-weight: 700; min-width: 0; }
@@ -377,7 +380,7 @@ td.neg { color: var(--warn); }
 .pot-ctl .money { flex: 1; }
 .iconpick { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .iconpick button { height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); display: grid; place-items: center; }
-.iconpick button[aria-pressed="true"] { border-color: var(--acc); background: var(--acc-soft); color: var(--acc-text); }
+.iconpick button[aria-pressed="true"] { border-color: var(--acc-line); background: var(--acc-soft); color: var(--acc-text); }
 details.fold > summary { cursor: pointer; color: var(--ink-3); font-size: 0.84rem; min-height: 40px; display: flex; align-items: center; list-style: none; }
 details.fold > summary::-webkit-details-marker { display: none; }
 .log { display: grid; gap: 4px; font-size: 0.84rem; color: var(--ink-2); }
@@ -390,7 +393,7 @@ details.fold > summary::-webkit-details-marker { display: none; }
 .dots { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
 .dot { height: 44px; border: 0; background: none; padding: 0; display: grid; justify-items: center; align-content: center; gap: 3px; font-size: 0.68rem; color: var(--ink-3); }
 .dot i { display: block; width: 22px; height: 22px; border-radius: 50%; background: var(--surface-2); border: 1.5px solid var(--line-strong); }
-.dot[aria-pressed="true"] i { background: var(--acc); border-color: var(--acc); }
+.dot[aria-pressed="true"] i { background: var(--acc); border-color: var(--acc-line); }
 .dot.today { color: var(--acc-text); font-weight: 700; }
 .strength { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--ink-2); }
 .strength .meter { flex: 1; height: 6px; }
@@ -437,7 +440,7 @@ details.fold > summary::-webkit-details-marker { display: none; }
 .kv div { display: grid; gap: 1px; min-width: 0; }
 .kv span { font-size: 0.76rem; color: var(--ink-3); }
 .kv b { font-weight: 700; font-size: 1rem; font-variant-numeric: tabular-nums; }
-.import-box { border: 1.5px dashed var(--acc); border-radius: 14px; padding: 14px; display: grid; gap: 10px; }
+.import-box { border: 1.5px dashed var(--acc-line); border-radius: 14px; padding: 14px; display: grid; gap: 10px; }
 .import-box ol { margin: 0; padding-left: 20px; font-size: 0.86rem; color: var(--ink-2); display: grid; gap: 4px; }
 .status-msg { font-size: 0.86rem; padding: 10px 12px; border-radius: 12px; background: var(--acc-soft); color: var(--ink); }
 .status-msg.err { background: var(--warn-soft); color: var(--warn); }
@@ -469,7 +472,7 @@ details.fold > summary::-webkit-details-marker { display: none; }
 .il-soft { fill: var(--acc-soft); }
 .il-acc { fill: var(--acc); }
 .il-line { fill: none; stroke: var(--line-strong); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
-.il-accline { fill: none; stroke: var(--acc); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.il-accline { fill: none; stroke: var(--acc-line); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .il-dash { fill: none; stroke: var(--line-strong); stroke-width: 2; stroke-dasharray: 3 3; }
 .il-gold { fill: var(--gold-soft); stroke: var(--gold-line); stroke-width: 2.5; }
 .il-goldline { fill: none; stroke: var(--gold); stroke-width: 2.5; stroke-linecap: round; }
@@ -503,6 +506,54 @@ main:not([hidden]) { animation: panel-in 0.2s ease-out; }
 input[type="date"].txt { min-height: 48px; }
 
 .hold.wrap .mid b, .hold.wrap .mid > span { white-space: normal; overflow-wrap: anywhere; }
+
+/* round 3: top bar actions, settings sections, daily expenses, swipe, undo toast */
+.top-acts { display: flex; gap: 8px; align-items: center; flex: none; }
+.sec-gear .i { width: 20px; height: 20px; }
+.crumb { display: grid; min-width: 0; }
+.crumb small { font-size: 0.76rem; color: var(--ink-3); font-weight: 600; line-height: 1.1; }
+.crumb h1 { font-weight: 800; font-size: 1.3rem; line-height: 1.1; }
+.setlist { padding: 4px 12px; }
+.setrow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 8px 2px; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--ink); text-align: left; }
+.setrow:last-child { border-bottom: 0; }
+.setrow .st { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.setrow .st b { font-weight: 700; font-size: 1rem; }
+.setrow .st small { font-size: 0.78rem; color: var(--ink-3); overflow-wrap: anywhere; }
+.setrow > .i { color: var(--ink-3); }
+.days { display: grid; gap: 6px; }
+.day { border-radius: 14px; background: var(--surface-2); overflow: hidden; }
+.day.open { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+.day-h { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 6px 12px; border: 0; background: none; color: var(--ink); text-align: left; }
+.day-h .dn { flex: 1; min-width: 0; font-weight: 700; font-size: 0.95rem; }
+.day-h .dn small { display: block; font-weight: 500; font-size: 0.76rem; color: var(--ink-3); }
+.day-h .dt { font-weight: 700; font-variant-numeric: tabular-nums; color: var(--acc-text); }
+.day-h .i { width: 16px; height: 16px; color: var(--ink-3); }
+.day-b { padding: 0 10px 12px; display: grid; gap: 10px; }
+.dlist { display: grid; gap: 6px; }
+.swipe { position: relative; border-radius: 12px; overflow: hidden; background: var(--loss); }
+.swipe-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding-right: 16px; color: #fff; font-weight: 700; font-size: 0.9rem; opacity: 0.75; }
+.swipe.armed .swipe-bg { opacity: 1; }
+.swipe-bg .i { width: 18px; height: 18px; }
+.swipe-fg { position: relative; display: flex; align-items: center; gap: 4px; background: var(--surface-2); touch-action: pan-y; transition: transform 0.18s ease; user-select: none; -webkit-user-select: none; }
+.swipe.swiping .swipe-fg { transition: none; }
+.dent { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 6px 4px 6px 12px; background: none; border: 0; color: var(--ink); text-align: left; }
+.dent .dn { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.dent .dn b { font-weight: 600; font-size: 0.92rem; overflow-wrap: anywhere; }
+.dent .da { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.swipe-fg .del { background: transparent; }
+.swipe-del { position: absolute; top: 0; right: 0; bottom: 0; width: 96px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; background: transparent; color: #fff; font-weight: 700; }
+.swipe-bg { padding-right: 0; }
+.catrow { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--line); }
+.catrow:last-child { border-bottom: 0; }
+.catrow .cn { flex: 1; min-width: 0; font-size: 0.88rem; font-weight: 600; overflow-wrap: anywhere; }
+.catrow .seg button { padding: 0 8px; min-height: 36px; font-size: 0.8rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chipbtn { min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); font-weight: 600; font-size: 0.82rem; }
+.chipbtn[aria-pressed="true"] { background: var(--acc-soft); border-color: var(--acc-line); color: var(--acc-text); }
+.toast { display: flex; align-items: center; gap: 12px; }
+.toast[hidden] { display: none !important; }
+.toast span { min-width: 0; }
+.toast-act { flex: none; min-height: 40px; padding: 0 12px; border-radius: 10px; border: 0; background: var(--gold-line); color: #1f1b17; font-weight: 700; }
 
 </style>
 </head>
@@ -562,6 +613,7 @@ input[type="date"].txt { min-height: 48px; }
   <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 0 0 0 17c1.3 0 1.8-.9 1.5-1.9-.3-1 .3-2.1 1.5-2.1h2a3.5 3.5 0 0 0 3.5-3.5c0-5.3-3.8-9.5-8.5-9.5z"/><circle cx="7.8" cy="11" r="1.1" fill="currentColor" stroke="none"/><circle cx="10.5" cy="7.3" r="1.1" fill="currentColor" stroke="none"/><circle cx="15" cy="7.6" r="1.1" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M3.5 10h17M10 10v10.5"/></symbol>
   <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8.5-8.5M16 7l2.5 2.5M14 9l2 2"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h8.5M17.5 7H20M4 17h2.5M11.5 17H20"/><circle cx="15" cy="7" r="2.4"/><circle cx="9" cy="17" r="2.4"/></symbol>
   <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.6 3.5 5.4 3.5 8.5s-1.1 5.9-3.5 8.5c-2.4-2.6-3.5-5.4-3.5-8.5s1.1-5.9 3.5-8.5z"/></symbol>
   <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
   <symbol id="i-f1" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.3 17c1.1-1.7 2.3-2.5 3.7-2.5s2.6.8 3.7 2.5"/><circle cx="9" cy="10" r=".9" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r=".9" fill="currentColor" stroke="none"/></symbol>
@@ -577,7 +629,10 @@ input[type="date"].txt { min-height: 48px; }
       <svg class="mark" viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="13" fill="#221d19"/><path d="M11 35h8v-7h8v-7h8" fill="none" stroke="#f1e6d8" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="35" cy="14" r="5.4" fill="#e4b552" stroke="#9c6b0c" stroke-width="1.6"/></svg>
       <h1 id="topTitle">Momentum</h1>
     </div>
-    <button type="button" class="iconbtn" data-act="openSettings" id="gearBtn" aria-label="Ayarlar ve yedek"><svg class="i" aria-hidden="true"><use href="#i-gear"/></svg></button>
+    <div class="top-acts">
+      <button type="button" class="iconbtn flat sec-gear" data-act="openSettings" data-sec="genel" id="secGear" aria-label="Bölüm ayarları"><svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg></button>
+      <button type="button" class="iconbtn" data-act="openSettings" id="gearBtn" aria-label="Ayarlar ve yedek"><svg class="i" aria-hidden="true"><use href="#i-gear"/></svg></button>
+    </div>
   </header>
   <main id="view" aria-live="polite"></main>
 </div>
@@ -688,13 +743,29 @@ const thisWeekId = () => idOf(mondayOf(new Date()));
 // nf0/nf1/nf2/nf4 are locale-aware (0-i18n.js): TR $1.234, EN $1,234
 const usd = (v) => (v < -0.5 ? '−$' : '$') + nf0.format(Math.abs(Math.round(v)));
 const usd2 = (v) => (v < 0 ? '−$' : '$') + nf2.format(Math.abs(v));
-const parse = (v) => { const s = String(v).trim(); if (s === '') return ''; const n = LANG === 'en' ? parseFloat(s.replace(/[\s$,]/g, '')) : parseFloat(s.replace(/[\s$]/g, '').replace(/\.(?=\d{3}(\D|$))/g, '').replace(',', '.')); return isFinite(n) ? n : ''; };
-const fmtIn = (v) => (v === '' || v == null ? '' : nf0.format(v));
+// One parser for every number field: accepts "11,50", "11.50", "15.9", "1.234,56", "1,234.56", "$1 234". Money is rounded to cents.
+function parseNum(v, money) {
+  let s = String(v == null ? '' : v).trim().replace(/[\s$€£\u00a0]|AUD|USD/gi, ''); if (!s) return null;
+  let neg = /^[-−]/.test(s); s = s.replace(/^[-−]/, '');
+  const hasD = s.includes('.'), hasC = s.includes(',');
+  if (hasD && hasC) { const dec = s.lastIndexOf('.') > s.lastIndexOf(',') ? '.' : ','; s = s.split(dec === '.' ? ',' : '.').join('').replace(dec, '.'); }
+  else if (hasC) s = /^[1-9]\d{0,2}(,\d{3})+$/.test(s) && !/^\d+,\d{1,2}$/.test(s) ? s.replace(/,/g, '') : s.replace(/,/g, '.');
+  else if (hasD && money && /^[1-9]\d{0,2}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+  if (!/^\d*\.?\d*$/.test(s) || s === '.' ) return null;
+  let n = parseFloat(s); if (!isFinite(n)) return null; if (neg) n = -n;
+  return money ? Math.round(n * 100) / 100 : n;
+}
+const parse = (v) => { const n = parseNum(v, true); return n == null ? '' : n; };
+const cents = (v) => Math.round(Math.abs(+v || 0) * 100) % 100 !== 0;
+const fmtIn = (v) => (v === '' || v == null ? '' : cents(v) ? nf2.format(v) : nf0.format(v));
+// user-entered amounts keep their cents ($11,50); computed totals use usd() (whole dollars, as in the budget app)
+const money = (v) => (cents(v) ? usd2(Math.round(v * 100) / 100) : usd(v));
+const r2 = (v) => Math.round((+v || 0) * 100) / 100;
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const clone = (o) => JSON.parse(JSON.stringify(o));
 const uid = () => Math.random().toString(36).slice(2, 9);
-const num = (v) => { if (v == null || v === '') return null; const t = String(v).replace(/\s/g, ''); const n = parseFloat(LANG === 'en' ? t.replace(/,/g, '') : t.replace(',', '.')); return isFinite(n) ? n : null; };
+const num = (v) => parseNum(v, false);
 const inNum = (v) => (v == null || v === '' ? '' : String(v).replace('.', LANG === 'en' ? '.' : ','));
 const ico = (id, cls) => `<svg class="i${cls ? ' ' + cls : ''}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
 const hhmm = (t) => { const d = new Date(t); return pad(d.getHours()) + ':' + pad(d.getMinutes()); };
@@ -713,7 +784,7 @@ function blank() {
 }
 const isObj = (o) => o && typeof o === 'object' && !Array.isArray(o);
 function applySettings(v) { D.money.settings = Object.assign(clone(DEF_SET), clone(v || {})); if (!Array.isArray(D.money.settings.recurring)) D.money.settings.recurring = []; S = D.money.settings; }
-function normWeek(w) { const v = clone(w || {}); if (!Array.isArray(v.extras)) v.extras = []; return v; }
+function normWeek(w) { const v = clone(w || {}); if (!Array.isArray(v.extras)) v.extras = []; if (!Array.isArray(v.daily)) v.daily = []; return v; }
 function normalize(o) {
   const b = blank();
   const D0 = isObj(o) ? o : {};
@@ -785,11 +856,18 @@ window.addEventListener('pagehide', () => { if (saveTimer) saveNow(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && saveTimer) saveNow(); });
 
 // ---------- budget helpers ----------
-const hasData = (w) => w && ((+w.uberEarn || 0) > 0 || (+w.uberHours || 0) > 0 || (+w.cashHours || 0) > 0 || (w.extras || []).length > 0 || (w.note || '') !== '');
-function weekObj(id) { const W = D.money.weeks; if (!W[id]) W[id] = { start: id, uberEarn: '', uberHours: '', fuel: '', cashHours: '', extras: [], note: '' }; if (!Array.isArray(W[id].extras)) W[id].extras = []; return W[id]; }
+const hasData = (w) => w && ((+w.uberEarn || 0) > 0 || (+w.uberHours || 0) > 0 || (+w.cashHours || 0) > 0 || (w.extras || []).length > 0 || (w.daily || []).length > 0 || (w.note || '') !== '');
+// daily entries count as extra expenses; the budget engine (weekCalc) itself stays untouched
+const dailySum = (w) => r2(((w && w.daily) || []).reduce((a, x) => a + (+x.amount || 0), 0));
+function calc(w) {
+  w = w || { extras: [] }; const d = dailySum(w);
+  const c = weekCalc(d ? Object.assign({}, w, { extras: (w.extras || []).concat([{ name: 'daily', amount: d }]) }) : w);
+  c.daily = d; c.extraOnly = r2(c.extra - d); return c;
+}
+function weekObj(id) { const W = D.money.weeks; if (!W[id]) W[id] = { start: id, uberEarn: '', uberHours: '', fuel: '', cashHours: '', extras: [], note: '' }; if (!Array.isArray(W[id].extras)) W[id].extras = []; if (!Array.isArray(W[id].daily)) W[id].daily = []; return W[id]; }
 const getWeek = (id) => D.money.weeks[id];
 function monthWeeks(y, m) { return mondaysIn(y, m).filter((id) => hasData(getWeek(id))); }
-function monthSummary(y, m) { const ids = monthWeeks(y, m); const cs = ids.map((id) => weekCalc(getWeek(id))); return { n: ids.length, left: cs.reduce((a, c) => a + c.left, 0), income: cs.reduce((a, c) => a + c.income, 0) }; }
+function monthSummary(y, m) { const ids = monthWeeks(y, m); const cs = ids.map((id) => calc(getWeek(id))); return { n: ids.length, left: cs.reduce((a, c) => a + c.left, 0), income: cs.reduce((a, c) => a + c.income, 0) }; }
 
 // ---------- growth helpers ----------
 const G = () => D.growth;
@@ -1000,7 +1078,7 @@ function insights() {
   }
   const ms = monthSummary(now.getFullYear(), now.getMonth());
   if (ms.n && ms.income > 0) out.push({ id: 'save-rate', area: 'para', text: T('{m} ayında net gelirinin {p} kadarı elinde kaldı ({x}, {n} hafta).', { m: MONTHS_FULL[now.getMonth()], p: pct(nf0.format(Math.max(-999, ms.left / ms.income * 100))), x: usd(ms.left), n: ms.n }) });
-  const uw = Object.keys(D.money.weeks).filter((id) => hasData(getWeek(id))).map((id) => [id, weekCalc(getWeek(id))]).filter(([, c]) => c.E > 0 && c.H > 0);
+  const uw = Object.keys(D.money.weeks).filter((id) => hasData(getWeek(id))).map((id) => [id, calc(getWeek(id))]).filter(([, c]) => c.E > 0 && c.H > 0);
   if (uw.length) {
     const best = uw.reduce((a, b) => (b[1].netH > a[1].netH ? b : a));
     const avgH = uw.reduce((a, [, c]) => a + c.uberNet, 0) / uw.reduce((a, [, c]) => a + c.H, 0);
@@ -1053,7 +1131,7 @@ const showCard = (k) => !D.ui.hiddenCards[k];
 // ===================== shared pieces =====================
 function tile(k, v, u, id) { return `<div class="tile"><span class="k">${k}</span><span class="v"${id ? ` id="${id}"` : ''}>${v}</span><span class="u">${u}</span></div>`; }
 function head(icon, title, right, gold) { return `<div class="card-head"><span class="ico${gold ? ' gold' : ''}" aria-hidden="true">${ico(icon)}</span><h2>${title}</h2>${right || ''}</div>`; }
-function ring(p, label, color) { const C = 2 * Math.PI * 36; return `<div class="ring" role="img" aria-label="${esc(label)}"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="var(--surface-2)" stroke-width="9"/><circle cx="42" cy="42" r="36" fill="none" stroke="${color || 'var(--acc)'}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - Math.max(0, Math.min(100, p)) / 100)}"/></svg><div class="pct">${esc(label)}</div></div>`; }
+function ring(p, label, color) { const C = 2 * Math.PI * 36; return `<div class="ring" role="img" aria-label="${esc(label)}"><svg viewBox="0 0 84 84"><circle cx="42" cy="42" r="36" fill="none" stroke="var(--surface-2)" stroke-width="9"/><circle cx="42" cy="42" r="36" fill="none" stroke="${color || 'var(--acc-line)'}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - Math.max(0, Math.min(100, p)) / 100)}"/></svg><div class="pct">${esc(label)}</div></div>`; }
 function delta(v, txt) { if (v == null || !isFinite(v)) return '<span class="delta">–</span>'; const up = v >= 0; return `<span class="delta ${up ? 'up' : 'down'}">${ico(up ? 'up' : 'down')}${txt}</span>`; }
 const sgn = (v, f) => (v >= 0 ? '+' : '−') + f(Math.abs(v));
 const ILLO = {
@@ -1081,7 +1159,7 @@ function lineChart(pts, o = {}) {
   const pad2 = (mx - mn) * 0.12; mn -= pad2; mx += pad2;
   const x = (i) => P.l + (pts.length < 2 ? (W - P.l - P.r) / 2 : i * (W - P.l - P.r) / (pts.length - 1));
   const y = (v) => P.t + (1 - (v - mn) / (mx - mn)) * (H - P.t - P.b);
-  const col = o.color || 'var(--acc)';
+  const col = o.color || 'var(--acc-line)';
   let dpath = '', started = false, firstX = 0, lastX = 0;
   pts.forEach((p, i) => { if (p.v == null) return; const cmd = started ? 'L' : 'M'; if (!started) firstX = x(i); dpath += cmd + x(i).toFixed(1) + ' ' + y(p.v).toFixed(1) + ' '; lastX = x(i); started = true; });
   const area = dpath + `L${lastX.toFixed(1)} ${H - P.b} L${firstX.toFixed(1)} ${H - P.b} Z`;
@@ -1103,7 +1181,7 @@ function barChart(pts, o = {}) {
   const mx = Math.max(o.goal || 0, ...pts.map((p) => p.v || 0), 1);
   const bw = (W - P.l - P.r) / pts.length;
   const y = (v) => P.t + (1 - v / mx) * (H - P.t - P.b);
-  const col = o.color || 'var(--acc)';
+  const col = o.color || 'var(--acc-line)';
   const fmt = o.fmt || ((v) => Math.round(v));
   return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label || T('grafik'))}">
     <text x="${P.l - 4}" y="${y(mx) + 3}" text-anchor="end">${fmt(mx)}</text><text x="${P.l - 4}" y="${H - P.b + 3}" text-anchor="end">0</text>
@@ -1125,7 +1203,7 @@ function vBugun() {
   html += `<div class="greet"><div><div class="eyebrow">${T('{day}, {date}', { day: DAYS_LONG[now.getDay()], date: now.getDate() + ' ' + MONTHS_FULL[now.getMonth()] })}</div><h2>${greet}, Emre</h2></div>
     <span class="xp" title="${T('Deneyim puanı')}">${T('Seviye {n}', { n: L.lv })}<i><b style="width:${L.p}%"></b></i>${nf0.format(L.x)} XP</span></div>`;
   if (showCard('money')) {
-    const tw = thisWeekId(), c = weekCalc(getWeek(tw) || { extras: [] }), ms = monthSummary(now.getFullYear(), now.getMonth());
+    const tw = thisWeekId(), c = calc(getWeek(tw)), ms = monthSummary(now.getFullYear(), now.getMonth());
     const tx = taxFull(quarterOf(tw).key);
     html += `<section class="card strip-wrap a-para" aria-label="${T('Bu hafta para')}"><button type="button" data-act="go" data-tab="para" data-seg="hafta" data-week="${tw}">
       <div class="strip-head">${ico('wallet')}${T('Bu hafta')} · ${weekLabel(tw)}<span style="margin-left:auto;color:var(--ink-3)">${ico('right')}</span></div>
@@ -1208,6 +1286,7 @@ function paraWeek() {
   <div class="card">${head('cash', T('Nakit iş'), '', true)}<div class="fields"><div class="field"><label for="wCashH">${T('Saat')}</label><div class="money"><input id="wCashH" data-wk="cashHours" inputmode="decimal" value="${fmtIn(w.cashHours)}"><span>${T('sa')}</span></div><span class="hint" id="wCashHint">–</span></div></div></div>
   <div class="card">${head('bag', T('Bu haftaya özel giderler'))}<div class="list" id="extraList">${(w.extras || []).length ? w.extras.map((x, i) => `<div class="row"><input class="txt" id="exN${i}" data-ex="name" data-i="${i}" value="${esc(x.name)}" aria-label="${T('Gider adı')}"><div class="money"><span>$</span><input id="exV${i}" data-ex="amount" data-i="${i}" inputmode="decimal" value="${fmtIn(x.amount)}" aria-label="${T('Tutar')}"></div><button type="button" class="del" data-act="delExtra" data-i="${i}" aria-label="${T('Sil')}">${ico('x')}</button></div>`).join('') : `<p class="empty-txt">${T('Henüz gider yok.')}</p>`}</div>
     <button type="button" class="add" id="extraAdd" data-act="addExtra">${ico('plus')}${T('Ekstra gider ekle')}</button><p class="note">${T('Konsol, tatil, tamir gibi bir kerelik harcamalar. Sadece bu haftadan düşülür.')}</p></div>
+  ${dailyCard(w)}
   <div class="card slip">${head('receipt', T('Haftanın dökümü'))}<dl class="receipt" id="receipt"></dl></div>
   <p class="note" id="wkTaxNote" style="margin:0 4px">${T('Bu döküm, yakıt ve sabit masraf tahminiyle hesaplanır. Vergi sekmesi ise girdiğin gerçek Uber giderlerini kullanır.')}</p>
   <div class="card">${head('pen', `<label for="wNote">${T('Not')}</label>`)}<input class="txt" id="wNote" data-wk="note" value="${esc(w.note || '')}" placeholder="${T('Bu haftayla ilgili bir not')}"></div>`;
@@ -1217,27 +1296,29 @@ function paraCalc() {
   if (!$('hLeft')) return;
   const cur = U.cur, thisWeek = thisWeekId();
   const w = getWeek(cur) || { extras: [] };
-  const c = weekCalc(w);
+  const c = calc(w);
   $('wkLbl').textContent = weekLabel(cur) + (cur === thisWeek ? ' · ' + T('bu hafta') : '');
-  $('wkSub').textContent = getWeek(cur) && (w.uberEarn !== '' || w.cashHours !== '' || (w.extras || []).length) ? T('Kayıtlı') : T('Henüz kayıt yok');
+  $('wkSub').textContent = getWeek(cur) && (w.uberEarn !== '' || w.cashHours !== '' || (w.extras || []).length || (w.daily || []).length) ? T('Kayıtlı') : T('Henüz kayıt yok');
   $('hLeft').textContent = usd(c.left); $('hLeft').className = 'v' + (c.left < 0 ? ' neg' : '');
   $('hLeftSub').textContent = T('Gelir {a} − giderler {b}', { a: usd(c.income), b: usd(c.rec + c.extra) });
   $('hTiles').innerHTML = tile(T('Maaş'), usd(c.salaryNet), T('Net')) +
     tile('Uber', usd(c.uberNet), c.E > 0 ? T('Brüt {a} · {b}/sa', { a: usd(c.E), b: usd2(c.netH) }) : T('Girilmedi')) +
     tile(T('Nakit iş'), usd(c.cashNet), c.cashGross > 0 ? (S.cashTax ? T('Vergisi düşülmüş') : T('Vergisiz')) : T('Girilmedi')) +
-    tile(T('Giderler'), usd(c.rec + c.extra), c.extra > 0 ? T('Sabit {a} + ekstra {b}', { a: usd(c.rec), b: usd(c.extra) }) : T('Her hafta tekrarlayan'));
+    tile(T('Giderler'), usd(c.rec + c.extra), c.extra > 0 ? T('Sabit {a} + ekstra {b}', { a: usd(c.rec), b: money(r2(c.extra)) }) : T('Her hafta tekrarlayan'));
+  const dt = $('dailyWeekTotal'); if (dt) dt.textContent = c.daily ? money(c.daily) : '';
   $('wCashHint').textContent = T('{r}/sa × saat = {x}', { r: usd2(S.cashRate), x: usd(c.cashGross) });
   const rows = [[T('Maaş (net)'), c.salaryNet]];
   if (c.E > 0) rows.push([T('Uber kazancı'), c.E], [T('GST (net)'), -c.gst], [T('Yakıt'), -c.fuel], [T('Sabit masraf payı'), -c.fx], [T('Uber vergisi (MLS dahil)'), -c.uberTax]);
   if (c.cashGross > 0) { rows.push([T('Nakit iş'), c.cashGross]); if (c.cashTax > 0) rows.push([T('Nakit iş vergisi'), -c.cashTax]); }
   if (c.rec > 0) rows.push([T('Tekrarlayan giderler'), -c.rec]);
-  (w.extras || []).forEach((x) => { if (+x.amount) rows.push([x.name || T('Ekstra'), -x.amount]); });
-  $('receipt').innerHTML = rows.map((r) => `<div><dt>${esc(r[0])}</dt><dd>${usd(r[1])}</dd></div>`).join('') + `<div class="tot"><dt>${T('Elinde kalan')}</dt><dd>${usd(c.left)}</dd></div>`;
+  if (c.daily > 0) rows.push([T('Günlük harcamalar'), -c.daily, 1, 'rcDaily']);
+  (w.extras || []).forEach((x) => { if (+x.amount) rows.push([x.name || T('Ekstra'), -x.amount, 1]); });
+  $('receipt').innerHTML = rows.map((r) => `<div${r[3] ? ` id="${r[3]}"` : ''}><dt>${esc(r[0])}</dt><dd>${r[2] ? money(r[1]) : usd(r[1])}</dd></div>`).join('') + `<div class="tot"><dt>${T('Elinde kalan')}</dt><dd>${usd(c.left)}</dd></div>`;
 }
 function paraHist() {
   const cur = U.cur;
-  const ids = Object.keys(D.money.weeks).filter((id) => { const w = getWeek(id); return (+w.uberEarn || 0) > 0 || (+w.cashHours || 0) > 0 || sum(w.extras) > 0; }).sort().reverse();
-  const cs = ids.map((id) => [id, weekCalc(getWeek(id))]);
+  const ids = Object.keys(D.money.weeks).filter((id) => { const w = getWeek(id); return (+w.uberEarn || 0) > 0 || (+w.cashHours || 0) > 0 || sum(w.extras) > 0 || dailySum(w) > 0; }).sort().reverse();
+  const cs = ids.map((id) => [id, calc(getWeek(id))]);
   const uw = cs.filter(([, c]) => c.E > 0), n = uw.length;
   const avg = (f) => (n ? uw.reduce((a, [, c]) => a + f(c), 0) / n : 0);
   const hrs = uw.reduce((a, [, c]) => a + c.H, 0);
@@ -1258,13 +1339,13 @@ function paraCal() {
   let yearLeft = 0, yearWeeks = 0;
   const months = MONTHS_FULL.map((name, m) => {
     const ids = mondaysIn(calYear, m).filter((id) => hasData(getWeek(id)));
-    const left = ids.reduce((a, id) => a + weekCalc(getWeek(id)).left, 0);
+    const left = ids.reduce((a, id) => a + calc(getWeek(id)).left, 0);
     yearLeft += left; yearWeeks += ids.length;
     const isNow = calYear === today.getFullYear() && m === today.getMonth();
     return `<button type="button" class="month${ids.length ? ' has' : ''}${left < 0 ? ' neg' : ''}${isNow ? ' now' : ''}" data-act="month" data-m="${m}" aria-pressed="${m === calMonth}"><span class="mn">${name}</span><span class="mv">${ids.length ? usd(left) : '—'}</span><span class="mc">${ids.length ? T('{n} hafta kayıtlı', { n: ids.length }) : T('Kayıt yok')}</span></button>`;
   }).join('');
   const ids = mondaysIn(calYear, calMonth);
-  const cs = ids.map((id) => [id, getWeek(id), hasData(getWeek(id)) ? weekCalc(getWeek(id)) : null]);
+  const cs = ids.map((id) => [id, getWeek(id), hasData(getWeek(id)) ? calc(getWeek(id)) : null]);
   const withData = cs.filter((x) => x[2]);
   const sumF = (f) => withData.reduce((a, x) => a + f(x[2]), 0);
   return `<div class="card"><div class="yearnav"><button type="button" data-act="yearGo" data-d="-1" aria-label="${T('Önceki yıl')}">${ico('left')}</button><div class="ylbl"><span id="yLbl">${calYear}</span><small id="ySub">${yearWeeks ? T('Bu yıl biriken {x} · {n} hafta', { x: usd(yearLeft), n: yearWeeks }) : T('Bu yıl henüz kayıt yok')}</small></div><button type="button" data-act="yearGo" data-d="1" aria-label="${T('Sonraki yıl')}">${ico('right')}</button></div><div class="months" id="months">${months}</div></div>
@@ -1274,7 +1355,17 @@ function paraCal() {
     <div class="wklist" id="mdWeeks">${cs.map(([id, w, c]) => (c
       ? `<button type="button" class="wk" data-act="openWeek" data-id="${id}"><span class="wl">${weekLabel(id)}<small>${T('Net gelir {x}', { x: usd(c.income) })}${c.E > 0 ? ' · Uber ' + usd(c.E) : ''}${c.extra > 0 ? ' · ' + T('ekstra {x}', { x: usd(c.extra) }) : ''}</small></span><span class="wr"><b>${usd(c.left)}</b><small>${T('kalan')}</small></span></button>`
       : `<button type="button" class="wk empty-wk" data-act="openWeek" data-id="${id}"><span class="wl">${weekLabel(id)}<small>${T('Kayıt yok, girmek için dokun')}</small></span><span class="wr"><b>—</b></span></button>`)).join('')}</div>
-    <p class="note">${T('Bir haftaya dokunursan o hafta açılır. Her hafta, başladığı pazartesinin ayına sayılır.')}</p></div>`;
+    <p class="note">${T('Bir haftaya dokunursan o hafta açılır. Her hafta, başladığı pazartesinin ayına sayılır.')}</p></div>
+  ${monthDaily(calYear, calMonth)}`;
+}
+// per-day totals of daily spending in the selected month
+function monthDaily(y, m) {
+  const pre = `${y}-${pad(m + 1)}-`, byDay = {};
+  Object.values(D.money.weeks).forEach((w) => (w.daily || []).forEach((x) => { if (String(x.date).startsWith(pre)) (byDay[x.date] = byDay[x.date] || []).push(x); }));
+  const ks = Object.keys(byDay).sort(); if (!ks.length) return '';
+  const tot = r2(ks.reduce((a, k) => a + byDay[k].reduce((s, x) => s + (+x.amount || 0), 0), 0));
+  return `<div class="card" id="mDaily">${head('cal', T('Günlük harcamalar'), `<span class="sub">${money(tot)}</span>`)}<div class="log">${ks.map((k) => { const d = fromId(k), es = byDay[k], s = r2(es.reduce((a, x) => a + (+x.amount || 0), 0));
+    return `<div><span>${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} · ${T('{n} kayıt', { n: es.length })}</span><b>${money(s)}</b></div>`; }).join('')}</div></div>`;
 }
 function potState(p) { if (p.done) return [T('Satın alındı'), 'chip']; if (p.target > 0 && p.saved >= p.target) return [T('Hedefe ulaştı'), 'chip gold']; return [T('Yolda'), 'chip acc']; }
 function paraPots() {
@@ -1289,11 +1380,33 @@ function paraPots() {
 }
 function potCard(p) {
   const pc = p.done ? 100 : p.target ? Math.min(100, Math.round(p.saved / p.target * 100)) : 0, [st, cls] = potState(p);
-  return `<article class="card pot" data-pot="${p.id}"><div class="pot-h"><span class="ico">${ico(p.icon || 'jar')}</span><div class="nm"><h3>${esc(p.name)}</h3><div class="amt"><b>${usd(p.saved)}</b> / ${usd(p.target)}</div></div><span class="${cls}">${st}</span></div>
+  return `<article class="card pot" data-pot="${p.id}"><div class="pot-h"><span class="ico">${ico(p.icon || 'jar')}</span><div class="nm"><h3>${esc(p.name)}</h3><div class="amt"><b>${money(p.saved)}</b> / ${money(p.target)}</div></div><span class="${cls}">${st}</span></div>
     <div><div class="meter${p.target && p.saved >= p.target ? ' gold' : ''}"><i style="width:${pc}%"></i></div><div class="meter-l"><span>${pct(pc)}</span><span>${p.done ? T('Harcanan: {x}', { x: usd(p.spent || 0) }) + (p.doneOn ? ' · ' + dShort(p.doneOn) : '') : T('kalan {x}', { x: usd(Math.max(0, p.target - p.saved)) })}</span></div></div>
     ${p.done ? '' : `<div class="pot-ctl"><div class="money"><span>$</span><input id="pa-${p.id}" inputmode="decimal" placeholder="${T('Tutar')}" aria-label="${esc(T('{x} için tutar', { x: p.name }))}"></div><button type="button" class="btn sm" data-act="potAdd" data-id="${p.id}">${T('Ekle')}</button><button type="button" class="btn sm ghost" data-act="potTake" data-id="${p.id}">${T('Çek')}</button></div>
     <div class="btns"><button type="button" class="btn sm soft" data-act="potBuy" data-id="${p.id}">${ico('bag')}${T('Satın aldım')}</button><button type="button" class="btn sm soft" data-act="editPot" data-id="${p.id}">${ico('pen')}${T('Düzenle')}</button></div>`}
     ${p.log.length ? `<details class="fold"><summary>${T('Hareketler ({n})', { n: p.log.length })}</summary><div class="log">${p.log.slice().reverse().slice(0, 20).map((l) => `<div><span>${dShort(l.d)}${l.note ? ' · ' + esc(T(l.note)) : ''}</span><b class="${l.a >= 0 ? 'up' : 'down'}">${l.a >= 0 ? '+' : '−'}${usd(Math.abs(l.a))}</b></div>`).join('')}</div></details>` : ''}</article>`;
+}
+
+// ---------- daily expenses inside the week ----------
+const DCATS = [['yemek', 'Yemek'], ['market', 'Market'], ['kahve', 'Kahve'], ['yakit', 'Yakıt'], ['ulasim', 'Ulaşım'], ['eglence', 'Eğlence'], ['fatura', 'Fatura'], ['diger', 'Diğer']];
+const dcatName = (k) => { const c = DCATS.find((x) => x[0] === k); return c ? T(c[1]) : ''; };
+function catChips(cur, act) { return `<div class="chips" role="group" aria-label="${T('Kategori')}">${DCATS.map(([k, l]) => `<button type="button" class="chipbtn" data-act="${act}" data-v="${k}" aria-pressed="${cur === k}">${T(l)}</button>`).join('')}</div>`; }
+function dailyRow(x) {
+  return `<div class="swipe" data-swipe="${x.id}"><div class="swipe-bg"><button type="button" class="swipe-del" data-act="delDaily" data-id="${x.id}" tabindex="-1" aria-hidden="true">${ico('trash')}<span>${T('Sil')}</span></button></div><div class="swipe-fg">
+    <button type="button" class="dent" data-act="editDaily" data-id="${x.id}"><span class="dn"><b>${esc(x.name || T('Harcama'))}</b>${x.cat ? `<span class="chip">${dcatName(x.cat)}</span>` : ''}</span><span class="da">${money(+x.amount || 0)}</span></button>
+    <button type="button" class="del" data-act="delDaily" data-id="${x.id}" aria-label="${esc(T('Sil: {x}', { x: x.name || T('Harcama') }))}">${ico('x')}</button></div></div>`;
+}
+function dailyCard(w) {
+  const mon = fromId(U.cur), tk = todayKey(), days = [...Array(7)].map((_, i) => idOf(addDays(mon, i)));
+  if (U.openDayWeek !== U.cur) { U.openDayWeek = U.cur; U.openDay = days.includes(tk) ? tk : null; }
+  const list = (w && w.daily) || [], tot = dailySum(w);
+  return `<div class="card" id="dailyCard">${head('cal', T('Günlük harcamalar'), `<span class="sub" id="dailyWeekTotal">${tot ? money(tot) : ''}</span>`)}<div class="days">
+    ${days.map((k) => { const d = fromId(k), es = list.filter((x) => x.date === k), dsum = r2(es.reduce((a, x) => a + (+x.amount || 0), 0)), open = U.openDay === k;
+      return `<div class="day${open ? ' open' : ''}"><button type="button" class="day-h" data-act="dayOpen" data-d="${k}" aria-expanded="${open}"><span class="dn">${DAYS_LONG[d.getDay()]}<small>${d.getDate()} ${MONTHS[d.getMonth()]}${k === tk ? ' · ' + T('bugün') : ''}</small></span><span class="dt" id="dayTot-${k}">${es.length ? money(dsum) : '—'}</span>${ico(open ? 'up' : 'down')}</button>
+      ${open ? `<div class="day-b">${es.length ? `<div class="dlist">${es.map(dailyRow).join('')}</div>` : `<p class="note" style="margin:0 0 8px">${T('Bu güne ait harcama yok.')}</p>`}
+        <form class="stack" id="dailyForm" data-d="${k}"><div class="row"><div class="money" style="width:118px"><span>$</span><input id="dAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}" autocomplete="off"></div><input class="txt" id="dName" placeholder="${T('ör. Dışarıda yemek')}" aria-label="${T('Ne için?')}" autocomplete="off"></div>
+        ${catChips(U.dCat, 'dCat')}<button class="btn" type="submit" id="dSave">${T('Kaydet')}</button></form></div>` : ''}</div>`; }).join('')}</div>
+    <p class="note">${T('Günlük harcamaların toplamı haftanın giderlerine eklenir. Silmek için satırı sola kaydır, düzenlemek için dokun.')}</p></div>`;
 }
 
 // ===================== GELİŞİM =====================
@@ -1348,7 +1461,7 @@ function gelBooks() {
   const ws = mondayOf(new Date()); let wp = 0; for (let i = 0; i < 7; i++) wp += g.readLog[keyOf(addDays(ws, i))] || 0;
   let yp = 0; for (const k in g.readLog) if (k.startsWith(yr)) yp += g.readLog[k];
   const seg = U.bookSeg, list = g.books.filter((b) => b.status === seg), cnt = (s) => g.books.filter((b) => b.status === s).length;
-  return `<div class="card summary">${ring(p, doneYr + '/' + g.bookGoal, p >= 100 ? 'var(--gold-line)' : 'var(--acc)')}<div><div class="quote">${T('{y} okuma hedefi', { y: yr })}</div><div class="meta num">${T('Bu hafta {a} sayfa · bu yıl {b} sayfa', { a: wp, b: nf0.format(yp) })}</div>
+  return `<div class="card summary">${ring(p, doneYr + '/' + g.bookGoal, p >= 100 ? 'var(--gold-line)' : 'var(--acc-line)')}<div><div class="quote">${T('{y} okuma hedefi', { y: yr })}</div><div class="meta num">${T('Bu hafta {a} sayfa · bu yıl {b} sayfa', { a: wp, b: nf0.format(yp) })}</div>
     <div class="row" style="margin-top:8px"><label for="bGoal" class="meta" style="margin:0">${T('Yıllık hedef')}</label><div class="money" style="width:96px;min-height:44px"><input id="bGoal" inputmode="numeric" value="${g.bookGoal}"></div><span class="meta" style="margin:0">${T('kitap')}</span></div></div></div>
     <div class="seg" role="group" aria-label="${T('Kitap listesi')}">${[['reading', 'Okuyorum'], ['want', 'Okunacak'], ['done', 'Okundu']].map(([k, l]) => `<button type="button" data-act="bseg" data-v="${k}" aria-pressed="${seg === k}">${T(l)} (${cnt(k)})</button>`).join('')}</div>
     ${list.length ? list.map(bookCard).join('') : `<div class="card">${empty('books', seg === 'reading' ? T('Şu an okuduğun kitap yok') : seg === 'want' ? T('Okuma listen boş') : T('Henüz bitirdiğin kitap yok'), seg === 'reading' ? T('"Okunacak" listesinden bir kitap başlat.') : seg === 'want' ? T('Aşağıdan okumak istediğin bir kitabı ekle.') : T('Bitirdiğin kitaplar burada birikir.'))}</div>`}
@@ -1407,7 +1520,10 @@ function vSaglik() {
         <div class="field"><label for="hSteps">${T('Adım')}</label><div class="money"><input id="hSteps" data-h="steps" inputmode="numeric" value="${d.steps != null ? d.steps : ''}"></div></div>
         <div class="field"><label for="hHr">${T('Nabız')}</label><div class="money"><input id="hHr" data-h="hr" inputmode="numeric" value="${d.hr != null ? Math.round(d.hr) : ''}"><span>bpm</span></div></div>
         <div class="field"><label for="hStress">${T('Stres (0–100)')}</label><div class="money"><input id="hStress" data-h="stress" inputmode="numeric" value="${d.stress != null ? Math.round(d.stress) : ''}"></div></div></div></details></section>
-    <section class="card import-box">${head('upload', T('Samsung Health verilerini aktar'))}
+    <button type="button" class="card tight pline" data-act="openSettings" data-sec="saglik"><span class="ico">${ico('upload')}</span><span class="t">${T('Samsung Health verilerini aktar')}<small style="display:block;font-weight:500;color:var(--ink-3);font-size:0.78rem">${D.health.lastImport ? T('aktarım: {d}', { d: new Date(D.health.lastImport).toLocaleDateString(LOC) }) : T('Ayarlar → Sağlık')}</small></span>${ico('right')}</button>`;
+}
+function samsungCard() {
+  return `<section class="card import-box">${head('upload', T('Samsung Health verilerini aktar'))}
       <p class="note" style="margin:0">${T("Galaxy Watch'ın ölçtüğü nabız, stres, adım, uyku ve kilo verileri buraya gelir. Dosyalar telefonunda işlenir; sadece günlük özetler kaydedilir.")}</p>
       <details class="fold"><summary>${T('Nasıl yapılır?')}</summary><ol><li>${T('Samsung Health → sağ üstteki menü → Ayarlar.')}</li><li>${T('Kişisel verileri indir → İndir → hesabını doğrula.')}</li><li>${T('Dosyalarım → İndirilenler → Samsung Health klasörünü aç.')}</li><li>${T('Klasöre uzun bas → Sıkıştır (.zip). İstersen içindeki CSV dosyalarını da seçebilirsin.')}</li><li>${T('Aşağıdaki düğmeyle zip dosyasını ya da CSV dosyalarını seç.')}</li></ol></details>
       <label class="btn filebtn">${ico('upload')}${T('ZIP ya da CSV seç')}<input type="file" id="shFile" accept=".zip,.csv,application/zip,text/csv" multiple aria-label="${T('Samsung Health dosyalarını seç')}"></label>
@@ -1445,19 +1561,19 @@ function kindOf(name) {
   return null;
 }
 async function importSamsung(files) {
-  U.shMsg = T('Dosyalar okunuyor…'); U.shErr = false; render();
+  U.shMsg = T('Dosyalar okunuyor…'); U.shErr = false; renderAll();
   const texts = [];
   try {
     for (const f of files) {
       if (/\.zip$/i.test(f.name) || (f.type || '').includes('zip')) {
-        let JSZip; try { JSZip = await loadScript(JSZIP_URL, 'JSZip'); } catch (e) { U.shMsg = T('Zip açıcı yüklenemedi (internet gerekli). Klasördeki CSV dosyalarını doğrudan seçmeyi dene.'); U.shErr = true; render(); return; }
+        let JSZip; try { JSZip = await loadScript(JSZIP_URL, 'JSZip'); } catch (e) { U.shMsg = T('Zip açıcı yüklenemedi (internet gerekli). Klasördeki CSV dosyalarını doğrudan seçmeyi dene.'); U.shErr = true; renderAll(); return; }
         const z = await JSZip.loadAsync(f);
         const names = Object.keys(z.files).filter((n) => kindOf(n));
         for (const n of names) texts.push([kindOf(n), await z.files[n].async('string')]);
       } else if (kindOf(f.name)) texts.push([kindOf(f.name), await f.text()]);
     }
-  } catch (e) { U.shMsg = T('Zip dosyası açılamadı. Klasördeki CSV dosyalarını doğrudan seçmeyi dene.'); U.shErr = true; render(); return; }
-  if (!texts.length) { U.shMsg = T('Tanınan bir Samsung Health dosyası bulunamadı. Dosya adları “com.samsung.” ile başlamalı ve .csv ile bitmeli.'); U.shErr = true; render(); return; }
+  } catch (e) { U.shMsg = T('Zip dosyası açılamadı. Klasördeki CSV dosyalarını doğrudan seçmeyi dene.'); U.shErr = true; renderAll(); return; }
+  if (!texts.length) { U.shMsg = T('Tanınan bir Samsung Health dosyası bulunamadı. Dosya adları “com.samsung.” ile başlamalı ve .csv ile bitmeli.'); U.shErr = true; renderAll(); return; }
   const agg = {}; const A = (k) => agg[k] || (agg[k] = { hr: [], hrMin: [], stress: [], stepsD: 0, stepsR: 0, sleep: 0, weight: null, wT: 0 });
   let height = null;
   for (const [kind, txt] of texts) {
@@ -1488,7 +1604,7 @@ async function importSamsung(files) {
   D.health.lastImport = Date.now();
   const parts = [n.hr && T('{n} gün nabız', { n: n.hr }), n.stress && T('{n} gün stres', { n: n.stress }), n.steps && T('{n} gün adım', { n: n.steps }), n.sleep && T('{n} gece uyku', { n: n.sleep }), n.weight && T('{n} kilo ölçümü', { n: n.weight })].filter(Boolean);
   U.shMsg = parts.length ? T('Aktarıldı: {x}.', { x: parts.join(', ') }) : T('Dosyalar okundu ama son 400 güne ait ölçüm bulunamadı.');
-  U.shErr = !parts.length; save(); render();
+  U.shErr = !parts.length; save(); renderAll();
 }
 
 // ===================== YATIRIM =====================
@@ -1742,7 +1858,12 @@ const UEXP_CATS = [
 const UEXP_ICON = { fuel: 'car', service: 'car', tyres: 'car', wash: 'car', phone: 'phone', parking: 'car', insurance: 'receipt', rego: 'receipt', amenities: 'bag', fees: 'percent', other: 'list' };
 const catName = (k) => { const c = UEXP_CATS.find((x) => x[0] === k); return T(c ? c[1] : 'Diğer'); };
 const logbook = () => { const v = +S.logbookPct; return v > 0 && v <= 100 ? v : 100; };
-function catDefaults(cat) { const c = UEXP_CATS.find((x) => x[0] === cat) || UEXP_CATS[10]; return { gst: !['rego', 'fees'].includes(cat), biz: c[2] === 'car' ? logbook() : c[2] === 'phone' ? 50 : 100 }; }
+// built-in defaults, overridable per category in Settings → Vergi (money.settings.catDefaults)
+function catDefaults(cat) {
+  const c = UEXP_CATS.find((x) => x[0] === cat) || UEXP_CATS[10], o = (S.catDefaults || {})[cat] || {};
+  return { gst: o.gst != null ? !!o.gst : !['rego', 'fees'].includes(cat), biz: o.biz != null ? o.biz : c[2] === 'car' ? logbook() : c[2] === 'phone' ? 50 : 100 };
+}
+function setCatDefault(cat, patch) { const all = S.catDefaults = Object.assign({}, S.catDefaults); all[cat] = Object.assign({}, all[cat], patch); }
 function qParts(key) { const [fy, q] = key.split('-Q').map(Number); return { fy, q }; }
 function qInfo(key) {
   const { fy, q } = qParts(key), sm = [6, 9, 0, 3][q - 1], y = q <= 2 ? fy - 1 : fy;
@@ -1845,53 +1966,72 @@ function openUexp(id) {
 function pageShell(title, body) {
   return `<div class="page" role="dialog" aria-modal="true" aria-label="${esc(title)}" id="page"><div class="wrap"><header class="top"><div class="brand"><button type="button" class="iconbtn flat" data-act="closeOverlay" aria-label="${T('Geri')}">${ico('left')}</button><h1>${esc(title)}</h1></div></header><main>${body}</main></div></div>`;
 }
+const SET_SECS = [['genel', 'Genel', 'gear', 'a-bug'], ['para', 'Para', 'wallet', 'a-para'], ['vergi', 'Vergi', 'jar', 'a-para'], ['gelisim', 'Gelişim', 'sprout', 'a-gel'], ['saglik', 'Sağlık', 'heart', 'a-sag'], ['yatirim', 'Yatırım', 'trend', 'a-yat'], ['yedek', 'Yedek', 'backup', 'a-bug']];
+const TAB_SEC = { bugun: 'genel', para: 'para', gelisim: 'gelisim', saglik: 'saglik', yatirim: 'yatirim' };
+function setShell(sec, body) {
+  const S0 = SET_SECS.find((x) => x[0] === sec);
+  const title = sec ? T(S0[1]) : T('Ayarlar');
+  return `<div class="page" role="dialog" aria-modal="true" aria-label="${esc(sec ? T('Ayarlar') + ' / ' + title : title)}" id="page"><div class="wrap"><header class="top"><div class="brand">
+    <button type="button" class="iconbtn flat" data-act="closeOverlay" id="setBack" aria-label="${sec ? T('Ayarlara dön') : T('Geri')}">${ico('left')}</button>
+    <div class="crumb">${sec ? `<small>${T('Ayarlar')} ›</small>` : ''}<h1 id="setTitle">${esc(title)}</h1></div></div></header><main class="${sec ? S0[3] : ''}">${body}</main></div></div>`;
+}
+function setSummary(sec) {
+  if (sec === 'genel') return (LANG === 'en' ? 'English' : 'Türkçe') + ' · ' + T({ system: 'Sistem', light: 'Açık', dark: 'Koyu' }[D.ui.theme] || 'Sistem');
+  if (sec === 'para') return T('Maaş {x}', { x: usd(S.salary) }) + ' · ' + T('{n} tekrarlayan gider', { n: S.recurring.length });
+  if (sec === 'vergi') return T('Logbook {p} · BAS çeyreklik', { p: pct(nf0.format(logbook())) });
+  if (sec === 'gelisim') return T('{n} alışkanlık', { n: G().habits.length }) + ' · ' + T('{n} kitap hedefi', { n: G().bookGoal });
+  if (sec === 'saglik') return [D.health.height ? D.health.height + ' cm' : '', T('paket {x}', { x: money(+D.health.packPrice || 40) }), 'Samsung Health'].filter(Boolean).join(' · ');
+  if (sec === 'yatirim') return IV().finnhubKey ? T('Finnhub anahtarı girildi') : T('Finnhub anahtarı yok');
+  if (sec === 'yedek') return T('Dışa ve içe aktar');
+  return '';
+}
 function vSettings() {
+  const sec = U.setSec;
+  if (!sec) return setShell(null, `<div class="card setlist">${SET_SECS.map(([k, l, ic, a]) => `<button type="button" class="setrow ${a}" data-act="setSec" data-v="${k}"><span class="ico">${ico(ic)}</span><span class="st"><b>${T(l)}</b><small>${esc(setSummary(k))}</small></span>${ico('right')}</button>`).join('')}</div>
+    <p class="note" style="text-align:center">${T('Momentum · Veriler sadece bu telefonda, tarayıcı hafızasında tutulur. Düzenli olarak yedek al.')}</p>`);
   const rec = S.recurring, iv = IV(), H = D.health;
-  const money = (id, key, v, unit, pre) => `<div class="money">${pre === false ? '' : '<span>$</span>'}<input id="${id}" ${key} inputmode="decimal" value="${v}">${unit ? `<span>${unit}</span>` : ''}</div>`;
+  const mny = (id, key, v, unit, pre) => `<div class="money">${pre === false ? '' : '<span>$</span>'}<input id="${id}" ${key} inputmode="decimal" value="${v}">${unit ? `<span>${unit}</span>` : ''}</div>`;
   const segB = (act, opts, curv, lbl) => `<div class="seg inline" role="group" aria-label="${lbl}">${opts.map(([v, l, id]) => `<button type="button" data-act="${act}" data-v="${v}"${id ? ` id="${id}"` : ''} aria-pressed="${String(curv) === String(v)}">${l}</button>`).join('')}</div>`;
   const hidCount = Object.keys(D.ui.hiddenInsights).filter((k) => D.ui.hiddenInsights[k]).length;
-  return pageShell(T('Ayarlar'), `
-  <div class="group-title a-bug"><span class="ico">${ico('globe')}</span>${T('Dil')}</div>
-  <div class="card a-bug"><div class="seg" role="group" aria-label="${T('Dil')}"><button type="button" data-act="setLang" data-v="tr" id="lang-tr" aria-pressed="${LANG === 'tr'}" lang="tr">Türkçe</button><button type="button" data-act="setLang" data-v="en" id="lang-en" aria-pressed="${LANG === 'en'}" lang="en">English</button></div></div>
-
-  <div class="group-title a-para"><span class="ico">${ico('wallet')}</span>${T('Para')}</div>
-  <div class="card a-para">${head('percent', T('Gelir ve vergi'))}<div class="fields">
-    <div class="field"><label for="sSalary">${T('Maaş (brüt, yıllık)')}</label>${money('sSalary', 'data-set="salary"', fmtIn(S.salary))}</div>
-    <div class="field"><label for="sCashRate">${T('Nakit iş saat ücreti')}</label>${money('sCashRate', 'data-set="cashRate"', fmtIn(S.cashRate))}</div>
-    <div class="field inline"><span class="lab">${T('Nakit iş vergisi')}</span>${segB('setCashTax', [['false', T('Vergisiz')], ['true', T('Vergili')]], !!S.cashTax, T('Nakit iş vergisi'))}</div>
-    <div class="field inline"><span class="lab">${T('Özel hastane sigortası')}</span>${segB('setCover', [['false', T('Yok')], ['true', T('Var')]], !!S.cover, T('Özel hastane sigortası'))}</div></div></div>
-  <div class="card a-para">${head('car', T('Uber masrafları'))}<div class="fields">
-    <div class="field"><label for="sFixed">${T('Sabit masraflar (yıllık)')}</label>${money('sFixed', 'data-set="fixed"', fmtIn(S.fixed))}<span class="hint">${T('Sigorta, servis, rego/CTP, BHSL, telefon. Yakıt hariç, sadece Uber payı.')}</span></div>
-    <div class="field"><label for="sWeeks">${T('Yılda kaç hafta Uber')}</label>${money('sWeeks', 'data-set="weeksPerYear"', fmtIn(S.weeksPerYear), T('hf'), false)}</div>
-    <div class="field"><label for="sFuel">${T('Haftalık yakıt tahmini')}</label>${money('sFuel', 'data-set="fuelDefault"', fmtIn(S.fuelDefault))}<span class="hint">${T('Hafta için yakıt girmezsen bu kullanılır')}</span></div>
-    <div class="field"><label for="sLogbook">${T('Logbook iş kullanım yüzdesi')}</label>${money('sLogbook', 'data-set="logbookPct"', fmtIn(logbook()), '%', false)}<span class="hint">${T('Vergi sekmesinde araç giderlerinin iş payı olarak kullanılır.')}</span></div></div></div>
-  <div class="card a-para">${head('repeat', T('Her hafta tekrarlayan giderler'))}<div class="list" id="recList">${rec.length ? rec.map((x, i) => `<div class="row"><input class="txt" id="rcN${i}" data-rc="name" data-i="${i}" value="${esc(x.name)}" aria-label="${T('Gider adı')}"><div class="money"><span>$</span><input id="rcV${i}" data-rc="amount" data-i="${i}" inputmode="decimal" value="${fmtIn(x.amount)}" aria-label="${T('Tutar')}"></div><button type="button" class="del" data-act="delRec" data-i="${i}" aria-label="${T('Sil')}">${ico('x')}</button></div>`).join('') : `<p class="empty-txt">${T('Henüz gider yok.')}</p>`}</div>
-    <button type="button" class="add" id="recAdd" data-act="addRec">${ico('plus')}${T('Gider ekle')}</button><p class="note">${T("Aylık bir gideri haftalığa çevirmek için 4,33'e böl.")}</p></div>
-  <div class="card a-para"><p class="note" style="margin:0">${T("Hesap 2026–27 vergi oranlarına ve %2 Medicare'e göre yapılır. Uber kârı ve vergili nakit iş maaşının üstüne eklenir. MLS eşikleri $105k / $123k / $164k. GST kazancın 1/11'idir; yakıtın ve sabit masrafların %80'i için GST kredisi düşülür. Bu bir tahmindir, vergi danışmanlığı değildir.")}</p></div>
-
-  <div class="group-title a-sag"><span class="ico">${ico('heart')}</span>${T('Sağlık')}</div>
-  <div class="card a-sag"><div class="fields">
-    <div class="field"><label for="sHeight">${T('Boy')}</label><div class="money"><input id="sHeight" data-hs="height" inputmode="decimal" value="${H.height || ''}" placeholder="${T('ör. 178')}"><span>cm</span></div></div>
-    <div class="field"><label for="sGoalW">${T('Hedef kilo')}</label><div class="money"><input id="sGoalW" data-hs="goalWeight" inputmode="decimal" value="${inNum(H.goalWeight)}" placeholder="${T('ör. 75')}"><span>kg</span></div></div>
-    <div class="field"><label for="sPack">${T("Paket fiyatı (20'lik)")}</label><div class="money"><span>$</span><input id="sPack" data-hs="packPrice" inputmode="decimal" value="${inNum(H.packPrice)}"></div><span class="hint">${T('Haftalık sigara maliyeti bununla hesaplanır')}</span></div></div></div>
-
-  <div class="group-title a-yat"><span class="ico">${ico('trend')}</span>${T('Yatırım')}</div>
-  <div class="card a-yat stack"><div class="field"><label for="sKey">${T('Finnhub API anahtarı')}</label><input class="txt" id="sKey" data-ivkey value="${esc(iv.finnhubKey)}" placeholder="${T('ör. c1a2b3…')}" autocomplete="off" autocapitalize="off" spellcheck="false">
-    <span class="hint">${T("ABD hisse fiyatları için ücretsiz anahtar: finnhub.io/register adresinden kayıt ol ve paneldeki API anahtarını buraya yapıştır. Anahtar sadece bu telefonda saklanır ve yedeğe eklenir. Stake şifresi ya da oturum anahtarı hiçbir zaman istenmez.")}</span></div>
-    <button type="button" class="trow" data-act="toggleHome" aria-pressed="${!!iv.showOnHome}"><span>${T('Portföyü Bugün ekranında göster')}</span><span class="sw" aria-hidden="true"></span></button></div>
-
-  <div class="group-title a-bug"><span class="ico">${ico('layout')}</span>${T('Bugün kartları')}</div>
-  <div class="card a-bug">${BUGUN_CARDS.map(([k, l]) => `<button type="button" class="trow" data-act="toggleCard" data-k="${k}" aria-pressed="${showCard(k)}"><span>${T(l)}</span><span class="sw" aria-hidden="true"></span></button>`).join('')}
-    ${hidCount ? `<button type="button" class="link" data-act="restoreInsights" style="margin-top:6px">${T('Gizlenen {n} içgörüyü geri getir', { n: hidCount })}</button>` : ''}</div>
-
-  <div class="group-title a-bug"><span class="ico">${ico('palette')}</span>${T('Tema')}</div>
-  <div class="card a-bug"><div class="seg" role="group" aria-label="${T('Tema')}">${[['system', 'Sistem'], ['light', 'Açık'], ['dark', 'Koyu']].map(([v, l]) => `<button type="button" data-act="setTheme" data-v="${v}" id="theme-${v}" aria-pressed="${D.ui.theme === v}">${T(l)}</button>`).join('')}</div></div>
-
-  <div class="group-title a-bug"><span class="ico gold">${ico('backup')}</span>${T('Yedek')}</div>
-  <div class="card a-bug stack"><div class="btns"><button type="button" class="btn" data-act="export" id="bkDown">${ico('backup')}${T('Yedek indir')}</button><label class="btn ghost filebtn">${ico('upload')}${T('Yedekten yükle')}<input type="file" id="bkFile" accept=".json,application/json" aria-label="${T('Yedek dosyası seç')}"></label></div>
-    ${U.bk ? `<div class="confirm" id="bkConfirm"><b>${esc(U.bk.sum.title)}</b><span>${U.bk.sum.lines.map(esc).join(' · ')}</span><span class="note" style="margin:0">${esc(U.bk.sum.note)}</span><div class="btns"><button type="button" class="btn" data-act="bkYes" id="bkYes">${T('Evet, birleştir')}</button><button type="button" class="btn ghost" data-act="bkNo">${T('Vazgeç')}</button></div></div>` : ''}
-    <p class="note" id="bkMsg" style="margin:0">${esc(U.bkMsg || T('Yedek, İndirilenler klasörüne adim-adim-yedek-TARİH.json adıyla iner. İçe aktarma üç biçimi tanır: bu uygulamanın yedeği, eski Haftalık Bütçe yedeği ve eski Momentum verisi. Önce bir özet gösterilir; onaylarsan veriler birleştirilir.'))}</p></div>
-  <p class="note" style="text-align:center">${T('Momentum · Veriler sadece bu telefonda, tarayıcı hafızasında tutulur. Düzenli olarak yedek al.')}</p>`);
+  const body = {
+    genel: () => `<div class="card a-bug">${head('globe', T('Dil'))}<div class="seg" role="group" aria-label="${T('Dil')}"><button type="button" data-act="setLang" data-v="tr" id="lang-tr" aria-pressed="${LANG === 'tr'}" lang="tr">Türkçe</button><button type="button" data-act="setLang" data-v="en" id="lang-en" aria-pressed="${LANG === 'en'}" lang="en">English</button></div></div>
+      <div class="card a-bug">${head('palette', T('Tema'))}<div class="seg" role="group" aria-label="${T('Tema')}">${[['system', 'Sistem'], ['light', 'Açık'], ['dark', 'Koyu']].map(([v, l]) => `<button type="button" data-act="setTheme" data-v="${v}" id="theme-${v}" aria-pressed="${D.ui.theme === v}">${T(l)}</button>`).join('')}</div></div>
+      <div class="card a-bug">${head('layout', T('Bugün kartları'))}${BUGUN_CARDS.map(([k, l]) => `<button type="button" class="trow" data-act="toggleCard" data-k="${k}" aria-pressed="${showCard(k)}"><span>${T(l)}</span><span class="sw" aria-hidden="true"></span></button>`).join('')}
+        ${hidCount ? `<button type="button" class="link" data-act="restoreInsights" style="margin-top:6px">${T('Gizlenen {n} içgörüyü geri getir', { n: hidCount })}</button>` : ''}</div>`,
+    para: () => `<div class="card">${head('percent', T('Gelir ve vergi'))}<div class="fields">
+      <div class="field"><label for="sSalary">${T('Maaş (brüt, yıllık)')}</label>${mny('sSalary', 'data-set="salary"', fmtIn(S.salary))}</div>
+      <div class="field"><label for="sCashRate">${T('Nakit iş saat ücreti')}</label>${mny('sCashRate', 'data-set="cashRate"', fmtIn(S.cashRate))}</div>
+      <div class="field inline"><span class="lab">${T('Nakit iş vergisi')}</span>${segB('setCashTax', [['false', T('Vergisiz')], ['true', T('Vergili')]], !!S.cashTax, T('Nakit iş vergisi'))}</div>
+      <div class="field inline"><span class="lab">${T('Özel hastane sigortası')}</span>${segB('setCover', [['false', T('Yok')], ['true', T('Var')]], !!S.cover, T('Özel hastane sigortası'))}</div></div></div>
+    <div class="card">${head('car', T('Uber masrafları'))}<div class="fields">
+      <div class="field"><label for="sFixed">${T('Sabit masraflar (yıllık)')}</label>${mny('sFixed', 'data-set="fixed"', fmtIn(S.fixed))}<span class="hint">${T('Sigorta, servis, rego/CTP, BHSL, telefon. Yakıt hariç, sadece Uber payı.')}</span></div>
+      <div class="field"><label for="sWeeks">${T('Yılda kaç hafta Uber')}</label>${mny('sWeeks', 'data-set="weeksPerYear"', fmtIn(S.weeksPerYear), T('hf'), false)}</div>
+      <div class="field"><label for="sFuel">${T('Haftalık yakıt tahmini')}</label>${mny('sFuel', 'data-set="fuelDefault"', fmtIn(S.fuelDefault))}<span class="hint">${T('Hafta için yakıt girmezsen bu kullanılır')}</span></div></div></div>
+    <div class="card">${head('repeat', T('Her hafta tekrarlayan giderler'))}<div class="list" id="recList">${rec.length ? rec.map((x, i) => `<div class="row"><input class="txt" id="rcN${i}" data-rc="name" data-i="${i}" value="${esc(x.name)}" aria-label="${T('Gider adı')}"><div class="money"><span>$</span><input id="rcV${i}" data-rc="amount" data-i="${i}" inputmode="decimal" value="${fmtIn(x.amount)}" aria-label="${T('Tutar')}"></div><button type="button" class="del" data-act="delRec" data-i="${i}" aria-label="${T('Sil')}">${ico('x')}</button></div>`).join('') : `<p class="empty-txt">${T('Henüz gider yok.')}</p>`}</div>
+      <button type="button" class="add" id="recAdd" data-act="addRec">${ico('plus')}${T('Gider ekle')}</button><p class="note">${T("Aylık bir gideri haftalığa çevirmek için 4,33'e böl.")}</p></div>
+    <div class="card"><p class="note" style="margin:0">${T("Hesap 2026–27 vergi oranlarına ve %2 Medicare'e göre yapılır. Uber kârı ve vergili nakit iş maaşının üstüne eklenir. MLS eşikleri $105k / $123k / $164k. GST kazancın 1/11'idir; yakıtın ve sabit masrafların %80'i için GST kredisi düşülür. Bu bir tahmindir, vergi danışmanlığı değildir.")}</p></div>`,
+    vergi: () => `<div class="card stack">${head('car', T('Logbook'))}<div class="field"><label for="sLogbook">${T('Logbook iş kullanım yüzdesi')}</label>${mny('sLogbook', 'data-set="logbookPct"', fmtIn(logbook()), '%', false)}<span class="hint">${T('Araç giderlerinin varsayılan iş payıdır.')}</span></div></div>
+      <div class="card">${head('receipt', T('Kategori varsayılanları'))}<div class="list">${UEXP_CATS.map(([k, l]) => { const d = catDefaults(k); return `<div class="catrow"><span class="cn">${T(l)}</span><div class="seg inline" role="group" aria-label="${esc(T('{x}: GST', { x: T(l) }))}"><button type="button" data-act="catGst" data-k="${k}" data-v="true" aria-pressed="${d.gst}">GST</button><button type="button" data-act="catGst" data-k="${k}" data-v="false" aria-pressed="${!d.gst}">${T('Yok')}</button></div><div class="money" style="width:84px;min-height:44px"><input data-catbiz="${k}" inputmode="decimal" value="${fmtIn(d.biz)}" aria-label="${esc(T('{x}: iş payı', { x: T(l) }))}"><span>%</span></div></div>`; }).join('')}</div>
+        <p class="note">${T('Yeni Uber giderlerinde bu GST ve iş payı değerleri önceden seçili gelir. Araç kategorileri logbook yüzdesini kullanır, değiştirmediğin sürece.')}</p></div>
+      <div class="card stack">${head('jar', T('Uber vergisi'))}<div class="kv"><div><span>${T('Maaş')}</span><b>${usd(S.salary)}</b></div><div><span>${T('Hastane sigortası')}</span><b>${S.cover ? T('Var') : T('Yok')}</b></div><div><span>Logbook</span><b>${pct(nf0.format(logbook()))}</b></div></div>
+      <p class="note" style="margin:0">${T('Vergi sekmesi maaşını ve hastane sigortanı Para ayarlarından alır. BAS çeyreklik verilir: 28 Ekim, 28 Şubat, 28 Nisan ve 28 Temmuz.')}</p>
+      <button type="button" class="btn soft" data-act="setSec" data-v="para">${ico('wallet')}${T('Para ayarlarını aç')}</button></div>
+      <div class="card"><p class="note" style="margin:0">${T('Gelir vergisi payı: mali yılın bu çeyreğe kadarki Uber kârı yıllığa çevrilir, maaşının üstüne eklenince çıkan ek vergi (Medicare %2 ve MLS dahil) oranıyla bu çeyreğin kârı çarpılır.')} ${T("Tahmindir; kesin rakamlar için Uber'in vergi özetini kullan.")}</p></div>`,
+    gelisim: () => `<div class="card stack">${head('book', T('Okuma'))}<div class="field"><label for="sBookGoal">${T('Yıllık kitap hedefi')}</label><div class="money" style="max-width:180px"><input id="sBookGoal" data-bookgoal inputmode="numeric" value="${G().bookGoal}"><span>${T('kitap')}</span></div></div></div>
+      <div class="card stack">${head('sprout', T('Alışkanlıklar'))}<p class="note" style="margin:0">${T('{n} alışkanlık', { n: G().habits.length })}</p><div class="btns"><button type="button" class="btn soft" data-act="openHabitSheet">${ico('pen')}${T('Alışkanlıkları düzenle')}</button><button type="button" class="btn soft" data-act="sampleHabits">${ico('plus')}${T('Örnek alışkanlıklar ekle')}</button></div></div>`,
+    saglik: () => `<div class="card"><div class="fields">
+      <div class="field"><label for="sHeight">${T('Boy')}</label><div class="money"><input id="sHeight" data-hs="height" inputmode="decimal" value="${H.height || ''}" placeholder="${T('ör. 178')}"><span>cm</span></div></div>
+      <div class="field"><label for="sGoalW">${T('Hedef kilo')}</label><div class="money"><input id="sGoalW" data-hs="goalWeight" inputmode="decimal" value="${inNum(H.goalWeight)}" placeholder="${T('ör. 75')}"><span>kg</span></div></div>
+      <div class="field"><label for="sPack">${T("Paket fiyatı (20'lik)")}</label><div class="money"><span>$</span><input id="sPack" data-hs="packPrice" inputmode="decimal" value="${fmtIn(H.packPrice)}"></div><span class="hint">${T('Haftalık sigara maliyeti bununla hesaplanır')}</span></div></div></div>
+      ${samsungCard()}`,
+    yatirim: () => `<div class="card stack"><div class="field"><label for="sKey">${T('Finnhub API anahtarı')}</label><input class="txt" id="sKey" data-ivkey value="${esc(iv.finnhubKey)}" placeholder="${T('ör. c1a2b3…')}" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <span class="hint">${T("ABD hisse fiyatları için ücretsiz anahtar: finnhub.io/register adresinden kayıt ol ve paneldeki API anahtarını buraya yapıştır. Anahtar sadece bu telefonda saklanır ve yedeğe eklenir. Stake şifresi ya da oturum anahtarı hiçbir zaman istenmez.")}</span></div>
+      <button type="button" class="trow" data-act="toggleHome" aria-pressed="${!!iv.showOnHome}"><span>${T('Portföyü Bugün ekranında göster')}</span><span class="sw" aria-hidden="true"></span></button></div>`,
+    yedek: () => `<div class="card stack"><div class="btns"><button type="button" class="btn" data-act="export" id="bkDown">${ico('backup')}${T('Yedek indir')}</button><label class="btn ghost filebtn">${ico('upload')}${T('Yedekten yükle')}<input type="file" id="bkFile" accept=".json,application/json" aria-label="${T('Yedek dosyası seç')}"></label></div>
+      ${U.bk ? `<div class="confirm" id="bkConfirm"><b>${esc(U.bk.sum.title)}</b><span>${U.bk.sum.lines.map(esc).join(' · ')}</span><span class="note" style="margin:0">${esc(U.bk.sum.note)}</span><div class="btns"><button type="button" class="btn" data-act="bkYes" id="bkYes">${T('Evet, birleştir')}</button><button type="button" class="btn ghost" data-act="bkNo">${T('Vazgeç')}</button></div></div>` : ''}
+      <p class="note" id="bkMsg" style="margin:0">${esc(U.bkMsg || T('Yedek, İndirilenler klasörüne adim-adim-yedek-TARİH.json adıyla iner. İçe aktarma üç biçimi tanır: bu uygulamanın yedeği, eski Haftalık Bütçe yedeği ve eski Momentum verisi. Önce bir özet gösterilir; onaylarsan veriler birleştirilir.'))}</p></div>`
+  }[sec];
+  return setShell(sec, body ? body() : '');
 }
 function vInsights() {
   const all = insights();
@@ -1908,11 +2048,19 @@ function vSheet() {
     const opts = [['harcama', 'Harcama', 'bag', 'a-para'], ['uber', 'Uber vardiyası', 'car', 'a-para'], ['uexp', 'Uber gideri', 'receipt', 'a-para'], ['sigara', 'Sigara +1', 'cig', 'a-sag'], ['alkol', 'Alkol +1', 'glass', 'a-sag'], ['kilo', 'Kilo', 'scale', 'a-sag'], ['aliskanlik', 'Alışkanlık', 'check', 'a-gel']];
     const k = sh.k, w = getWeek(thisWeekId()) || {};
     let form = '';
-    if (k === 'harcama') form = `<form class="card a-para stack" id="qForm" data-k="harcama"><div class="field"><label for="qName">${T('Ne için?')}</label><input class="txt" id="qName" placeholder="${T('ör. market, tamir')}" autocomplete="off"></div><div class="field"><label for="qAmt">${T('Tutar')}</label><div class="money"><span>$</span><input id="qAmt" inputmode="decimal" placeholder="0"></div></div><button class="btn" type="submit">${T('Bu haftaya gider olarak ekle')}</button><p class="note" style="margin:0">${T('{w} haftasının ekstra giderlerine eklenir.', { w: weekLabel(thisWeekId()) })}</p></form>`;
+    if (k === 'harcama') form = `<form class="card a-para stack" id="qForm" data-k="harcama"><div class="row"><div class="money" style="width:118px"><span>$</span><input id="qAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}"></div><input class="txt" id="qName" placeholder="${T('ör. Dışarıda yemek')}" aria-label="${T('Ne için?')}" autocomplete="off"></div>${catChips(U.dCat, 'dCat')}<button class="btn" type="submit">${T('Bugüne kaydet')}</button><p class="note" style="margin:0">${T('Bugünün günlük harcamalarına eklenir ve haftanın giderlerine sayılır.')}</p></form>`;
     if (k === 'uber') form = `<form class="card a-para stack" id="qForm" data-k="uber"><div class="fields"><div class="field"><label for="qEarn">${T('Kazanç')}</label><div class="money"><span>$</span><input id="qEarn" inputmode="decimal" placeholder="0"></div></div><div class="field"><label for="qHours">${T('Çevrimiçi saat')}</label><div class="money"><input id="qHours" inputmode="decimal" placeholder="0"><span>${T('sa')}</span></div></div></div><button class="btn" type="submit">${T('Vardiyayı haftaya ekle')}</button><p class="note" style="margin:0">${T('Bu hafta şu ana kadar {x} · {h} saat. Yeni vardiya bunların üstüne eklenir.', { x: usd(+w.uberEarn || 0), h: nf1.format(+w.uberHours || 0) })}</p></form>`;
     if (k === 'kilo') form = `<form class="card a-sag stack" id="qForm" data-k="kilo"><div class="field"><label for="qWeight">${T('Bugünkü kilo')}</label><div class="money"><input id="qWeight" inputmode="decimal" placeholder="${latestWeight() ? nf1.format(latestWeight().v) : T('ör. 78,5')}"><span>kg</span></div></div><button class="btn" type="submit">${T('Kaydet')}</button></form>`;
     if (k === 'aliskanlik') form = `<div class="card a-gel">${G().habits.length ? `<div class="htiles">${G().habits.map((h) => `<button type="button" class="htile" data-act="habit" data-id="${h.id}" aria-pressed="${isDone(h.id, todayKey())}"><span class="chk">${ico('check')}</span><span class="n">${esc(h.name)}</span></button>`).join('')}</div>` : `<p class="note" style="margin:0">${T('Henüz alışkanlık yok. Gelişim sekmesinden ekleyebilirsin.')}</p>`}</div>`;
     return sheetShell(T('Hızlı kayıt'), `<div class="quick">${opts.map(([v, l, ic, a]) => `<button type="button" class="${a}" data-act="fabPick" data-k="${v}" aria-pressed="${k === v}"><span class="ico">${ico(ic)}</span>${T(l)}</button>`).join('')}</div>${form}`, 'a-bug');
+  }
+  if (sh.kind === 'daily') {
+    const w = getWeek(sh.week), x = w && w.daily.find((e) => e.id === sh.id); if (!x) return '';
+    const days = [...Array(7)].map((_, i) => idOf(addDays(fromId(sh.week), i)));
+    return sheetShell(T('Harcamayı düzenle'), `<form class="stack" id="dailyEdit"><div class="fields"><div class="field"><label for="deAmt">${T('Tutar')}</label><div class="money"><span>$</span><input id="deAmt" inputmode="decimal" value="${sh.amt != null ? esc(sh.amt) : fmtIn(x.amount)}"></div></div>
+      <div class="field"><label for="deDate">${T('Gün')}</label><select class="txt" id="deDate">${days.map((k) => { const d = fromId(k); return `<option value="${k}" ${(sh.date || x.date) === k ? 'selected' : ''}>${DAYS_LONG[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}</option>`; }).join('')}</select></div></div>
+      <div class="field"><label for="deName">${T('Ne için?')}</label><input class="txt" id="deName" value="${esc(sh.name != null ? sh.name : x.name || '')}" autocomplete="off"></div>
+      ${catChips(sh.cat, 'deCat')}<button class="btn" type="submit" id="deSave">${T('Kaydet')}</button><button type="button" class="btn ghost" data-act="delDaily" data-id="${x.id}" id="deDel">${T('Harcamayı sil')}</button></form>`, 'a-para');
   }
   if (sh.kind === 'uexp') return sheetShell(sh.id ? T('Uber giderini düzenle') : T('Uber gideri ekle'), uexpSheet(sh), 'a-para');
   if (sh.kind === 'habits') {
@@ -1975,6 +2123,7 @@ function render() {
     $('topTitle').textContent = U.tab === 'bugun' ? 'Momentum' : T(TITLE[U.tab]);
     document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === U.tab)));
     $('fab').hidden = U.tab !== 'bugun';
+    const sg = $('secGear'); if (sg) { sg.dataset.sec = TAB_SEC[U.tab]; sg.setAttribute('aria-label', T('Bu sekmenin ayarları')); sg.title = T('Bu sekmenin ayarları'); }
     if (U.tab === 'para' && U.paraSeg === 'hafta') paraCalc();
   });
 }
@@ -1991,10 +2140,10 @@ function go(tab, seg) {
 }
 let ovDepth = 0;
 function openOverlay(kind, v) {
-  if (kind === 'page') { U.page = v; U.bk = null; renderPage(); } else { U.sheet = v; renderSheet(); }
+  if (kind === 'page') { U.page = v; U.bk = null; if (v === 'settings') U.setSec = null; renderPage(); } else if (kind === 'setSec') { U.setSec = v; U.bk = null; renderPage(); const pg = $('page'); if (pg) pg.scrollTop = 0; } else { U.sheet = v; renderSheet(); }
   try { history.pushState({ ov: ++ovDepth }, ''); } catch (e) {}
 }
-function closeTop() { U.armed = null; if (U.sheet) { U.sheet = null; renderSheet(); } else if (U.page) { U.page = null; U.bk = null; renderPage(); render(); } }
+function closeTop() { U.armed = null; if (U.sheet) { U.sheet = null; renderSheet(); } else if (U.page === 'settings' && U.setSec) { U.setSec = null; U.bk = null; renderPage(); } else if (U.page) { U.page = null; U.bk = null; renderPage(); render(); } }
 function closeOverlay() { if (history.state && history.state.ov) history.back(); else closeTop(); }
 window.addEventListener('popstate', () => { ovDepth = Math.max(0, ovDepth - 1); closeTop(); });
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && (U.sheet || U.page)) closeOverlay(); });
@@ -2004,6 +2153,61 @@ const val = (id) => ($(id) ? $(id).value : '');
 const pnum = (id) => { const v = parse(val(id)); return v === '' ? null : v; }; // budget-style parse (accepts 1.061 and 12,5)
 const dnum = (id) => num(val(id)); // decimal parse for kg, units, prices
 function after() { save(); renderAll(); }
+
+// ---------- daily expenses: add / find / delete with undo ----------
+function addDaily(day, name, amount, cat) {
+  const w = weekObj(idOf(mondayOf(parseKey(day))));
+  w.daily.push({ id: uid(), date: day, name: name || T('Harcama'), amount: r2(amount), cat: cat || null });
+}
+function findDaily(id) {
+  for (const [week, w] of Object.entries(D.money.weeks)) { const i = (w.daily || []).findIndex((x) => x.id === id); if (i >= 0) return { week, w, i, x: w.daily[i] }; }
+  return null;
+}
+let lastDeleted = null, undoTimer = null;
+function deleteDaily(id) {
+  const f = findDaily(id); if (!f) return;
+  f.w.daily.splice(f.i, 1); lastDeleted = { week: f.week, i: f.i, x: f.x };
+  save(); render();
+  toastAction(T('Silindi: {x} ({y})', { x: f.x.name || T('Harcama'), y: money(+f.x.amount || 0) }), T('Geri al'));
+}
+function undoDelete() {
+  if (!lastDeleted) return; const w = weekObj(lastDeleted.week);
+  w.daily.splice(Math.min(lastDeleted.i, w.daily.length), 0, lastDeleted.x); lastDeleted = null;
+  const t = $('toast'); if (t) t.hidden = true; clearTimeout(undoTimer); save(); render();
+}
+function toastAction(msg, label) {
+  const t = $('toast'); if (!t) return;
+  t.innerHTML = `<span>${esc(msg)}</span><button type="button" class="toast-act" data-act="undo" id="undoBtn">${esc(label)}</button>`;
+  t.hidden = false; clearTimeout(toastT); clearTimeout(undoTimer);
+  undoTimer = setTimeout(() => { t.hidden = true; lastDeleted = null; }, 5000);
+}
+
+// ---------- swipe left to delete (pointer events, ~80px threshold) ----------
+let swipe = null, swipeSuppress = false;
+document.addEventListener('pointerdown', (e) => {
+  const fg = e.target.closest('.swipe-fg'); if (!fg || e.button > 0) return;
+  swipe = { fg, row: fg.parentElement, x: e.clientX, y: e.clientY, dx: 0, on: false, pid: e.pointerId };
+});
+document.addEventListener('pointermove', (e) => {
+  if (!swipe || e.pointerId !== swipe.pid) return;
+  const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+  if (!swipe.on) { if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) { swipe.on = true; try { swipe.fg.setPointerCapture(e.pointerId); } catch (err) {} swipe.row.classList.add('swiping'); } else return; }
+  swipe.dx = Math.max(-160, Math.min(0, dx));
+  swipe.fg.style.transform = `translateX(${swipe.dx}px)`;
+  swipe.row.classList.toggle('armed', swipe.dx <= -80);
+});
+function endSwipe(e) {
+  if (!swipe || (e && e.pointerId !== swipe.pid)) return;
+  const s = swipe; swipe = null; if (!s.on) return;
+  swipeSuppress = true; setTimeout(() => { swipeSuppress = false; }, 350);
+  s.row.classList.remove('swiping');
+  // full swipe deletes; a partial swipe leaves the red "Sil" button revealed to tap
+  if (s.dx <= -120) { s.fg.style.transform = 'translateX(-110%)'; const id = s.row.dataset.swipe; setTimeout(() => deleteDaily(id), 140); }
+  else if (s.dx <= -40) { s.fg.style.transform = 'translateX(-96px)'; s.row.classList.add('open'); }
+  else { s.fg.style.transform = ''; s.row.classList.remove('armed', 'open'); }
+}
+document.addEventListener('pointerup', endSwipe);
+document.addEventListener('pointercancel', endSwipe);
 function addSampleHabits() { const k = todayKey(); SAMPLE_HABITS.forEach(([tr, band, en]) => { const name = LANG === 'en' ? en : tr; if (!G().habits.some((h) => h.name === name)) G().habits.push({ id: uid(), name, band, created: k }); }); toast(T('Örnek alışkanlıklar eklendi. İstediğin gibi düzenleyebilirsin.')); }
 
 document.addEventListener('click', (e) => {
@@ -2017,7 +2221,16 @@ document.addEventListener('click', (e) => {
   switch (a) {
     // navigation & overlays
     case 'go': if (b.dataset.week) U.cur = b.dataset.week; go(b.dataset.tab, b.dataset.seg); break;
-    case 'openSettings': openOverlay('page', 'settings'); if (b.dataset.focus) setTimeout(() => { const el = $(b.dataset.focus); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 50); break;
+    case 'setSec': openOverlay('setSec', b.dataset.v); break;
+    case 'dayOpen': U.openDay = U.openDay === b.dataset.d ? null : b.dataset.d; render(); { const f0 = $('dAmt'); if (f0 && U.openDay) f0.focus({ preventScroll: true }); } break;
+    case 'dCat': { const keep = [val('dAmt'), val('dName'), val('qAmt'), val('qName')]; U.dCat = U.dCat === b.dataset.v ? null : b.dataset.v;
+      if (U.dCat) { const lbl = dcatName(U.dCat), prev = dcatName(b.dataset.prev || ''); [1, 3].forEach((i) => { if (!keep[i].trim() || DCATS.some((c) => T(c[1]) === keep[i].trim())) keep[i] = lbl; }); } if (U.sheet && U.sheet.kind === 'fab') renderSheet(); else render(); [['dAmt', 0], ['dName', 1], ['qAmt', 2], ['qName', 3]].forEach(([x, i]) => { if ($(x)) $(x).value = keep[i]; }); break; }
+    case 'deCat': { Object.assign(U.sheet, { amt: val('deAmt'), name: val('deName'), date: val('deDate') }); U.sheet.cat = U.sheet.cat === b.dataset.v ? null : b.dataset.v; renderSheet(); break; }
+    case 'editDaily': { if (swipeSuppress) { swipeSuppress = false; break; } const f0 = findDaily(id); if (f0) openOverlay('sheet', { kind: 'daily', id, week: f0.week, cat: f0.x.cat || null }); break; }
+    case 'delDaily': { const inSheet = U.sheet && U.sheet.kind === 'daily'; deleteDaily(id); if (inSheet) closeOverlay(); break; }
+    case 'undo': undoDelete(); break;
+    case 'catGst': setCatDefault(b.dataset.k, { gst: b.dataset.v === 'true' }); save(); renderPage(); break;
+    case 'openSettings': openOverlay('page', 'settings'); if (b.dataset.sec) openOverlay('setSec', b.dataset.sec); if (b.dataset.focus) setTimeout(() => { const el = $(b.dataset.focus); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 50); break;
     case 'openInsights': openOverlay('page', 'insights'); break;
     case 'closeOverlay': closeOverlay(); break;
     case 'openFab': openOverlay('sheet', { kind: 'fab', k: null }); break;
@@ -2131,6 +2344,7 @@ document.addEventListener('input', (e) => {
   if (t.hasAttribute('data-idtext')) { G().identity = t.value; save(); return; }
   if (ds.bnote) { const bk = G().books.find((x) => x.id === ds.bnote); if (bk) { bk.note = t.value; save(); } return; }
   if (ds.hedit != null && U.sheet && U.sheet.draft) { U.sheet.draft[+ds.hedit].name = t.value; return; }
+  if (ds.catbiz) { const v = num(t.value); if (v != null && v >= 0 && v <= 100) { setCatDefault(ds.catbiz, { biz: v }); save(); } return; }
   if (t.hasAttribute('data-ivkey')) { IV().finnhubKey = t.value.trim(); IV().lastRefresh = 0; save(); return; }
 });
 document.addEventListener('focusout', (e) => {
@@ -2161,6 +2375,7 @@ document.addEventListener('change', async (e) => {
   if (ds.tsum) { render(); return; }
   if (t.hasAttribute('data-uecat') && U.sheet && U.sheet.kind === 'uexp') { const keep = uexpKeep(), def = catDefaults(t.value); Object.assign(U.sheet, keep, { cat: t.value, gst: def.gst, biz: def.biz }); renderSheet(); return; }
   if (ds.hband != null && U.sheet && U.sheet.draft) { U.sheet.draft[+ds.hband].band = t.value; return; }
+  if (t.hasAttribute('data-bookgoal')) { const v = num(t.value); if (v && v > 0) { G().bookGoal = Math.round(v); save(); } return; }
   if (t.id === 'bGoal') { const v = num(t.value); if (v && v > 0) { G().bookGoal = Math.round(v); after(); } return; }
   if (ds.bpage) { const bk = G().books.find((x) => x.id === ds.bpage), v = num(t.value); if (bk && v != null && v >= 0) { const np = bk.pages ? Math.min(bk.pages, Math.round(v)) : Math.round(v); const diff = np - (bk.page || 0); if (diff > 0) G().readLog[k] = (G().readLog[k] || 0) + diff; bk.page = np; if (bk.pages && np >= bk.pages) { bk.status = 'done'; bk.fin = k; } after(); } return; }
   if (ds.map && U.imp && U.imp.sheets) { const sh = U.imp.sheets[+ds.sheet]; if (t.value === '') delete sh.map[ds.map]; else sh.map[ds.map] = +t.value; $('impBox').innerHTML = impPreview(); return; }
@@ -2176,7 +2391,7 @@ document.addEventListener('submit', (e) => {
     case 'watchForm': { const s = val('watchSym').trim().toUpperCase().replace(/\.AX$/, ''); if (!s) return; const m = U.watchMkt || 'US'; if (!IV().watchlist.some((w) => w.symbol === s && w.market === m)) IV().watchlist.push({ symbol: s, market: m }); after(); if (m === 'US') refreshPrices(true); return; }
     case 'qForm': {
       const q = f.dataset.k, tw = thisWeekId();
-      if (q === 'harcama') { const amt = pnum('qAmt'); if (!amt || amt <= 0) { $('qAmt').focus(); return; } weekObj(tw).extras.push({ name: val('qName').trim() || T('Harcama'), amount: amt }); save(); closeOverlay(); toast(T('Bu haftaya eklendi: {x}', { x: usd(amt) })); render(); return; }
+      if (q === 'harcama') { const amt = pnum('qAmt'); if (!amt || amt <= 0) { $('qAmt').focus(); return; } addDaily(k, val('qName').trim(), amt, U.dCat); save(); closeOverlay(); toast(T('Bugüne eklendi: {x}', { x: money(amt) })); render(); return; }
       if (q === 'uber') { const er = pnum('qEarn') || 0, hr = dnum('qHours') || 0; if (er <= 0 && hr <= 0) { $('qEarn').focus(); return; } const w = weekObj(tw); w.uberEarn = Math.round(((+w.uberEarn || 0) + er) * 100) / 100; w.uberHours = Math.round(((+w.uberHours || 0) + hr) * 100) / 100; save(); closeOverlay(); toast(T('Uber vardiyası eklendi: {x} · {h} sa', { x: usd(er), h: nf1.format(hr) })); render(); return; }
       if (q === 'kilo') { const v = dnum('qWeight'); if (!v || v < 25 || v > 300) { $('qWeight').focus(); return; } setH(k, { weight: Math.round(v * 10) / 10 }); closeOverlay(); toast(T('Kilo kaydedildi: {x} kg', { x: nf1.format(v) })); render(); return; }
       return;
@@ -2190,7 +2405,7 @@ document.addEventListener('submit', (e) => {
     case 'potBuyForm': {
       const p = D.money.pots.find((x) => x.id === U.sheet.id); if (!p) return; const amt = pnum('buyAmt'); if (!amt || amt <= 0) { $('buyAmt').focus(); return; }
       weekObj(thisWeekId()).extras.push({ name: p.name, amount: amt });
-      p.done = true; p.doneOn = k; p.spent = amt; p.log.push({ d: k, a: -Math.min(amt, p.saved), note: 'Satın alındı' }); // note is a TR key, translated on display p.saved = Math.max(0, Math.round((p.saved - amt) * 100) / 100);
+      p.done = true; p.doneOn = k; p.spent = amt; p.log.push({ d: k, a: -Math.min(amt, p.saved), note: 'Satın alındı' }); /* note is a TR key, translated on display */ p.saved = Math.max(0, Math.round((p.saved - amt) * 100) / 100);
       save(); closeOverlay(); toast(T('{x}: {y} bu haftaya gider olarak eklendi.', { x: p.name, y: usd(amt) })); render(); return;
     }
     case 'uexpForm': {
@@ -2199,6 +2414,15 @@ document.addEventListener('submit', (e) => {
       const sh = U.sheet, rec = { d: d0, cat: val('ueCat') || sh.cat, amount: amt, gst: !!sh.gst, biz: biz == null ? 100 : Math.max(0, Math.min(100, biz)), note: val('ueNote').trim() };
       if (sh.id) { const e = D.money.uberExpenses.find((x) => x.id === sh.id); if (e) Object.assign(e, rec); } else D.money.uberExpenses.push(Object.assign({ id: uid() }, rec));
       save(); closeOverlay(); toast(T('Uber gideri kaydedildi: {x}', { x: usd2(amt) })); render(); return;
+    }
+    case 'dailyForm': {
+      const amt = pnum('dAmt'), day = f.dataset.d; if (!amt || amt <= 0) { $('dAmt').focus(); return; }
+      addDaily(day, val('dName').trim(), amt, U.dCat); save(); render(); toast(T('{d} gününe eklendi: {x}', { d: dShort(day), x: money(amt) })); { const n = $('dAmt'); if (n) n.focus({ preventScroll: true }); } return;
+    }
+    case 'dailyEdit': {
+      const sh = U.sheet, f0 = findDaily(sh.id); if (!f0) return; const amt = pnum('deAmt'); if (!amt || amt <= 0) { $('deAmt').focus(); return; }
+      const nd = val('deDate') || f0.x.date; Object.assign(f0.x, { amount: amt, name: val('deName').trim() || T('Harcama'), cat: sh.cat || null, date: nd });
+      save(); closeOverlay(); render(); return;
     }
     case 'saForm': {
       const amt = pnum('saAmt'), d0 = val('saDate') || k; if (!amt || amt <= 0) { $('saAmt').focus(); return; }
@@ -2456,10 +2680,23 @@ const EN = {
   'Yeni harcama': 'New expense', 'Yeni gider': 'New expense', 'Kumbarada bu kadar para yok ({x}).': "There isn't that much in the pot ({x}).", '{x} hedefine ulaştı.': '{x} reached its goal.',
   'Yedek indirildi: {x} (İndirilenler klasörü)': 'Backup downloaded: {x} (Downloads folder)', 'Yedek indirilemedi.': "Couldn't download the backup.",
   'Yedek yüklenirken bir sorun oldu; verilerin değişmedi.': 'Something went wrong restoring the backup; your data is unchanged.',
-  'Bu dosya tanınan bir yedek değil. Momentum yedeği, Haftalık Bütçe yedeği ya da eski Momentum verisi seçmelisin.': "This file isn't a backup the app recognises. Choose an Momentum backup, a Weekly Budget backup or old Momentum data.",
+  'Bu dosya tanınan bir yedek değil. Momentum yedeği, Haftalık Bütçe yedeği ya da eski Momentum verisi seçmelisin.': "This file isn't a backup the app recognises. Choose a Momentum backup, a Weekly Budget backup or old Momentum data.",
   'Bu haftaya eklendi: {x}': 'Added to this week: {x}', 'Uber vardiyası eklendi: {x} · {h} sa': 'Uber shift added: {x} · {h} h', 'Kilo kaydedildi: {x} kg': 'Weight saved: {x} kg',
   '{x}: {y} bu haftaya gider olarak eklendi.': '{x}: {y} added as a cost this week.', 'Uber gideri kaydedildi: {x}': 'Uber expense saved: {x}',
-  'Sigara: bugün {n}': 'Cigarettes today: {n}', 'Alkol: bugün {n}': 'Drinks today: {n}'
+  'Sigara: bugün {n}': 'Cigarettes today: {n}', 'Alkol: bugün {n}': 'Drinks today: {n}',
+  // round 3
+  'Günlük harcamalar': 'Daily spending', '{n} kayıt': pl('{n} entry', '{n} entries'), 'Sil: {x}': 'Delete: {x}', 'Bu güne ait harcama yok.': 'Nothing spent on this day yet.',
+  'ör. Dışarıda yemek': 'e.g. Takeaway', 'Günlük harcamaların toplamı haftanın giderlerine eklenir. Silmek için satırı sola kaydır, düzenlemek için dokun.': "Daily spending is added to the week's costs. Swipe a row left to delete it, tap to edit.",
+  'Ayarlar → Sağlık': 'Settings → Health', 'Ayarlara dön': 'Back to Settings', 'Maaş {x}': 'Salary {x}', 'Logbook {p} · BAS çeyreklik': 'Logbook {p} · quarterly BAS', '{n} kitap hedefi': pl('{n}-book goal', '{n}-book goal'),
+  'paket {x}': 'pack {x}', 'Finnhub anahtarı girildi': 'Finnhub key added', 'Finnhub anahtarı yok': 'No Finnhub key', 'Dışa ve içe aktar': 'Export and import', 'Logbook': 'Logbook',
+  'Araç giderlerinin varsayılan iş payıdır.': 'The default work share for car expenses.', 'Kategori varsayılanları': 'Category defaults', '{x}: GST': '{x}: GST', '{x}: iş payı': '{x}: work share',
+  'Yeni Uber giderlerinde bu GST ve iş payı değerleri önceden seçili gelir. Araç kategorileri logbook yüzdesini kullanır, değiştirmediğin sürece.': 'New Uber expenses start with these GST and work-share settings. Car categories use your logbook % unless you change them.',
+  'Uber vergisi': 'Uber tax', 'Hastane sigortası': 'Hospital cover',
+  'Vergi sekmesi maaşını ve hastane sigortanı Para ayarlarından alır. BAS çeyreklik verilir: 28 Ekim, 28 Şubat, 28 Nisan ve 28 Temmuz.': 'The Tax tab takes your salary and hospital cover from Money settings. BAS is lodged quarterly: 28 October, 28 February, 28 April and 28 July.',
+  'Para ayarlarını aç': 'Open Money settings', 'Okuma': 'Reading', 'Yıllık kitap hedefi': 'Yearly book goal', 'Bugüne kaydet': 'Save to today',
+  'Bugünün günlük harcamalarına eklenir ve haftanın giderlerine sayılır.': "Added to today's daily spending and counted in this week's costs.", 'Harcamayı düzenle': 'Edit expense', 'Gün': 'Day',
+  'Harcamayı sil': 'Delete expense', 'Bu sekmenin ayarları': "This tab's settings", 'Silindi: {x} ({y})': 'Deleted: {x} ({y})', 'Geri al': 'Undo', 'Bugüne eklendi: {x}': 'Added to today: {x}',
+  '{d} gününe eklendi: {x}': 'Added to {d}: {x}', 'Yemek': 'Food', 'Market': 'Groceries', 'Kahve': 'Coffee', 'Ulaşım': 'Transport', 'Eğlence': 'Fun', 'Fatura': 'Bills', 'Genel': 'General'
 };
 
 // ===================== init =====================
@@ -2476,7 +2713,7 @@ let lastDay = todayKey();
 const dayCheck = () => { if (todayKey() !== lastDay) { lastDay = todayKey(); render(); } };
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { dayCheck(); if (U.tab === 'yatirim') refreshPrices(false); } });
 setInterval(dayCheck, 60000);
-window.__adim = { get state() { return D; }, weekCalc: (w) => weekCalc(w), insights, saveNow, taxFull, ttax, missing: MISSING };
+window.__adim = { get state() { return D; }, weekCalc: (w) => weekCalc(w), insights, saveNow, taxFull, ttax, missing: MISSING, parse, num, calc, setLang: (l) => { D.ui.lang = l; applyLang(); renderAll(); } };
 
 })();
 </script>
