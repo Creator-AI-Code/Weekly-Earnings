@@ -1,0 +1,14 @@
+{
+  "appId": "com.creatoraicode.momentum",
+  "appName": "Momentum",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#f6f3ee"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_momentum",
+      "iconColor": "#E4B552"
+    }
+  }
+}
