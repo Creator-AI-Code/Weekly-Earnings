@@ -11,6 +11,17 @@ run = os.environ.get('GITHUB_RUN_NUMBER', '1')
 g = os.path.join(app, 'android', 'app', 'build.gradle'); s = open(g).read()
 s = re.sub(r'versionCode \d+', 'versionCode %s' % run, s)
 s = re.sub(r'versionName "[^"]*"', 'versionName "1.%s"' % run, s)
+# Sign every build with the committed key, so updates install over the old app and keep its data.
+if 'momentum-debug.jks' not in s:
+    s = s.replace('android {', '''android {
+    signingConfigs {
+        debug {
+            storeFile file('../../momentum-debug.jks')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }''', 1)
 open(g, 'w').write(s)
 # Same debug key on every CI run so a new APK installs over the old one (keeps local data).
 home = os.path.expanduser('~/.android'); os.makedirs(home, exist_ok=True)

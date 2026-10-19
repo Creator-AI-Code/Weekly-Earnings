@@ -1,4 +1,10 @@
-## Momentum v1.0.0
+## Momentum v1.0.1
+
+**Düzeltme:** APK artık her seferinde aynı anahtarla imzalanıyor. Bu sürümü bir kez eski uygulamayı silip kurman gerekiyor (önce Ayarlar → Yedek al). Bundan sonraki güncellemeler eskisinin üstüne kurulur, verilerin kalır.
+
+---
+
+### v1.0.0
 
 İlk sürüm. Telefonda **Momentum.apk** dosyasını indirip aç (bilinmeyen kaynaklardan yüklemeye izin ver). Önceki sürümün üstüne kurulur, verilerin kalır.
 

@@ -62,6 +62,13 @@ jobs:
           ./gradlew assembleDebug --no-daemon --stacktrace
           cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/Momentum.apk"
 
+      - name: Check the APK is signed with the Momentum key
+        working-directory: .
+        run: |
+          AS=$(ls -d "${ANDROID_HOME:-$ANDROID_SDK_ROOT}"/build-tools/*/apksigner | sort -V | tail -1)
+          "$AS" verify --print-certs Momentum.apk | tee certs.txt
+          grep -qi "e815be03b210a204ffe40da0d34ea00e78304eb694742ef513a7374cf39556b7" certs.txt
+
       - uses: actions/upload-artifact@v4
         with:
           name: Momentum-apk
