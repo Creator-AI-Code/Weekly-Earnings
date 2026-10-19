@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Momentum</title>
 <meta name="description" content="Bütçe, alışkanlık, sağlık ve yatırım: tek telefonda, tek elle.">
-<meta name="theme-color" content="#f6f3ee">
+<meta name="theme-color" content="#f4eee6">
 <meta name="color-scheme" content="light dark">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,23 +17,24 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-/* Momentum: warm paper base, one card shape, each area owns one accent (Para bordo, Gelişim eucalyptus, Sağlık slate, Yatırım navy); gold is reserved for milestones.
-   Bordo stays bordo in both themes: dark mode fills with deep wine + light text, and uses a desaturated claret for text/lines (never pink). */
+/* Momentum: warm light-beige ground, cream cards; bordo is primary (hero, primary buttons, money, Para), dusty purple is the sparing secondary
+   (Gelişim, habits, rewards), Sağlık steel blue and Yatırım navy stay distinct; gold is reserved for milestones.
+   Dark: aubergine ground; bordo fills as deep wine + light text, claret (never pink) for text/lines; purple lifts to a muted lavender-grey. */
 :root {
-  --bg: #f6f3ee; --surface: #fffdfa; --surface-2: #f1ece5; --surface-3: #e9e2d8;
-  --ink: #1f1b17; --ink-2: #554d45; --ink-3: #6b625a; --line: #e6dfd5; --line-strong: #d1c7b9;
-  --bug: #2b2520; --bug-ink: #fffdfa; --bug-soft: #ebe5dc; --bug-text: #2b2520; --bug-line: #2b2520;
-  --para: #7b1e3c; --para-ink: #fff8f4; --para-soft: #efe3dc; --para-text: #7b1e3c; --para-line: #7b1e3c;
-  --gel: #2b6a5a; --gel-ink: #ffffff; --gel-soft: #dfece7; --gel-text: #245a4d; --gel-line: #2b6a5a;
-  --sag: #3b5b8c; --sag-ink: #ffffff; --sag-soft: #e3e9f2; --sag-text: #34517d; --sag-line: #3b5b8c;
-  --yat: #1f2a44; --yat-ink: #ffffff; --yat-soft: #e2e5ee; --yat-text: #1f2a44; --yat-line: #1f2a44;
-  --gold: #885d0a; --gold-soft: #f6ead0; --gold-line: #d4ab4f;
-  --gain: #3c7334; --gain-soft: #e4efdc; --loss: #b0402a; --loss-ink: #ffffff; --loss-soft: #f8e4da;
-  --warn: #94500a; --warn-soft: #f9ecd9;
+  --bg: #f4eee6; --surface: #fbf8f3; --surface-2: #efe7dd; --surface-3: #e6dcd0;
+  --ink: #1f1a17; --ink-2: #544a43; --ink-3: #685d55; --line: #e3d9cd; --line-strong: #cbbdad;
+  --bug: #2b2520; --bug-ink: #fbf8f3; --bug-soft: #e9e1d6; --bug-text: #2b2520; --bug-line: #2b2520;
+  --para: #7b1e3c; --para-ink: #fff8f4; --para-soft: #eee1d8; --para-text: #7b1e3c; --para-line: #7b1e3c;
+  --gel: #6b4e8a; --gel-ink: #ffffff; --gel-soft: #ece5f0; --gel-text: #5d427c; --gel-line: #6b4e8a;
+  --sag: #2f5f7e; --sag-ink: #ffffff; --sag-soft: #e0e9ee; --sag-text: #2a5571; --sag-line: #2f5f7e;
+  --yat: #232a42; --yat-ink: #ffffff; --yat-soft: #e3e4ec; --yat-text: #232a42; --yat-line: #232a42;
+  --gold: #7f5c14; --gold-soft: #f1e7d3; --gold-line: #c2a15a;
+  --gain: #376a30; --gain-soft: #e3ecda; --loss: #a93d28; --loss-ink: #ffffff; --loss-soft: #f6e3d8;
+  --warn: #8e4e0c; --warn-soft: #f6ead8;
   --hero-para: #6b1832; --hero-para-tile: #7e2640; --hero-para-line: #8b3149;
-  --hero-yat: #1f2a44; --hero-yat-tile: #2c3a5c; --hero-yat-line: #34446a;
+  --hero-yat: #232a42; --hero-yat-tile: #303a5a; --hero-yat-line: #3a4568;
   --hero-ink: #ffffff; --hero-ink-2: #ece1da; --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
-  --tabbar: rgba(255, 253, 250, 0.94); --scrim: rgba(24, 18, 14, 0.42);
+  --tabbar: rgba(251, 248, 243, 0.94); --scrim: rgba(27, 21, 32, 0.42);
   --card-shadow: 0 1px 2px rgba(50, 35, 20, 0.05), 0 8px 22px -16px rgba(50, 35, 20, 0.22);
   --hero-shadow: 0 14px 30px -18px rgba(60, 20, 25, 0.6);
   --f-display: "Bricolage Grotesque", "Segoe UI", Roboto, system-ui, sans-serif;
@@ -41,40 +42,40 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #14110f; --surface: #1e1a17; --surface-2: #28231f; --surface-3: #332c27;
-    --ink: #f3eee8; --ink-2: #cdc3b8; --ink-3: #a3988d; --line: #332c27; --line-strong: #4a4039;
-    --bug: #ece5dc; --bug-ink: #14110f; --bug-soft: #312a25; --bug-text: #ece5dc; --bug-line: #ece5dc;
-    --para: #7b1e3c; --para-ink: #f8ece6; --para-soft: #3a1a20; --para-text: #d0867c; --para-line: #c47a70;
-    --gel: #6fc2ad; --gel-ink: #0c1a16; --gel-soft: #18362f; --gel-text: #8dd2c0; --gel-line: #6fc2ad;
-    --sag: #8fb0e3; --sag-ink: #0f1726; --sag-soft: #1f2b40; --sag-text: #a9c3ec; --sag-line: #8fb0e3;
-    --yat: #a4b4da; --yat-ink: #10141f; --yat-soft: #252c3d; --yat-text: #bac7e6; --yat-line: #a4b4da;
-    --gold: #e4b552; --gold-soft: #3a2f17; --gold-line: #a07d2c;
-    --gain: #9fcf82; --gain-soft: #22331b; --loss: #ff8a66; --loss-ink: #2a0f08; --loss-soft: #3d221a;
-    --warn: #f2b54a; --warn-soft: #3a2c12;
+    --bg: #1b1520; --surface: #251c2b; --surface-2: #2e2435; --surface-3: #3a2e40;
+    --ink: #f3edea; --ink-2: #d0c5cc; --ink-3: #a99da8; --line: #3a2e40; --line-strong: #54465c;
+    --bug: #ece5dc; --bug-ink: #1b1520; --bug-soft: #342a3a; --bug-text: #ece5dc; --bug-line: #ece5dc;
+    --para: #7b1e3c; --para-ink: #f8ece6; --para-soft: #3b1a27; --para-text: #cd917f; --para-line: #b97f6e;
+    --gel: #b6a3cf; --gel-ink: #1b1520; --gel-soft: #342841; --gel-text: #c5b5db; --gel-line: #b6a3cf;
+    --sag: #8db6d0; --sag-ink: #101a22; --sag-soft: #1e2c37; --sag-text: #a5c6db; --sag-line: #8db6d0;
+    --yat: #a3b1cc; --yat-ink: #12141e; --yat-soft: #262a3a; --yat-text: #bac5da; --yat-line: #a3b1cc;
+    --gold: #ddb25a; --gold-soft: #3a2e1c; --gold-line: #a07d2c;
+    --gain: #9fcf82; --gain-soft: #22301d; --loss: #ff8a66; --loss-ink: #2a0f08; --loss-soft: #3d2220;
+    --warn: #f2b54a; --warn-soft: #3a2c16;
     --hero-para: #5a1428; --hero-para-tile: #6e1e35; --hero-para-line: #7b2a42;
-    --hero-yat: #1a2236; --hero-yat-tile: #263150; --hero-yat-line: #303d60;
+    --hero-yat: #1c2034; --hero-yat-tile: #282e4c; --hero-yat-line: #323a5c;
     --hero-ink: #ffffff; --hero-ink-2: #e3d6cf; --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
-    --tabbar: rgba(30, 26, 23, 0.95); --scrim: rgba(0, 0, 0, 0.6);
+    --tabbar: rgba(37, 28, 43, 0.95); --scrim: rgba(0, 0, 0, 0.6);
     --card-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 22px -16px rgba(0, 0, 0, 0.7);
     --hero-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.8);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #14110f; --surface: #1e1a17; --surface-2: #28231f; --surface-3: #332c27;
-  --ink: #f3eee8; --ink-2: #cdc3b8; --ink-3: #a3988d; --line: #332c27; --line-strong: #4a4039;
-  --bug: #ece5dc; --bug-ink: #14110f; --bug-soft: #312a25; --bug-text: #ece5dc; --bug-line: #ece5dc;
-  --para: #7b1e3c; --para-ink: #f8ece6; --para-soft: #3a1a20; --para-text: #d0867c; --para-line: #c47a70;
-  --gel: #6fc2ad; --gel-ink: #0c1a16; --gel-soft: #18362f; --gel-text: #8dd2c0; --gel-line: #6fc2ad;
-  --sag: #8fb0e3; --sag-ink: #0f1726; --sag-soft: #1f2b40; --sag-text: #a9c3ec; --sag-line: #8fb0e3;
-  --yat: #a4b4da; --yat-ink: #10141f; --yat-soft: #252c3d; --yat-text: #bac7e6; --yat-line: #a4b4da;
-  --gold: #e4b552; --gold-soft: #3a2f17; --gold-line: #a07d2c;
-  --gain: #9fcf82; --gain-soft: #22331b; --loss: #ff8a66; --loss-ink: #2a0f08; --loss-soft: #3d221a;
-  --warn: #f2b54a; --warn-soft: #3a2c12;
+  --bg: #1b1520; --surface: #251c2b; --surface-2: #2e2435; --surface-3: #3a2e40;
+  --ink: #f3edea; --ink-2: #d0c5cc; --ink-3: #a99da8; --line: #3a2e40; --line-strong: #54465c;
+  --bug: #ece5dc; --bug-ink: #1b1520; --bug-soft: #342a3a; --bug-text: #ece5dc; --bug-line: #ece5dc;
+  --para: #7b1e3c; --para-ink: #f8ece6; --para-soft: #3b1a27; --para-text: #cd917f; --para-line: #b97f6e;
+  --gel: #b6a3cf; --gel-ink: #1b1520; --gel-soft: #342841; --gel-text: #c5b5db; --gel-line: #b6a3cf;
+  --sag: #8db6d0; --sag-ink: #101a22; --sag-soft: #1e2c37; --sag-text: #a5c6db; --sag-line: #8db6d0;
+  --yat: #a3b1cc; --yat-ink: #12141e; --yat-soft: #262a3a; --yat-text: #bac5da; --yat-line: #a3b1cc;
+  --gold: #ddb25a; --gold-soft: #3a2e1c; --gold-line: #a07d2c;
+  --gain: #9fcf82; --gain-soft: #22301d; --loss: #ff8a66; --loss-ink: #2a0f08; --loss-soft: #3d2220;
+  --warn: #f2b54a; --warn-soft: #3a2c16;
   --hero-para: #5a1428; --hero-para-tile: #6e1e35; --hero-para-line: #7b2a42;
-  --hero-yat: #1a2236; --hero-yat-tile: #263150; --hero-yat-line: #303d60;
+  --hero-yat: #1c2034; --hero-yat-tile: #282e4c; --hero-yat-line: #323a5c;
   --hero-ink: #ffffff; --hero-ink-2: #e3d6cf; --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
-  --tabbar: rgba(30, 26, 23, 0.95); --scrim: rgba(0, 0, 0, 0.6);
+  --tabbar: rgba(37, 28, 43, 0.95); --scrim: rgba(0, 0, 0, 0.6);
   --card-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 22px -16px rgba(0, 0, 0, 0.7);
   --hero-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.8);
   color-scheme: dark;
@@ -191,7 +192,7 @@ select.txt { appearance: auto; }
 .tiles > .tile:last-child:nth-child(odd):not(:first-child) { grid-column: 1 / -1; }
 .tile { display: grid; gap: 1px; padding: 11px 12px; border-radius: 14px; background: var(--surface-2); min-width: 0; align-content: start; text-align: left; border: 0; color: var(--ink); }
 .tile .k { font-size: 0.8rem; color: var(--ink-2); font-weight: 500; }
-.tile .v { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.tile .v { font-weight: 700; font-size: 1.15rem; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; max-width: 100%; }
 .tile .u { font-size: 0.74rem; color: var(--ink-3); line-height: 1.35; }
 
 /* hero (Para, Yatırım) */
@@ -199,7 +200,7 @@ select.txt { appearance: auto; }
 .hero-deco { position: absolute; z-index: -1; right: -56px; top: -64px; width: 210px; height: 210px; fill: none; stroke: var(--hero-line); stroke-width: 1.5; }
 .big { display: grid; gap: 4px; min-width: 0; }
 .big .k { font-size: 0.9rem; color: var(--hero-ink-2); font-weight: 600; display: flex; align-items: center; gap: 6px; }
-.big .v { font-family: var(--f-display); font-weight: 800; font-size: clamp(2.6rem, 13vw, 3.6rem); line-height: 0.95; letter-spacing: -0.035em; margin-block: 2px; overflow-wrap: anywhere; }
+.big .v { font-family: var(--f-display); font-weight: 800; font-size: clamp(2.6rem, 13vw, 3.6rem); line-height: 0.95; letter-spacing: -0.035em; margin-block: 2px; white-space: nowrap; overflow: hidden; max-width: 100%; }
 .big .v.neg { color: var(--hero-warn); }
 .big .u { font-size: 0.84rem; color: var(--hero-ink-2); }
 .hero .tile { background: var(--hero-tile); color: var(--hero-ink); }
@@ -267,7 +268,7 @@ select.txt { appearance: auto; }
 .htile { display: flex; align-items: center; gap: 10px; min-height: 60px; padding: 10px 12px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); text-align: left; color: var(--ink); min-width: 0; }
 .htile .chk { width: 28px; height: 28px; flex: none; border-radius: 50%; border: 2px solid var(--line-strong); display: grid; place-items: center; }
 .htile .chk .i { width: 16px; height: 16px; stroke-width: 3; opacity: 0; }
-.htile span.n { font-weight: 600; font-size: 0.9rem; line-height: 1.25; min-width: 0; overflow-wrap: anywhere; }
+.htile span.n { font-weight: 600; font-size: 0.9rem; line-height: 1.25; min-width: 0; hyphens: manual; word-break: keep-all; overflow-wrap: normal; }
 .htile[aria-pressed="true"] { background: var(--acc-soft); border-color: transparent; }
 .htile[aria-pressed="true"] .chk { background: var(--acc); border-color: var(--acc-line); color: var(--acc-ink); }
 .htile[aria-pressed="true"] .chk .i { opacity: 1; }
@@ -366,7 +367,7 @@ td.neg { color: var(--warn); }
 
 /* meters */
 .meter { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
-.meter i { display: block; height: 100%; background: var(--acc); border-radius: 99px; transition: width 0.3s; }
+.meter i { display: block; height: 100%; background: var(--acc-line); border-radius: 99px; transition: width 0.3s; }
 .meter.gold i { background: var(--gold-line); }
 .meter-l { display: flex; justify-content: space-between; gap: 8px; font-size: 0.78rem; color: var(--ink-3); margin-top: 6px; }
 
@@ -389,7 +390,7 @@ details.fold > summary::-webkit-details-marker { display: none; }
 /* habits (Gelişim) */
 .habit { display: grid; gap: 8px; }
 .habit-h { display: flex; align-items: center; gap: 8px; min-width: 0; }
-.habit-h .nm { flex: 1; min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+.habit-h .nm { flex: 1; min-width: 0; font-weight: 600; hyphens: manual; word-break: keep-all; overflow-wrap: normal; }
 .dots { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
 .dot { height: 44px; border: 0; background: none; padding: 0; display: grid; justify-items: center; align-content: center; gap: 3px; font-size: 0.68rem; color: var(--ink-3); }
 .dot i { display: block; width: 22px; height: 22px; border-radius: 50%; background: var(--surface-2); border: 1.5px solid var(--line-strong); }
@@ -470,7 +471,7 @@ details.fold > summary::-webkit-details-marker { display: none; }
 .illo .btns { justify-content: center; margin-top: 6px; }
 .il-card { fill: var(--surface); stroke: var(--line-strong); stroke-width: 2; stroke-linejoin: round; }
 .il-soft { fill: var(--acc-soft); }
-.il-acc { fill: var(--acc); }
+.il-acc { fill: var(--acc-line); }
 .il-line { fill: none; stroke: var(--line-strong); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
 .il-accline { fill: none; stroke: var(--acc-line); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
 .il-dash { fill: none; stroke: var(--line-strong); stroke-width: 2; stroke-dasharray: 3 3; }
@@ -492,7 +493,7 @@ main:not([hidden]) { animation: panel-in 0.2s ease-out; }
 .card > .trow:last-of-type { border-bottom: 0; }
 .sw { position: relative; flex: none; width: 46px; height: 28px; border-radius: 14px; background: var(--line-strong); transition: background-color 0.15s ease; }
 .sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left 0.15s ease; }
-.trow[aria-pressed="true"] .sw { background: var(--acc); }
+.trow[aria-pressed="true"] .sw { background: var(--acc-line); }
 .trow[aria-pressed="true"] .sw::after { left: 21px; }
 .trow:active { transform: none; }
 
@@ -531,7 +532,7 @@ input[type="date"].txt { min-height: 48px; }
 .day-b { padding: 0 10px 12px; display: grid; gap: 10px; }
 .dlist { display: grid; gap: 6px; }
 .swipe { position: relative; border-radius: 12px; overflow: hidden; background: var(--loss); }
-.swipe-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding-right: 16px; color: #fff; font-weight: 700; font-size: 0.9rem; opacity: 0.75; }
+.swipe-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: flex-end; gap: 6px; padding-right: 16px; color: var(--loss-ink); font-weight: 700; font-size: 0.9rem; opacity: 0.75; }
 .swipe.armed .swipe-bg { opacity: 1; }
 .swipe-bg .i { width: 18px; height: 18px; }
 .swipe-fg { position: relative; display: flex; align-items: center; gap: 4px; background: var(--surface-2); touch-action: pan-y; transition: transform 0.18s ease; user-select: none; -webkit-user-select: none; }
@@ -541,14 +542,14 @@ input[type="date"].txt { min-height: 48px; }
 .dent .dn b { font-weight: 600; font-size: 0.92rem; overflow-wrap: anywhere; }
 .dent .da { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .swipe-fg .del { background: transparent; }
-.swipe-del { position: absolute; top: 0; right: 0; bottom: 0; width: 96px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; background: transparent; color: #fff; font-weight: 700; }
+.swipe-del { position: absolute; top: 0; right: 0; bottom: 0; width: 96px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; background: transparent; color: var(--loss-ink); font-weight: 700; }
 .swipe-bg { padding-right: 0; }
 .catrow { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px dashed var(--line); }
 .catrow:last-child { border-bottom: 0; }
 .catrow .cn { flex: 1; min-width: 0; font-size: 0.88rem; font-weight: 600; overflow-wrap: anywhere; }
 .catrow .seg button { padding: 0 8px; min-height: 36px; font-size: 0.8rem; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chipbtn { min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); font-weight: 600; font-size: 0.82rem; }
+.chipbtn { min-height: 44px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); font-weight: 600; font-size: 0.82rem; }
 .chipbtn[aria-pressed="true"] { background: var(--acc-soft); border-color: var(--acc-line); color: var(--acc-text); }
 .toast { display: flex; align-items: center; gap: 12px; }
 .toast[hidden] { display: none !important; }
@@ -571,6 +572,97 @@ input[type="date"].txt { min-height: 48px; }
 .trow:disabled { opacity: 0.55; cursor: default; }
 .ntime { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 2px 10px; font-size: 0.86rem; font-weight: 600; }
 .ntime .txt { width: 130px; flex: none; min-height: 44px; }
+
+
+/* ===================== v1.0: simpler layout, waterfall, home hero, swipe ===================== */
+/* design pass: quieter cards (no drop shadow, a hairline instead), one 16px rhythm */
+:root { --card-shadow: 0 0 0 1px rgba(50, 35, 20, 0.05); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04); } }
+:root[data-theme="dark"] { --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04); }
+main { gap: 16px; }
+.sec { background: var(--surface); border-radius: 16px; padding: 16px; box-shadow: var(--card-shadow); min-width: 0; }
+.sec-h { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; min-width: 0; }
+.sec-h h2 { flex: 1; min-width: 0; font-family: var(--f-display); font-weight: 650; font-size: 1.05rem; line-height: 1.2; display: flex; align-items: center; gap: 8px; }
+.sec-h h2 .i { width: 18px; height: 18px; color: var(--acc-text); }
+.sec-h .sub { font-size: 0.8rem; color: var(--ink-3); white-space: nowrap; }
+.sec-h .link { min-height: 44px; margin-block: -6px; }
+.per { display: inline-block; vertical-align: 1px; margin-left: 4px; font-family: var(--f-body); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.02em; text-transform: none; padding: 1px 7px; border-radius: 999px; background: color-mix(in srgb, currentColor 12%, transparent); color: inherit; opacity: 0.85; white-space: nowrap; }
+.hero .per { background: var(--hero-tile); color: var(--hero-ink-2); opacity: 1; }
+.seg.top-seg { box-shadow: none; }
+.weeknav { box-shadow: var(--card-shadow); }
+
+/* Bugün hero: safe-to-spend */
+.home-hero { all: unset; box-sizing: border-box; display: grid; gap: 4px; width: 100%; cursor: pointer; background: var(--hero-para); color: var(--hero-ink); border-radius: 16px; padding: 20px 18px; box-shadow: var(--hero-shadow); }
+.home-hero .k { font-size: 0.92rem; color: var(--hero-ink-2); font-weight: 600; }
+.home-hero .v { display: block; white-space: nowrap; overflow: hidden; max-width: 100%; font-family: var(--f-display); font-weight: 800; font-size: clamp(2.6rem, 13vw, 3.4rem); line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.home-hero .u { font-size: 0.9rem; color: var(--hero-ink-2); }
+.home-hero.over .v, .home-hero.over .u { color: var(--hero-warn); }
+.home-hero:focus-visible { outline: 2px solid var(--gold-line); outline-offset: 2px; }
+.taxline { border-top: 0; border-radius: 14px; margin-top: -8px; }
+.hint-chip { display: flex; align-items: center; gap: 8px; padding: 4px 4px 4px 12px; border-radius: 14px; background: var(--gold-soft); color: var(--ink); font-size: 0.86rem; }
+.hint-chip span { flex: 1; min-width: 0; }
+.hint-chip .i { width: 18px; height: 18px; flex: none; }
+.hint-chip .iconbtn { width: 40px; height: 40px; background: transparent; }
+
+/* waterfall */
+.wf { margin: 0; display: grid; }
+.wf-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); }
+.wf-row dt { min-width: 0; display: grid; gap: 1px; }
+.wf-l { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; color: var(--ink); }
+.wf-l i { font-style: normal; width: 14px; display: inline-block; text-align: center; color: var(--ink-3); font-weight: 700; }
+.wf-row small { color: var(--ink-3); font-size: 0.76rem; line-height: 1.35; padding-left: 20px; }
+.wf-row dd { margin: 0; white-space: nowrap; font-weight: 600; font-variant-numeric: tabular-nums; max-width: 62%; overflow: hidden; flex: none; }
+.wf-row.sub { background: var(--acc-soft); margin: 2px -10px; padding: 10px; border-radius: 12px; border-bottom: 0; }
+.wf-row.sub .wf-l, .wf-row.sub dd { font-weight: 750; color: var(--acc-text); }
+.wf-row.strong dd { font-size: 1.08rem; }
+.wf-row.total { border-bottom: 0; border-top: 2px solid var(--ink); margin-top: 6px; padding-top: 12px; }
+.wf-row.total .wf-l { font-weight: 750; }
+.wf-row.total dd { font-family: var(--f-display); font-weight: 800; font-size: 1.4rem; color: var(--acc-text); }
+.wf-row .chip { font-size: 0.68rem; padding: 1px 7px; }
+
+/* weekly tax set-aside */
+.taxbox { margin-top: 14px; padding: 12px; border-radius: 14px; background: var(--gold-soft); }
+.tb-q, .tb-done { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.tb-q span, .tb-done span { flex: 1 1 160px; min-width: 0; font-size: 0.92rem; }
+.tb-done .i { width: 18px; height: 18px; color: var(--gain); flex: none; }
+.taxbox .note { margin-top: 6px; }
+.wkt { display: grid; gap: 6px; }
+.wkt-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 48px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+.wkt-row:last-child { border-bottom: 0; }
+.wkt-row .wl { font-weight: 600; font-size: 0.92rem; min-width: 0; }
+.wkt-row .wl small { display: block; font-weight: 500; color: var(--ink-3); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+
+/* spending list */
+.dent .dn { flex-direction: column; align-items: flex-start; gap: 0; }
+.dent .dn small { font-size: 0.74rem; color: var(--ink-3); }
+.swipe.is-fuel .swipe-fg { background: var(--surface-3); }
+.chipbtn.fuel[aria-pressed="true"] { background: var(--gold-soft); border-color: var(--gold-line); color: var(--gold); }
+.mdaily { margin-top: 16px; }
+.months .month { min-height: 64px; }
+.gel-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.gel-top .link { min-height: 44px; }
+
+/* swipe transition between tabs / weeks */
+@keyframes slide-from-r { from { opacity: 0.2; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+@keyframes slide-from-l { from { opacity: 0.2; transform: translateX(-28px); } to { opacity: 1; transform: none; } }
+#view.slide-l { animation: slide-from-r 0.2s ease-out; }
+#view.slide-r { animation: slide-from-l 0.2s ease-out; }
+#view { touch-action: pan-y; }
+.tbl-wrap { touch-action: pan-x pan-y; }
+
+/* v1.1 QA */
+.zero-link { min-height: 44px; padding: 0 2px; margin-block: -10px; font-size: 0.82rem; }
+.dt:empty { display: none; }
+.fuelhint { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--surface-2); font-size: 0.86rem; color: var(--ink-2); }
+.fuelhint > span { flex: 1; min-width: 0; }
+.fuelhint .btn { flex: none; }
+details.card.fold > summary { min-height: 44px; display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; }
+/* Sağlık and Yatırım keep their own colour on their icon chips and tab only; buttons, fills and links follow the palette (purple) */
+.a-sag, .a-yat { --acc: var(--gel); --acc-ink: var(--gel-ink); --acc-line: var(--gel-line); --acc-text: var(--gel-text); --acc-soft: var(--gel-soft); }
+.a-sag .ico:not(.gold) { background: var(--sag-soft); color: var(--sag-text); }
+.a-yat .ico:not(.gold) { background: var(--yat-soft); color: var(--yat-text); }
+#tabs .a-sag[aria-selected="true"] .pill { background: var(--sag-soft); color: var(--sag-text); }
+#tabs .a-yat[aria-selected="true"] .pill { background: var(--yat-soft); color: var(--yat-text); }
 
 </style>
 </head>
@@ -632,6 +724,7 @@ input[type="date"].txt { min-height: 48px; }
   <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l8.5-8.5M16 7l2.5 2.5M14 9l2 2"/></symbol>
   <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.6 9.1 4.75 4.75 0 0 0 7 18.5z"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-swipe" viewBox="0 0 24 24"><path d="M4 8h12M12 4l4 4-4 4M20 16H8M12 12l-4 4 4 4"/></symbol>
   <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h8.5M17.5 7H20M4 17h2.5M11.5 17H20"/><circle cx="15" cy="7" r="2.4"/><circle cx="9" cy="17" r="2.4"/></symbol>
   <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.6 3.5 5.4 3.5 8.5s-1.1 5.9-3.5 8.5c-2.4-2.6-3.5-5.4-3.5-8.5s1.1-5.9 3.5-8.5z"/></symbol>
   <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
@@ -804,15 +897,43 @@ function blank() {
 }
 const isObj = (o) => o && typeof o === 'object' && !Array.isArray(o);
 function applySettings(v) { D.money.settings = Object.assign(clone(DEF_SET), clone(v || {})); if (!Array.isArray(D.money.settings.recurring)) D.money.settings.recurring = []; S = D.money.settings; }
-function normWeek(w) { const v = clone(w || {}); if (!Array.isArray(v.extras)) v.extras = []; if (!Array.isArray(v.daily)) v.daily = []; return v; }
+// v1 migration (idempotent, so it effectively runs once): week.fuel → one "Yakıt (Uber)" daily entry on the week's Monday,
+// week.extras → tek-seferlik daily entries on Monday. The fields are cleared afterwards, so a second pass changes nothing.
+const FUEL_CAT = 'yakit';
+function migrateWeek(id, v) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(id || ''))) return v;
+  const f = v.fuel === '' || v.fuel == null ? null : +v.fuel;
+  if (f != null && isFinite(f) && f > 0) { if (!v.daily.some((x) => x.id === 'mig-fuel-' + id)) v.daily.push({ id: 'mig-fuel-' + id, date: id, name: 'Yakıt (Uber)', amount: r2(f), cat: FUEL_CAT, migrated: true }); v.fuel = ''; }
+  if (v.extras.length) {
+    v.extras.forEach((x, i) => { const a = r2(+x.amount || 0); if (a > 0 && !v.daily.some((d) => d.id === 'mig-x-' + id + '-' + i)) v.daily.push({ id: 'mig-x-' + id + '-' + i, date: id, name: x.name || 'Harcama', amount: a, cat: null, oneOff: true, migrated: true }); });
+    v.extras = [];
+  }
+  return v;
+}
+function normWeek(w, id) { const v = clone(w || {}); if (!Array.isArray(v.extras)) v.extras = []; if (!Array.isArray(v.daily)) v.daily = []; if (id && /^\d{4}-\d{2}-\d{2}$/.test(id)) v.start = id; return migrateWeek(id || v.start, v); }
+// v1.1 migration: fuel logged as an "Uber gideri" moves to the daily list as "Yakıt (Uber)" on its date (one place for fuel).
+// Skipped when a daily fuel entry with the same date and amount already exists (the same fill logged twice).
+function migrateUexpFuel(m) {
+  const keep = [];
+  (m.uberExpenses || []).forEach((e) => {
+    if (e.cat !== 'fuel' || !/^\d{4}-\d{2}-\d{2}$/.test(String(e.d || ''))) { keep.push(e); return; }
+    const wid = idOf(mondayOf(fromId(e.d))), amt = r2(+e.amount || 0);
+    if (!m.weeks[wid]) m.weeks[wid] = normWeek({ start: wid, uberEarn: '', uberHours: '', fuel: '', cashHours: '', extras: [], daily: [], note: '' }, wid);
+    const w = m.weeks[wid];
+    const dup = Object.values(m.weeks).some((x) => (x.daily || []).some((d) => d.cat === FUEL_CAT && d.date === e.d && Math.abs((+d.amount || 0) - amt) < 0.005));
+    if (!dup && amt > 0) w.daily.push({ id: 'mig-ue-' + e.id, date: e.d, name: e.note || 'Yakıt (Uber)', amount: amt, cat: FUEL_CAT, migrated: true });
+  });
+  m.uberExpenses = keep;
+}
 function normalize(o) {
   const b = blank();
   const D0 = isObj(o) ? o : {};
   const out = b;
   ['money', 'growth', 'health', 'invest', 'ui'].forEach((k) => { if (isObj(D0[k])) out[k] = Object.assign(b[k], D0[k]); });
   const m = out.money; m.settings = Object.assign(clone(DEF_SET), isObj(m.settings) ? m.settings : {}); if (!Array.isArray(m.settings.recurring)) m.settings.recurring = [];
-  if (!isObj(m.weeks)) m.weeks = {}; Object.keys(m.weeks).forEach((id) => { m.weeks[id] = normWeek(m.weeks[id]); });
+  if (!isObj(m.weeks)) m.weeks = {}; Object.keys(m.weeks).forEach((id) => { m.weeks[id] = normWeek(m.weeks[id], id); });
   ['uberExpenses', 'setAsides'].forEach((k) => { if (!Array.isArray(m[k])) m[k] = []; }); if (!isObj(m.taxSummaries)) m.taxSummaries = {};
+  migrateUexpFuel(m);
   if (m.settings.logbookPct == null) m.settings.logbookPct = 100;
   if (!Array.isArray(m.pots)) m.pots = []; m.pots.forEach((p) => { p.log = Array.isArray(p.log) ? p.log : []; p.saved = +p.saved || 0; p.target = +p.target || 0; p.icon = p.icon || 'jar'; });
   const g = out.growth;
@@ -824,7 +945,7 @@ function normalize(o) {
   if (g.bookGoal == null) g.bookGoal = 12; if (g.identity == null) g.identity = '';
   const h = out.health; if (!isObj(h.days)) h.days = {}; if (h.packPrice == null) h.packPrice = 40;
   const iv = out.invest; ['holdings', 'watchlist'].forEach((k) => { if (!Array.isArray(iv[k])) iv[k] = []; }); if (!isObj(iv.prices)) iv.prices = {};
-  const u = out.ui; if (u.lang !== 'en') u.lang = 'tr'; ['hiddenCards', 'hiddenInsights'].forEach((k) => { if (!isObj(u[k])) u[k] = {}; });
+  const u = out.ui; if (u.lang !== 'en') u.lang = 'tr'; ['hiddenCards', 'hiddenInsights', 'shownCards'].forEach((k) => { if (!isObj(u[k])) u[k] = {}; });
   out.schemaVersion = 1;
   return out;
 }
@@ -848,7 +969,7 @@ function load() {
       const ob = JSON.parse(localStorage.getItem(OLD_BUDGET_KEY) || 'null');
       if (ob && (ob.settings || ob.weeks)) {
         applySettings(ob.settings);
-        Object.entries(ob.weeks || {}).forEach(([id, w]) => { if (/^\d{4}-\d{2}-\d{2}$/.test(id)) D.money.weeks[id] = normWeek(w); });
+        Object.entries(ob.weeks || {}).forEach(([id, w]) => { if (/^\d{4}-\d{2}-\d{2}$/.test(id)) D.money.weeks[id] = normWeek(w, id); });
         D.ui.notice = 'Bütçe verilerin taşındı';
       }
     } catch (e) {}
@@ -871,23 +992,61 @@ function saveNow(noStamp) {
   try { localStorage.setItem(KEY, serial()); storageOk = true; if (!noStamp && typeof stampChanges === 'function') stampChanges(); }
   catch (e) { if (storageOk) toast(T('Kaydedilemedi: telefon hafızası dolu ya da kapalı.')); storageOk = false; }
 }
-function save() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 400); }
+function save() { if (typeof taxCacheReset === 'function') taxCacheReset(); clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 400); }
 window.addEventListener('pagehide', () => { if (saveTimer) saveNow(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden && saveTimer) saveNow(); });
 
 // ---------- budget helpers ----------
 const hasData = (w) => w && ((+w.uberEarn || 0) > 0 || (+w.uberHours || 0) > 0 || (+w.cashHours || 0) > 0 || (w.extras || []).length > 0 || (w.daily || []).length > 0 || (w.note || '') !== '');
-// daily entries count as extra expenses; the budget engine (weekCalc) itself stays untouched
-const dailySum = (w) => r2(((w && w.daily) || []).reduce((a, x) => a + (+x.amount || 0), 0));
-function calc(w) {
-  w = w || { extras: [] }; const d = dailySum(w);
-  const c = weekCalc(d ? Object.assign({}, w, { extras: (w.extras || []).concat([{ name: 'daily', amount: d }]) }) : w);
-  c.daily = d; c.extraOnly = r2(c.extra - d); return c;
+// Spending model (v1): every expense is a daily entry. "Yakıt (Uber)" entries are the week's fuel line (not personal
+// spending); the rest is spending, tek-seferlik ones included but kept out of averages/insights. The budget engine
+// (weekCalc) is untouched: we only feed it the week's fuel and one lump of spending.
+const sumAmt = (arr) => r2((arr || []).reduce((a, x) => a + (+x.amount || 0), 0));
+function weekParts(w) {
+  const daily = (w && w.daily) || [], fuelE = daily.filter((x) => x.cat === FUEL_CAT), spendE = daily.filter((x) => x.cat !== FUEL_CAT);
+  return { fuelE, spendE, fuel: sumAmt(fuelE), spend: sumAmt(spendE), oneOff: sumAmt(spendE.filter((x) => x.oneOff)), extras: sumAmt(w && w.extras) };
 }
-function weekObj(id) { const W = D.money.weeks; if (!W[id]) W[id] = { start: id, uberEarn: '', uberHours: '', fuel: '', cashHours: '', extras: [], note: '' }; if (!Array.isArray(W[id].extras)) W[id].extras = []; if (!Array.isArray(W[id].daily)) W[id].daily = []; return W[id]; }
+const dailySum = (w) => { const p = weekParts(w); return r2(p.spend + ((+(w && w.uberEarn) || 0) > 0 ? 0 : p.fuel)); };
+function calc(w) {
+  w = w || {}; const p = weekParts(w), E = +w.uberEarn || 0;
+  const fuelIn = p.fuelE.length ? p.fuel : w.fuel === 0 || w.fuel === '0' ? 0 : '';
+  const fuelAsSpend = E > 0 ? 0 : p.fuel; // fuel bought in a week without Uber earnings is plain spending
+  const outside = r2(p.spend + p.extras + fuelAsSpend);
+  const c = weekCalc(Object.assign({}, w, { fuel: fuelIn, extras: outside ? [{ name: 'spend', amount: outside }] : [] }));
+  const N = Math.max(1, S.weeksPerYear), gc = c.fuel / 11 + c.fx * 0.8 / 11, pa = Math.max(0, ((c.E - c.E / 11) - (c.fuel + c.fx - gc)) * N);
+  c.incTax = E > 0 ? ((itax(S.salary + pa) + 0.02 * (S.salary + pa)) - (itax(S.salary) + 0.02 * S.salary)) / N : 0;
+  c.mlsTax = E > 0 ? (mls(S.salary + pa, S.cover) - mls(S.salary, S.cover)) / N : 0;
+  c.fuelEst = E > 0 && fuelIn === ''; c.fuelLogged = p.fuel; c.nFuel = p.fuelE.length;
+  c.weekTax = E > 0 ? c.gst + c.uberTax : 0;
+  // v1.1: one tax number everywhere. GST and income tax/Medicare/MLS come from ACTUAL logged data (this week's earnings,
+  // "Yakıt (Uber)" entries and Uber gideri dated in the week, business-use %), taxed at the quarter's effective rate, so the
+  // weekly amounts add up exactly to the quarter/BAS figure. The fuel estimate and the fixed-cost share stay planning costs:
+  // they lower "gerçek kâr" and "elinde kalan" but never the tax.
+  const tp = E > 0 && w.start && typeof weekTaxParts === 'function' ? weekTaxParts(w.start) : null;
+  if (tp) {
+    c.gst = tp.gst; c.incTax = tp.inc; c.mlsTax = tp.mls; c.uberTax = tp.inc + tp.mls; c.weekTax = tp.tax;
+    c.taxProfit = tp.profit; c.taxQ = tp.key;
+    c.uberNet = c.E - c.gst - c.fuel - c.fx - c.uberTax; c.netH = c.H > 0 ? c.uberNet / c.H : 0;
+    c.income = c.salaryNet + c.uberNet + c.cashNet; c.left = c.income - c.rec - c.extra; c.setAside = c.weekTax + c.cashTax;
+  }
+  c.pocket = c.E - c.gst - c.fuel;          // = Bu hafta cebine giren
+  c.daily = r2(p.spend + fuelAsSpend); c.oneOff = r2(p.oneOff + p.extras); c.extraOnly = p.extras;
+  c.spendAll = r2(c.rec + c.extra);          // recurring + all spending
+  c.leftNoOneOff = c.left + c.oneOff;        // for averages / insights
+  return c;
+}
+const weekTaxOf = (id) => calc(getWeek(id)).weekTax;
+const weekSetAside = (id) => D.money.setAsides.find((x) => x.week === id) || null;
+// Bugün: what is left to spend this week, and per remaining day (today included)
+function safeToSpend(now) {
+  now = now || new Date(); const id = idOf(mondayOf(now)), c = calc(getWeek(id));
+  const daysLeft = 7 - ((now.getDay() + 6) % 7);
+  return { id, c, x: c.left, daysLeft, perDay: c.left > 0 ? c.left / daysLeft : 0 };
+}
+function weekObj(id) { const W = D.money.weeks; if (!W[id]) W[id] = { start: id, uberEarn: '', uberHours: '', fuel: '', cashHours: '', extras: [], daily: [], note: '' }; if (!Array.isArray(W[id].extras)) W[id].extras = []; if (!Array.isArray(W[id].daily)) W[id].daily = []; return W[id]; }
 const getWeek = (id) => D.money.weeks[id];
 function monthWeeks(y, m) { return mondaysIn(y, m).filter((id) => hasData(getWeek(id))); }
-function monthSummary(y, m) { const ids = monthWeeks(y, m); const cs = ids.map((id) => calc(getWeek(id))); return { n: ids.length, left: cs.reduce((a, c) => a + c.left, 0), income: cs.reduce((a, c) => a + c.income, 0) }; }
+function monthSummary(y, m) { const ids = monthWeeks(y, m); const cs = ids.map((id) => calc(getWeek(id))); return { n: ids.length, left: cs.reduce((a, c) => a + c.left, 0), leftNoOneOff: cs.reduce((a, c) => a + c.leftNoOneOff, 0), income: cs.reduce((a, c) => a + c.income, 0) }; }
 
 // ---------- growth helpers ----------
 const G = () => D.growth;
@@ -1047,7 +1206,7 @@ function applyImport(o, kind) {
     const ids = Object.keys(o.weeks).filter((id) => /^\d{4}-\d{2}-\d{2}$/.test(id));
     const keepLog = S.logbookPct;
     applySettings(o.settings); if (S.logbookPct == null) S.logbookPct = keepLog == null ? 100 : keepLog;
-    ids.forEach((id) => { D.money.weeks[id] = normWeek(o.weeks[id]); });
+    ids.forEach((id) => { D.money.weeks[id] = normWeek(o.weeks[id], id); });
     return T('{n} hafta ve bütçe ayarları yüklendi.', { n: ids.length });
   }
   if (kind === 'adim') { mergeLegacyAdim(o); return T('Eski Momentum verisi birleştirildi.'); }
@@ -1097,7 +1256,7 @@ function insights() {
     out.push({ id: 'cig-week', area: 'sag', text: cw.s ? T('Bu hafta {n} sigara içtin, yaklaşık {x}. Bu hızla giderse yılda yaklaşık {y} eder.', { n: cw.s, x: usd2(cost), y: usd(cost / Math.max(1, (now.getDay() + 6) % 7 + 1) * 365) }) : T('Bu hafta kayıtlı {n} günün hepsi sigarasız geçti. Bu hafta sigaraya hiç para gitmedi.', { n: cw.n }) });
   }
   const ms = monthSummary(now.getFullYear(), now.getMonth());
-  if (ms.n && ms.income > 0) out.push({ id: 'save-rate', area: 'para', text: T('{m} ayında net gelirinin {p} kadarı elinde kaldı ({x}, {n} hafta).', { m: MONTHS_FULL[now.getMonth()], p: pct(nf0.format(Math.max(-999, ms.left / ms.income * 100))), x: usd(ms.left), n: ms.n }) });
+  if (ms.n && ms.income > 0) out.push({ id: 'save-rate', area: 'para', text: T('{m} ayında net gelirinin {p} kadarı elinde kaldı ({x}, {n} hafta).', { m: MONTHS_FULL[now.getMonth()], p: pct(nf0.format(Math.max(-999, ms.leftNoOneOff / ms.income * 100))), x: usd(ms.leftNoOneOff), n: ms.n }) });
   const uw = Object.keys(D.money.weeks).filter((id) => hasData(getWeek(id))).map((id) => [id, calc(getWeek(id))]).filter(([, c]) => c.E > 0 && c.H > 0);
   if (uw.length) {
     const best = uw.reduce((a, b) => (b[1].netH > a[1].netH ? b : a));
@@ -1143,10 +1302,13 @@ const BANDS = [['sabah', 'Sabah', 'sunrise'], ['is', 'İş', 'brief'], ['aksam',
 const MOODS = [['f1', 'Kötü'], ['f2', 'İdare eder'], ['f3', 'İyi'], ['f4', 'Çok iyi'], ['f5', 'Harika']];
 const JTAGS = ['Uber', 'Kebapçı', 'Spor', 'İş'];
 const POT_ICONS = [['jar', 'Kumbara'], ['console', 'Konsol'], ['car', 'Araba'], ['plane', 'Seyahat'], ['home', 'Ev'], ['gift', 'Hediye'], ['tax', 'Vergi']];
-const SPINE = ['#2F6B55', '#8A4B2E', '#3B5B8C', '#6D5A8E', '#9C6B0C', '#4F6B2F', '#7B1E3C'];
+const SPINE = ['#6B4E8A', '#8A4B2E', '#3B5B8C', '#6D5A8E', '#9C6B0C', '#4F6B2F', '#7B1E3C'];
 const SAMPLE_HABITS = [["06:00'da kalk", 'sabah', 'Wake up at 6:00'], ['2 litre su iç', 'sabah', 'Drink 2 litres of water'], ['30 dk çıraklık / teknik çalışma', 'is', '30 min apprenticeship study'], ['30 dk spor ya da yürüyüş', 'aksam', '30 min exercise or walk'], ['20 sayfa kitap oku', 'aksam', 'Read 20 pages'], ['Günün harcamalarını yaz', 'aksam', "Write down today's spending"]];
-const BUGUN_CARDS = [['money', 'Bu haftanın para şeridi'], ['habits', 'Alışkanlıklar'], ['tasks', 'Yapılacaklar'], ['counters', 'Sigara ve alkol sayaçları'], ['health', 'Sağlık özeti'], ['insight', 'İçgörü kartı'], ['portfolio', 'Portföy satırı'], ['evening', 'Akşam değerlendirmesi']];
-const showCard = (k) => !D.ui.hiddenCards[k];
+const BUGUN_CARDS = [['money', 'Harcayabileceğin ve vergi satırı'], ['habits', 'Alışkanlıklar'], ['tasks', 'Yapılacaklar'], ['counters', 'Sigara ve alkol sayaçları'], ['evening', 'Akşam değerlendirmesi'], ['portfolio', 'Portföy satırı'], ['health', 'Sağlık özeti'], ['insight', 'İçgörü kartı']];
+// portfolio, health and insight are off by default on Bugün (opt-in), the rest are on unless hidden
+const OPTIN_CARDS = ['portfolio', 'health', 'insight'];
+const showCard = (k) => (OPTIN_CARDS.includes(k) ? !!D.ui.shownCards[k] : !D.ui.hiddenCards[k]);
+function toggleCardPref(k) { if (OPTIN_CARDS.includes(k)) { if (D.ui.shownCards[k]) delete D.ui.shownCards[k]; else D.ui.shownCards[k] = true; } else if (D.ui.hiddenCards[k]) delete D.ui.hiddenCards[k]; else D.ui.hiddenCards[k] = true; }
 
 // ===================== shared pieces =====================
 function tile(k, v, u, id) { return `<div class="tile"><span class="k">${k}</span><span class="v"${id ? ` id="${id}"` : ''}>${v}</span><span class="u">${u}</span></div>`; }
@@ -1214,74 +1376,71 @@ function series(field, days, tf) { const out = []; for (let i = days - 1; i >= 0
 function series7(field) { const out = []; for (let i = 6; i >= 0; i--) { const d = addDays(new Date(), -i); const v = hd(keyOf(d))[field]; out.push({ v: v || 0, lbl: i === 0 ? T('bugün') : DAYS[d.getDay()] }); } return out; }
 
 // ===================== BUGÜN =====================
+// Top to bottom: what I can spend this week, the week's tax line, current-band habits, top tasks, counters, evening review.
+const bandNow = (h) => (h < 11 ? 'sabah' : h < 17 ? 'is' : 'aksam');
 function vBugun() {
   const now = new Date(), k = todayKey(), h = now.getHours();
-  const greet = h < 5 ? T('İyi geceler') : h < 12 ? T('Günaydın') : h < 18 ? T('İyi günler') : T('İyi akşamlar');
-  const L = level();
   let html = '';
   if (D.ui.notice) html += `<div class="banner" id="notice">${ico('check')}<span>${esc(T(D.ui.notice))}</span><button type="button" class="link" data-act="dismissNotice">${T('Tamam')}</button></div>`;
-  html += `<div class="greet"><div><div class="eyebrow">${T('{day}, {date}', { day: DAYS_LONG[now.getDay()], date: now.getDate() + ' ' + MONTHS_FULL[now.getMonth()] })}</div><h2>${greet}, Emre</h2></div>
-    <span class="xp" title="${T('Deneyim puanı')}">${T('Seviye {n}', { n: L.lv })}<i><b style="width:${L.p}%"></b></i>${nf0.format(L.x)} XP</span></div>`;
+  if (!D.ui.swipeHintSeen) html += `<div class="hint-chip" id="swipeHint">${ico('swipe')}<span>${T('İpucu: sağa/sola kaydırarak geçiş yapabilirsin')}</span><button type="button" class="iconbtn flat" data-act="hideSwipeHint" aria-label="${T('Kapat')}">${ico('x')}</button></div>`;
   if (showCard('money')) {
-    const tw = thisWeekId(), c = calc(getWeek(tw)), ms = monthSummary(now.getFullYear(), now.getMonth());
-    const tx = taxFull(quarterOf(tw).key);
-    html += `<section class="card strip-wrap a-para" aria-label="${T('Bu hafta para')}"><button type="button" data-act="go" data-tab="para" data-seg="hafta" data-week="${tw}">
-      <div class="strip-head">${ico('wallet')}${T('Bu hafta')} · ${weekLabel(tw)}<span style="margin-left:auto;color:var(--ink-3)">${ico('right')}</span></div>
-      <div class="strip"><div><span class="k">${T('Elinde kalan')}</span><span class="v hero-n" id="bMoneyLeft">${usd(c.left)}</span></div><div><span class="k">${T('Uber net')}</span><span class="v">${c.E > 0 ? usd(c.uberNet) : '—'}</span></div><div><span class="k">${T('Bu ay biriken')}</span><span class="v">${ms.n ? usd(ms.left) : '—'}</span></div></div></button>
-      ${tx.need > 0.005 || tx.E > 0 ? `<button type="button" class="taxline" data-act="go" data-tab="para" data-seg="vergi" id="bTaxLine">${ico('jar')}<span>${tx.left > 0.005 ? T('Vergi için ayır: {x} kaldı', { x: usd(tx.left) }) : T('Bu çeyreğin vergi payı ayrıldı')}</span>${ico('right')}</button>` : ''}</section>`;
+    const s = safeToSpend(now), over = s.x < 0;
+    html += `<button type="button" class="hero home-hero a-para${over ? ' over' : ''}" data-act="go" data-tab="para" data-seg="hafta" data-week="${s.id}" id="safeHero">
+      <span class="k">${T('Bu hafta harcayabileceğin')}</span><span class="v" id="safeX">${usd(s.x)}</span>
+      <span class="u" id="safeDay">${over ? T('Bu hafta bütçeyi aştın') : T('günde {x} · {n} gün kaldı', { x: usd(s.perDay), n: s.daysLeft })}</span></button>`;
+    const c = s.c, sa = weekSetAside(s.id), bas = nextBas(), z = sa ? 0 : r2(c.weekTax);
+    if (c.weekTax > 0 || bas && taxFull(bas.q).need > 0.005) html += `<button type="button" class="taxline a-para" data-act="go" data-tab="para" data-seg="vergi" id="bTaxLine">${ico('jar')}<span>${sa ? T('Bu haftanın vergi payı ayrıldı') : T('Vergi için ayır: {x} bu hafta', { x: usd(z) })}${bas ? ' · ' + T("BAS'a {n} gün", { n: bas.days }) : ''}</span>${ico('right')}</button>`;
   }
-  if (showCard('portfolio') && D.invest.showOnHome && D.invest.holdings.length) {
+  if (showCard('habits')) html += `<section class="sec a-gel">${habitTodayCard(k, bandNow(h))}</section>`;
+  if (showCard('tasks')) {
+    const open = G().tasks.filter((t) => !t.done).sort((a, b) => a.prio - b.prio || String(a.created).localeCompare(String(b.created)));
+    html += `<section class="sec a-gel">${secHead(T('Yapılacaklar'), `<button type="button" class="link" data-act="go" data-tab="gelisim" data-seg="gorev">${T('Tümü ({n})', { n: open.length })}${ico('right')}</button>`)}
+      ${open.length ? `<div class="list">${open.slice(0, 3).map(taskRow).join('')}</div>` : `<p class="note" style="margin:0">${T('Açık görev yok.')} <button type="button" class="link" data-act="go" data-tab="gelisim" data-seg="gorev">${T('Görev ekle')}</button></p>`}</section>`;
+  }
+  if (showCard('counters')) html += `<section class="sec a-sag">${secHead(T('Sigara ve alkol'), `<span class="sub">${T('bugün')}</span>`)}${countersHTML(k)}</section>`;
+  if (showCard('portfolio') && D.invest.holdings.length) {
     const p = portfolio();
     html += `<button type="button" class="card tight pline a-yat" data-act="go" data-tab="yatirim"><span class="ico">${ico('trend')}</span><span class="t">${T('Portföy bugün')}</span>${p.dayAud != null ? delta(p.dayAud, sgn(p.dayAud, (v) => '$' + nf2.format(v)) + (p.dayPct != null ? ' (' + sgn(p.dayPct, (v) => pct(nf2.format(v))) + ')' : '')) : `<span class="chip">${T('fiyat yok')}</span>`}${ico('right')}</button>`;
   }
-  if (showCard('habits')) html += `<section class="card a-gel">${habitTodayCard(k)}</section>`;
-  if (showCard('tasks')) {
-    const open = G().tasks.filter((t) => !t.done).sort((a, b) => a.prio - b.prio || String(a.created).localeCompare(String(b.created)));
-    html += `<section class="card a-gel">${head('list', T('Yapılacaklar'), `<button type="button" class="link" data-act="go" data-tab="gelisim" data-seg="gorev">${T('Tümü ({n})', { n: open.length })}${ico('right')}</button>`)}
-      ${open.length ? `<div class="list">${open.slice(0, 3).map(taskRow).join('')}</div>` : empty('tasks', T('Açık görev yok'), T('Bugün yapmak istediğin bir şeyi ekle.'), `<button type="button" class="btn sm" data-act="go" data-tab="gelisim" data-seg="gorev">${ico('plus')}${T('Görev ekle')}</button>`)}</section>`;
-  }
-  if (showCard('counters')) html += `<section class="card a-sag">${head('cig', T('Sayaçlar'), `<span class="sub">${T('bugün')}</span>`)}${countersHTML(k)}</section>`;
   if (showCard('health')) {
     const sl = latest('sleep', 1), st = latest('steps', 1), w = latestWeight();
-    html += `<section class="card a-sag">${head('heart', T('Sağlık özeti'), `<button type="button" class="link" data-act="go" data-tab="saglik">${T('Sağlık')}${ico('right')}</button>`)}
+    html += `<section class="sec a-sag">${secHead(T('Sağlık özeti'), `<button type="button" class="link" data-act="go" data-tab="saglik">${T('Sağlık')}${ico('right')}</button>`)}
       <div class="snap">${tile(T('Uyku'), sl ? T('{n} sa', { n: nf1.format(sl.v / 60) }) : '–', sl ? (sl.i ? T('dün gece') : T('bugün')) : T('girilmedi'))}${tile(T('Adım'), st ? nf0.format(st.v) : '–', st ? (st.i ? T('dün') : T('bugün')) : T('girilmedi'))}${tile(T('Kilo'), w ? nf1.format(w.v) + ' kg' : '–', w ? dShort(w.k) : T('girilmedi'))}</div></section>`;
   }
   if (showCard('insight')) {
     const ins = visibleInsights();
-    if (ins.length) {
-      const one = ins[now.getDate() % ins.length];
-      html += `<section class="card a-${one.area}"><div class="insight"><span class="ico gold">${ico('spark')}</span><p id="insightText">${esc(one.text)}</p></div>
-        <div class="insight-actions"><button type="button" class="link" data-act="hideInsight" data-id="${one.id}">${T('Gizle')}</button><button type="button" class="link" data-act="openInsights">${T('İçgörüler ({n})', { n: ins.length })}${ico('right')}</button></div></section>`;
-    } else html += `<section class="card"><div class="insight"><span class="ico gold">${ico('spark')}</span><p class="note" style="margin:0">${T('Birkaç gün kayıt girdikçe burada kısa içgörüler görünecek.')}</p></div><div class="insight-actions"><span></span><button type="button" class="link" data-act="openInsights">${T('İçgörüler')}${ico('right')}</button></div></section>`;
+    if (ins.length) { const one = ins[now.getDate() % ins.length]; html += `<section class="sec a-${one.area}"><div class="insight"><span class="ico gold">${ico('spark')}</span><p id="insightText">${esc(one.text)}</p></div><div class="insight-actions"><button type="button" class="link" data-act="hideInsight" data-id="${one.id}">${T('Gizle')}</button><button type="button" class="link" data-act="openInsights">${T('İçgörüler ({n})', { n: ins.length })}${ico('right')}</button></div></section>`; }
   }
   if (showCard('evening') && h >= 18) html += eveningCard(k);
   return html;
 }
-function habitTodayCard(k) {
+function secHead(title, right) { return `<div class="sec-h"><h2>${title}</h2>${right || ''}</div>`; }
+function habitTodayCard(k, band) {
   const hs = G().habits;
-  if (!hs.length) return head('sprout', T('Alışkanlıklar')) + empty('habits', T('Henüz alışkanlık yok'), T('Sabah, iş ve akşam için birkaç küçük alışkanlık seç. Her gün tek dokunuşla işaretle.'), `<button type="button" class="btn sm" data-act="sampleHabits">${ico('plus')}${T('Örnek alışkanlıklar ekle')}</button><button type="button" class="btn sm ghost" data-act="openHabitSheet">${T('Kendim ekleyeceğim')}</button>`);
-  const done = hs.filter((h) => isDone(h.id, k)).length;
-  return head('sprout', T('Alışkanlıklar'), `<span class="sub num">${done}/${hs.length}</span><button type="button" class="link" data-act="openHabitSheet" aria-label="${T('Alışkanlıkları düzenle')}">${ico('pen')}</button>`) +
-    BANDS.map(([b, lbl, ic]) => { const list = hs.filter((h) => h.band === b); if (!list.length) return ''; return `<div class="band"><div class="band-h">${ico(ic)}${T(lbl)}</div><div class="htiles">${list.map((h) => `<button type="button" class="htile" data-act="habit" data-id="${h.id}" aria-pressed="${isDone(h.id, k)}"><span class="chk">${ico('check')}</span><span class="n">${esc(h.name)}</span></button>`).join('')}</div></div>`; }).join('');
+  if (!hs.length) return secHead(T('Alışkanlıklar')) + `<p class="note" style="margin:0">${T('Henüz alışkanlık yok.')}</p><div class="btns" style="margin-top:8px"><button type="button" class="btn sm ghost" data-act="sampleHabits">${ico('plus')}${T('Örnek alışkanlıklar ekle')}</button></div>`;
+  const B = BANDS.find((x) => x[0] === band) || BANDS[0], list = hs.filter((h) => h.band === band), done = list.filter((h) => isDone(h.id, k)).length;
+  return secHead(`${ico(B[2])}${T(B[1])}`, `<span class="sub num">${done}/${list.length}</span><button type="button" class="link" data-act="go" data-tab="gelisim" data-seg="aliskanlik" id="habitsAll">${T('tümü')}${ico('right')}</button>`) +
+    (list.length ? `<div class="htiles" id="bandHabits" data-band="${band}">${list.map((h) => `<button type="button" class="htile" data-act="habit" data-id="${h.id}" aria-pressed="${isDone(h.id, k)}"><span class="chk">${ico('check')}</span><span class="n">${esc(h.name)}</span></button>`).join('')}</div>`
+      : `<p class="note" style="margin:0">${T('Bu zaman diliminde alışkanlık yok.')}</p>`);
 }
 function taskRow(t) {
   const del = U.armed === t.id;
   return `<div class="task ${t.done ? 'done' : ''}"><button type="button" class="tick" data-act="task" data-id="${t.id}" aria-label="${esc(T(t.done ? 'Geri al: {t}' : 'Tamamla: {t}', { t: t.text }))}"><span>${ico('check')}</span></button><span class="t">${esc(t.text)}</span>
-    ${t.cat === 'is' && !t.done ? `<span class="chip">${T('İş')}</span>` : ''}${!t.done && t.prio === 1 ? `<span class="chip gold">${T('Önemli')}</span>` : ''}
+    ${!t.done && t.prio === 1 ? `<span class="chip gold">${T('Önemli')}</span>` : ''}
     ${U.tab === 'gelisim' ? `<button type="button" class="del ${del ? 'arm' : ''}" data-act="delTask" data-id="${t.id}" aria-label="${T('Sil')}">${del ? T('Sil?') : ico('x')}</button>` : ''}</div>`;
 }
 function countersHTML(k) {
   const d = hd(k), cw = weekSum('cig'), aw = weekSum('alc');
-  const one = (f, lbl, icn, hint) => `<div class="counter"><div class="lbl"><span style="display:flex;gap:6px;align-items:center">${ico(icn)}${lbl}</span>${d[f] === 0 ? `<span class="chip gain">${T('temiz')}</span>` : ''}</div>
-    <div class="ctl"><button type="button" class="rb" data-act="cnt" data-f="${f}" data-d="-1" aria-label="${T('{x}: bir azalt', { x: lbl })}">${ico('minus')}</button><b id="cnt-${f}">${d[f] == null ? '–' : d[f]}</b><button type="button" class="rb plus" data-act="cnt" data-f="${f}" data-d="1" aria-label="${T('{x}: bir artır', { x: lbl })}">${ico('plus')}</button></div>
+  const one = (f, lbl, icn, hint) => `<div class="counter"><div class="lbl"><span style="display:flex;gap:6px;align-items:center">${ico(icn)}${lbl}</span></div>
+    <div class="ctl"><button type="button" class="rb" data-act="cnt" data-f="${f}" data-d="-1" aria-label="${T('{x}: bir azalt', { x: lbl })}">${ico('minus')}</button><b id="cnt-${f}">${d[f] == null ? 0 : d[f]}</b><button type="button" class="rb plus" data-act="cnt" data-f="${f}" data-d="1" aria-label="${T('{x}: bir artır', { x: lbl })}">${ico('plus')}</button></div>
     <div class="hint">${hint}</div></div>`;
-  const none = (f) => `<button type="button" class="link" style="min-height:0;padding:0" data-act="zero" data-f="${f}">${T('Bugün hiç yok')}</button>`;
+  const none = (f) => `<button type="button" class="link zero-link" data-act="zero" data-f="${f}">${T('Bugün hiç yok')}</button>`;
   return `<div class="counters">${one('cig', T('Sigara'), 'cig', cw.s ? T('Bu hafta {n} · ≈ {x}', { n: cw.s, x: usd2(cw.s * cigPrice()) }) : d.cig == null ? none('cig') : T('Bu hafta temiz'))}
     ${one('alc', T('Alkol'), 'glass', d.alc == null && !aw.s ? none('alc') : T('Bu hafta {n}/10 standart içki', { n: aw.s }))}</div>`;
 }
 function eveningCard(k) {
   const j = G().journal[k] || {}, tags = j.tags || [];
-  return `<section class="card a-gel" id="evening">${head('moon', T('Akşam değerlendirmesi'), `<span class="sub">${T('1 dakika')}</span>`)}
+  return `<section class="sec a-gel" id="evening">${secHead(T('Akşam değerlendirmesi'), `<span class="sub">${T('1 dakika')}</span>`)}
     <div class="moods" role="group" aria-label="${T('Ruh hâli')}">${MOODS.map((m, i) => `<button type="button" class="mood" data-act="mood" data-m="${i + 1}" aria-pressed="${j.mood === i + 1}">${ico(m[0])}${T(m[1])}</button>`).join('')}</div>
     <div class="tags" role="group" aria-label="${T('Bugün neler vardı')}">${JTAGS.map((t) => `<button type="button" class="tagbtn" data-act="jtag" data-t="${t}" aria-pressed="${tags.includes(t)}">${T(t)}</button>`).join('')}</div>
     <input class="txt" id="jLine" data-j="line" value="${esc(j.line || '')}" placeholder="${T('Bugünü tek satırda anlat')}" aria-label="${T('Bugünü tek satırda anlat')}" autocomplete="off">
@@ -1290,71 +1449,68 @@ function eveningCard(k) {
 
 // ===================== PARA =====================
 function vPara() {
-  const segs = [['hafta', 'Hafta'], ['takvim', 'Takvim'], ['gecmis', 'Geçmiş'], ['kumbara', 'Kumbaralar'], ['vergi', 'Vergi']];
-  const top = `<div class="seg top-seg" role="group" aria-label="${T('Para bölümleri')}">${segs.map(([k, l]) => `<button type="button" data-act="paraSeg" data-v="${k}" aria-pressed="${U.paraSeg === k}">${T(l)}</button>`).join('')}</div>`;
-  return top + ({ hafta: paraWeek, takvim: paraCal, gecmis: paraHist, kumbara: paraPots, vergi: paraTax })[U.paraSeg]();
+  if (U.paraSeg === 'takvim') U.paraSeg = 'gecmis';
+  const segs = [['hafta', 'Hafta'], ['gecmis', 'Geçmiş'], ['kumbara', 'Kumbaralar'], ['vergi', 'Vergi']];
+  const top = `<div class="seg top-seg" role="group" aria-label="${T('Para bölümleri')}" data-swipe-zone="paraSeg">${segs.map(([k, l]) => `<button type="button" data-act="paraSeg" data-v="${k}" aria-pressed="${U.paraSeg === k}">${T(l)}</button>`).join('')}</div>`;
+  return top + ({ hafta: paraWeek, gecmis: paraHist, kumbara: paraPots, vergi: paraTax })[U.paraSeg]();
 }
+// period badge for a week: "bu hafta" / "geçen hafta" / its date range
+function perW(id) { const tw = thisWeekId(), pw = idOf(addDays(fromId(tw), -7)); return `<span class="per">${id === tw ? T('bu hafta') : id === pw ? T('geçen hafta') : weekLabel(id)}</span>`; }
 function paraWeek() {
   const w = getWeek(U.cur) || {};
-  return `<div class="weeknav"><button type="button" id="prevW" data-act="weekGo" data-d="-1" aria-label="${T('Önceki hafta')}">${ico('left')}</button><div class="lbl"><span id="wkLbl">–</span><small id="wkSub">–</small></div><button type="button" id="nextW" data-act="weekGo" data-d="1" aria-label="${T('Sonraki hafta')}">${ico('right')}</button></div>
-  <section class="hero" aria-live="polite"><svg class="hero-deco" viewBox="0 0 210 210" aria-hidden="true"><circle cx="105" cy="105" r="96"/><circle cx="105" cy="105" r="74"/><circle cx="105" cy="105" r="52"/></svg>
-    <div class="big"><span class="k">${T('Bu hafta elinde kalan')}</span><span class="v" id="hLeft">–</span><span class="u" id="hLeftSub">–</span></div><div class="tiles" id="hTiles"></div></section>
-  <div class="card">${head('car', 'Uber')}<div class="fields">
-    <div class="field"><label for="wEarn">${T('Kazanç')}</label><div class="money"><span>$</span><input id="wEarn" data-wk="uberEarn" inputmode="decimal" value="${fmtIn(w.uberEarn)}"></div><span class="hint">${T('Uber uygulamasındaki haftalık kazanç, geçiş ücretleri hariç')}</span></div>
+  return `<div class="weeknav" data-swipe-zone="week"><button type="button" id="prevW" data-act="weekGo" data-d="-1" aria-label="${T('Önceki hafta')}">${ico('left')}</button><div class="lbl"><span id="wkLbl">–</span><small id="wkSub">–</small></div><button type="button" id="nextW" data-act="weekGo" data-d="1" aria-label="${T('Sonraki hafta')}">${ico('right')}</button></div>
+  <section class="hero" aria-live="polite" data-swipe-zone="week"><svg class="hero-deco" viewBox="0 0 210 210" aria-hidden="true"><circle cx="105" cy="105" r="96"/><circle cx="105" cy="105" r="74"/><circle cx="105" cy="105" r="52"/></svg>
+    <div class="big"><span class="k">${T('Elinde kalan')} ${perW(U.cur)}</span><span class="v" id="hLeft">–</span><span class="u" id="hLeftSub">–</span></div></section>
+  <section class="sec">${secHead(T('Gelir'), perW(U.cur))}<div class="fields">
+    <div class="field"><label for="wEarn">${T('Uber kazancı')}</label><div class="money"><span>$</span><input id="wEarn" data-wk="uberEarn" inputmode="decimal" value="${fmtIn(w.uberEarn)}"></div><span class="hint">${T('Uygulamadaki haftalık kazanç, geçiş ücretleri hariç')}</span></div>
     <div class="field"><label for="wHours">${T('Çevrimiçi saat')}</label><div class="money"><input id="wHours" data-wk="uberHours" inputmode="decimal" value="${fmtIn(w.uberHours)}"><span>${T('sa')}</span></div></div>
-    <div class="field"><label for="wFuel">${T('Yakıt')}</label><div class="money"><span>$</span><input id="wFuel" data-wk="fuel" inputmode="decimal" value="${fmtIn(w.fuel)}" placeholder="${nf0.format(S.fuelDefault)}"></div><span class="hint">${T('Boş bırakırsan ayarlardaki tahmin kullanılır')}</span></div></div></div>
-  <div class="card">${head('cash', T('Nakit iş'), '', true)}<div class="fields"><div class="field"><label for="wCashH">${T('Saat')}</label><div class="money"><input id="wCashH" data-wk="cashHours" inputmode="decimal" value="${fmtIn(w.cashHours)}"><span>${T('sa')}</span></div><span class="hint" id="wCashHint">–</span></div></div></div>
-  <div class="card">${head('bag', T('Bu haftaya özel giderler'))}<div class="list" id="extraList">${(w.extras || []).length ? w.extras.map((x, i) => `<div class="row"><input class="txt" id="exN${i}" data-ex="name" data-i="${i}" value="${esc(x.name)}" aria-label="${T('Gider adı')}"><div class="money"><span>$</span><input id="exV${i}" data-ex="amount" data-i="${i}" inputmode="decimal" value="${fmtIn(x.amount)}" aria-label="${T('Tutar')}"></div><button type="button" class="del" data-act="delExtra" data-i="${i}" aria-label="${T('Sil')}">${ico('x')}</button></div>`).join('') : `<p class="empty-txt">${T('Henüz gider yok.')}</p>`}</div>
-    <button type="button" class="add" id="extraAdd" data-act="addExtra">${ico('plus')}${T('Ekstra gider ekle')}</button><p class="note">${T('Konsol, tatil, tamir gibi bir kerelik harcamalar. Sadece bu haftadan düşülür.')}</p></div>
+    <div class="field"><label for="wCashH">${T('Nakit iş saati')}</label><div class="money"><input id="wCashH" data-wk="cashHours" inputmode="decimal" value="${fmtIn(w.cashHours)}"><span>${T('sa')}</span></div><span class="hint" id="wCashHint">–</span></div></div>
+    <p class="note">${T("Yakıtı aşağıda harcama olarak, “Yakıt (Uber)” kategorisiyle aldığın güne gir.")}</p></section>
   ${dailyCard(w)}
-  <div class="card slip">${head('receipt', T('Haftanın dökümü'))}<dl class="receipt" id="receipt"></dl></div>
-  <p class="note" id="wkTaxNote" style="margin:0 4px">${T('Bu döküm, yakıt ve sabit masraf tahminiyle hesaplanır. Vergi sekmesi ise girdiğin gerçek Uber giderlerini kullanır.')}</p>
-  <div class="card">${head('pen', `<label for="wNote">${T('Not')}</label>`)}<input class="txt" id="wNote" data-wk="note" value="${esc(w.note || '')}" placeholder="${T('Bu haftayla ilgili bir not')}"></div>`;
+  <section class="sec" id="wfCard">${secHead(T('Haftanın dökümü'), perW(U.cur))}<dl class="wf" id="receipt"></dl><div id="wkTaxBox"></div></section>
+  <section class="sec">${secHead(`<label for="wNote">${T('Not')}</label>`)}<input class="txt" id="wNote" data-wk="note" value="${esc(w.note || '')}" placeholder="${T('Bu haftayla ilgili bir not')}"></section>`;
 }
-// live numbers for the week view (same logic as the budget app's renderCalc)
+// live numbers for the week view: hero + waterfall + tax box
+function wfRow(id, sign, label, value, expl, cls, extra) {
+  return `<div class="wf-row${cls ? ' ' + cls : ''}" id="${id}"><dt><span class="wf-l">${sign ? `<i>${sign}</i>` : ''}${label}${extra || ''}</span>${expl ? `<small>${expl}</small>` : ''}</dt><dd>${value}</dd></div>`;
+}
 function paraCalc() {
   if (!$('hLeft')) return;
   const cur = U.cur, thisWeek = thisWeekId();
-  const w = getWeek(cur) || { extras: [] };
-  const c = calc(w);
+  const w = getWeek(cur) || {};
+  if (typeof taxCacheReset === 'function') taxCacheReset();
+  const c = calc(w), N = Math.max(1, S.weeksPerYear);
   $('wkLbl').textContent = weekLabel(cur) + (cur === thisWeek ? ' · ' + T('bu hafta') : '');
-  $('wkSub').textContent = getWeek(cur) && (w.uberEarn !== '' || w.cashHours !== '' || (w.extras || []).length || (w.daily || []).length) ? T('Kayıtlı') : T('Henüz kayıt yok');
+  $('wkSub').textContent = hasData(getWeek(cur)) ? T('Kayıtlı') : T('Henüz kayıt yok');
   $('hLeft').textContent = usd(c.left); $('hLeft').className = 'v' + (c.left < 0 ? ' neg' : '');
-  $('hLeftSub').textContent = T('Gelir {a} − giderler {b}', { a: usd(c.income), b: usd(c.rec + c.extra) });
-  $('hTiles').innerHTML = tile(T('Maaş'), usd(c.salaryNet), T('Net')) +
-    tile('Uber', usd(c.uberNet), c.E > 0 ? T('Brüt {a} · {b}/sa', { a: usd(c.E), b: usd2(c.netH) }) : T('Girilmedi')) +
-    tile(T('Nakit iş'), usd(c.cashNet), c.cashGross > 0 ? (S.cashTax ? T('Vergisi düşülmüş') : T('Vergisiz')) : T('Girilmedi')) +
-    tile(T('Giderler'), usd(c.rec + c.extra), c.extra > 0 ? T('Sabit {a} + ekstra {b}', { a: usd(c.rec), b: money(r2(c.extra)) }) : T('Her hafta tekrarlayan'));
-  const dt = $('dailyWeekTotal'); if (dt) dt.textContent = c.daily ? money(c.daily) : '';
+  $('hLeftSub').textContent = T('Gelir {a} − giderler {b}', { a: usd(c.income), b: usd(c.spendAll) });
   $('wCashHint').textContent = T('{r}/sa × saat = {x}', { r: usd2(S.cashRate), x: usd(c.cashGross) });
-  const rows = [[T('Maaş (net)'), c.salaryNet]];
-  if (c.E > 0) rows.push([T('Uber kazancı'), c.E], [T('GST (net)'), -c.gst], [T('Yakıt'), -c.fuel], [T('Sabit masraf payı'), -c.fx], [T('Uber vergisi (MLS dahil)'), -c.uberTax]);
-  if (c.cashGross > 0) { rows.push([T('Nakit iş'), c.cashGross]); if (c.cashTax > 0) rows.push([T('Nakit iş vergisi'), -c.cashTax]); }
-  if (c.rec > 0) rows.push([T('Tekrarlayan giderler'), -c.rec]);
-  if (c.daily > 0) rows.push([T('Günlük harcamalar'), -c.daily, 1, 'rcDaily']);
-  (w.extras || []).forEach((x) => { if (+x.amount) rows.push([x.name || T('Ekstra'), -x.amount, 1]); });
-  $('receipt').innerHTML = rows.map((r) => `<div${r[3] ? ` id="${r[3]}"` : ''}><dt>${esc(r[0])}</dt><dd>${r[2] ? money(r[1]) : usd(r[1])}</dd></div>`).join('') + `<div class="tot"><dt>${T('Elinde kalan')}</dt><dd>${usd(c.left)}</dd></div>`;
+  const dt = $('dailyWeekTotal'); if (dt) dt.textContent = c.daily ? money(c.daily) : '';
+  const m2 = (v) => usd2(r2(v)), neg = (v) => '−' + usd2(Math.abs(r2(v)));
+  let h = '';
+  if (c.E > 0) {
+    h += wfRow('wfE', '', T('Uber brüt'), m2(c.E), T('Uygulamadaki haftalık kazanç'));
+    h += wfRow('wfGst', '−', 'GST', neg(c.gst), T("Kazancın 1/11'i, bu haftaki gerçek Uber giderlerinin GST kredisi düşüldü"));
+    h += wfRow('wfFuel', '−', T('Yakıt'), neg(c.fuel), c.fuelEst ? T('Yakıt girilmedi; ayarlardaki haftalık tahmin. Planlama içindir, vergiyi düşürmez.') : T('Bu haftaki “Yakıt (Uber)” harcamaları ({n})', { n: c.nFuel }), '', c.fuelEst ? ` <span class="chip warn">${T('tahmin')}</span>` : '');
+    h += wfRow('wfPocket', '=', T('Bu hafta cebine giren'), m2(c.pocket), '', 'sub');
+    h += wfRow('wfFixed', '−', T('Tahmini sabit masraf payı'), neg(c.fx), T('Yıllık {x} ÷ {n} hafta', { x: usd(S.fixed), n: N }) + '. ' + T("Sigorta, servis gibi giderleri Vergi'ye girdikçe vergi payın düşer."));
+    h += wfRow('wfTax', '−', T('Gelir vergisi + Medicare'), neg(c.incTax), T('Vergiye tabi kâr {x}, çeyreğin vergi oranıyla', { x: usd2(r2(c.taxProfit || 0)) }));
+    if (c.mlsTax > 0.005) h += wfRow('wfMls', '−', 'MLS', neg(c.mlsTax), T('Hastane sigortası yok'));
+    h += wfRow('wfProfit', '=', T("Uber'den gerçek kâr"), m2(c.uberNet), c.H > 0 ? T('Saatte {x}', { x: usd2(c.netH) }) : '', 'sub strong');
+  } else h += `<p class="note" style="margin:0 0 8px">${T('Bu hafta Uber kazancı yok.')}</p>`;
+  h += wfRow('wfSalary', '+', T('Maaş (net)'), m2(c.salaryNet), T('Haftalık, vergi sonrası'));
+  if (c.cashGross > 0) h += wfRow('wfCash', '+', T('Nakit iş'), m2(c.cashNet), c.cashTax > 0 ? T('Vergisi düşülmüş') : T('Vergisiz'));
+  h += wfRow('wfSpend', '−', T('Harcamalar'), neg(c.spendAll), T('Tekrarlayan {a} + günlük {b}', { a: money(r2(c.rec)), b: money(r2(c.extra)) }) + (c.oneOff ? ' · ' + T('{x} tek seferlik', { x: money(c.oneOff) }) : ''));
+  h += wfRow('wfLeft', '=', T('Elinde kalan'), usd(c.left), '', 'total');
+  $('receipt').innerHTML = h; fitText();
+  const tb = $('wkTaxBox'); if (tb) {
+    const qk = quarterOf(cur).key, f = taxFull(qk);
+    const cross = qk !== quarterOf(idOf(addDays(fromId(cur), 6))).key;
+    tb.innerHTML = taxBox(cur) + (c.E > 0 ? `<p class="note" id="wkQNote">${T('Bu çeyrek: ayrılan {a} / gereken {b}', { a: usd2(f.saved), b: usd2(f.need) })}</p>` : '') + (cross ? `<p class="note" id="wkCross">${T('Bu hafta iki çeyreğe yayılıyor; kazanç haftanın başladığı çeyreğe yazılır.')}</p>` : '');
+  }
 }
+// Geçmiş = calendar (month grid) + that month's weeks + daily totals + averages
 function paraHist() {
-  const cur = U.cur;
-  const ids = Object.keys(D.money.weeks).filter((id) => { const w = getWeek(id); return (+w.uberEarn || 0) > 0 || (+w.cashHours || 0) > 0 || sum(w.extras) > 0 || dailySum(w) > 0; }).sort().reverse();
-  const cs = ids.map((id) => [id, calc(getWeek(id))]);
-  const uw = cs.filter(([, c]) => c.E > 0), n = uw.length;
-  const avg = (f) => (n ? uw.reduce((a, [, c]) => a + f(c), 0) / n : 0);
-  const hrs = uw.reduce((a, [, c]) => a + c.H, 0);
-  const totalLeft = cs.reduce((a, [, c]) => a + c.left, 0);
-  const q = quarterOf(cur), inQ = cs.filter(([id]) => quarterOf(id).key === q.key);
-  const qg = inQ.reduce((a, [, c]) => a + c.gst, 0), qt = inQ.reduce((a, [, c]) => a + c.uberTax + c.cashTax, 0);
-  return `<div class="card">${head('trend', T('Ortalamalar'))}<div class="tiles" id="avgTiles">${tile(T('Uber brüt / hafta'), usd(avg((c) => c.E)), T('{n} haftanın ortalaması', { n })) +
-      tile(T('Uber net / hafta'), usd(avg((c) => c.uberNet)), hrs > 0 ? T('Saatte {x}', { x: usd2(uw.reduce((a, [, c]) => a + c.uberNet, 0) / hrs) }) : '–') +
-      tile(T('Kalan / hafta'), usd(cs.length ? totalLeft / cs.length : 0), T('{n} kayıtlı hafta', { n: cs.length })) + tile(T('Toplam kalan'), usd(totalLeft), T('Kayıtlı haftaların toplamı'))}</div></div>
-  <div class="card">${head('jar', T('Kenara ayrılacak (tahmin) · {q}', { q: qName(q.key) }), '', true)}<div class="tiles" id="qTiles">${tile(T('GST (BAS)'), usd(qg), T("Çeyrek sonunda BAS'ta ödenir")) + tile(T('Gelir vergisi'), usd(qt), T('Yıl sonu için biriktir')) + tile(T('Toplam'), usd(qg + qt), T('{n} haftadan', { n: inQ.length }))}</div>
-    <p class="note">${T('Haftalık tahminlerden hesaplanır. Gerçek giderlerle hesap için Vergi sekmesine bak.')}</p></div>
-  <div class="card">${head('list', T('Haftalar'))}${ids.length ? `<div class="tbl-wrap"><table id="histTbl"><thead><tr><th>${T('Hafta')}</th><th>Uber</th><th>${T('Saat')}</th><th>${T('Net/sa')}</th><th>${T('Ekstra')}</th><th>${T('Kalan')}</th></tr></thead><tbody>
-    ${cs.map(([id, c]) => `<tr class="go ${id === cur ? 'cur' : ''}" data-act="openWeek" data-id="${id}"><td>${weekLabel(id)}</td><td>${usd(c.E)}</td><td>${nf0.format(c.H)}</td><td>${c.H > 0 ? usd2(c.netH) : '–'}</td><td>${c.extra > 0 ? usd(c.extra) : '–'}</td><td class="${c.left < 0 ? 'neg' : ''}">${usd(c.left)}</td></tr>`).join('')}</tbody></table></div><p class="note">${T('Bir satıra dokunursan o hafta açılır.')}</p>`
-    : empty('weeks', T('Henüz kayıtlı hafta yok'), T('Hafta sekmesinde Uber kazancını girince burada görünür.'), `<button type="button" class="btn sm" data-act="paraSeg" data-v="hafta">${T('Haftaya git')}</button>`)}</div>`;
-}
-function paraCal() {
   const calYear = U.calYear, calMonth = U.calMonth, today = new Date();
   let yearLeft = 0, yearWeeks = 0;
   const months = MONTHS_FULL.map((name, m) => {
@@ -1362,30 +1518,29 @@ function paraCal() {
     const left = ids.reduce((a, id) => a + calc(getWeek(id)).left, 0);
     yearLeft += left; yearWeeks += ids.length;
     const isNow = calYear === today.getFullYear() && m === today.getMonth();
-    return `<button type="button" class="month${ids.length ? ' has' : ''}${left < 0 ? ' neg' : ''}${isNow ? ' now' : ''}" data-act="month" data-m="${m}" aria-pressed="${m === calMonth}"><span class="mn">${name}</span><span class="mv">${ids.length ? usd(left) : '—'}</span><span class="mc">${ids.length ? T('{n} hafta kayıtlı', { n: ids.length }) : T('Kayıt yok')}</span></button>`;
+    return `<button type="button" class="month${ids.length ? ' has' : ''}${left < 0 ? ' neg' : ''}${isNow ? ' now' : ''}" data-act="month" data-m="${m}" aria-pressed="${m === calMonth}"><span class="mn">${MONTHS[m]}</span><span class="mv">${ids.length ? usd(left) : '—'}</span></button>`;
   }).join('');
   const ids = mondaysIn(calYear, calMonth);
   const cs = ids.map((id) => [id, getWeek(id), hasData(getWeek(id)) ? calc(getWeek(id)) : null]);
-  const withData = cs.filter((x) => x[2]);
-  const sumF = (f) => withData.reduce((a, x) => a + f(x[2]), 0);
-  return `<div class="card"><div class="yearnav"><button type="button" data-act="yearGo" data-d="-1" aria-label="${T('Önceki yıl')}">${ico('left')}</button><div class="ylbl"><span id="yLbl">${calYear}</span><small id="ySub">${yearWeeks ? T('Bu yıl biriken {x} · {n} hafta', { x: usd(yearLeft), n: yearWeeks }) : T('Bu yıl henüz kayıt yok')}</small></div><button type="button" data-act="yearGo" data-d="1" aria-label="${T('Sonraki yıl')}">${ico('right')}</button></div><div class="months" id="months">${months}</div></div>
-  <div class="card" id="mDetail">${head('cal', MONTHS_FULL[calMonth] + ' ' + calYear)}
-    ${withData.length ? `<div class="tiles" id="mdTiles">${tile(T('Biriken'), usd(sumF((c) => c.left)), T('{n} hafta', { n: withData.length })) + tile(T('Net gelir'), usd(sumF((c) => c.income)), T('Maaş + Uber + nakit')) + tile(T('Uber brüt'), usd(sumF((c) => c.E)), T('{n} saat', { n: nf0.format(sumF((c) => c.H)) })) + tile(T('Giderler'), usd(sumF((c) => c.rec + c.extra)), T('Ekstra {x}', { x: usd(sumF((c) => c.extra)) }))}</div>`
-      : empty('cal', T('Bu ayda kayıt yok'), T('Aşağıdan bir haftaya dokun ve o haftanın rakamlarını gir.'))}
+  const all = Object.keys(D.money.weeks).filter((id) => hasData(getWeek(id))).map((id) => calc(getWeek(id)));
+  const uw = all.filter((c) => c.E > 0), n = uw.length, hrs = uw.reduce((a, c) => a + c.H, 0);
+  const avg = (arr, f) => (arr.length ? arr.reduce((a, c) => a + f(c), 0) / arr.length : 0);
+  return `<section class="sec"><div class="yearnav"><button type="button" data-act="yearGo" data-d="-1" aria-label="${T('Önceki yıl')}">${ico('left')}</button><div class="ylbl"><span id="yLbl">${calYear}</span><small id="ySub">${yearWeeks ? T('Bu yıl biriken {x} · {n} hafta', { x: usd(yearLeft), n: yearWeeks }) : T('Bu yıl henüz kayıt yok')}</small></div><button type="button" data-act="yearGo" data-d="1" aria-label="${T('Sonraki yıl')}">${ico('right')}</button></div><div class="months" id="months">${months}</div></section>
+  <section class="sec" id="mDetail">${secHead(MONTHS_FULL[calMonth] + ' ' + calYear, `<span class="sub">${per('m')}</span>`)}
     <div class="wklist" id="mdWeeks">${cs.map(([id, w, c]) => (c
-      ? `<button type="button" class="wk" data-act="openWeek" data-id="${id}"><span class="wl">${weekLabel(id)}<small>${T('Net gelir {x}', { x: usd(c.income) })}${c.E > 0 ? ' · Uber ' + usd(c.E) : ''}${c.extra > 0 ? ' · ' + T('ekstra {x}', { x: usd(c.extra) }) : ''}</small></span><span class="wr"><b>${usd(c.left)}</b><small>${T('kalan')}</small></span></button>`
+      ? `<button type="button" class="wk" data-act="openWeek" data-id="${id}"><span class="wl">${weekLabel(id)}<small>${c.E > 0 ? 'Uber ' + usd(c.E) + ' · ' : ''}${T('harcama {x}', { x: usd(c.spendAll) })}</small></span><span class="wr"><b>${usd(c.left)}</b><small>${T('kalan')}</small></span></button>`
       : `<button type="button" class="wk empty-wk" data-act="openWeek" data-id="${id}"><span class="wl">${weekLabel(id)}<small>${T('Kayıt yok, girmek için dokun')}</small></span><span class="wr"><b>—</b></span></button>`)).join('')}</div>
-    <p class="note">${T('Bir haftaya dokunursan o hafta açılır. Her hafta, başladığı pazartesinin ayına sayılır.')}</p></div>
-  ${monthDaily(calYear, calMonth)}`;
+    ${monthDaily(calYear, calMonth)}</section>
+  <section class="sec">${secHead(T('Ortalamalar'), `<span class="sub">${T('tek seferlikler hariç')}</span>`)}<div class="tiles" id="avgTiles">${tile(T('Uber brüt / hafta'), usd(avg(uw, (c) => c.E)), T('{n} haftanın ortalaması', { n }))}${tile(T('Uber gerçek kâr (tahmini sabit masraf dahil)'), usd(avg(uw, (c) => c.uberNet)), hrs > 0 ? T('Saatte {x}', { x: usd2(uw.reduce((a, c) => a + c.uberNet, 0) / hrs) }) : '–')}${tile(T('Kalan / hafta'), usd(avg(all, (c) => c.leftNoOneOff)), T('{n} kayıtlı hafta', { n: all.length }))}</div></section>`;
 }
-// per-day totals of daily spending in the selected month
+// per-day totals of daily spending in the selected month (Uber fuel excluded)
 function monthDaily(y, m) {
   const pre = `${y}-${pad(m + 1)}-`, byDay = {};
-  Object.values(D.money.weeks).forEach((w) => (w.daily || []).forEach((x) => { if (String(x.date).startsWith(pre)) (byDay[x.date] = byDay[x.date] || []).push(x); }));
+  Object.values(D.money.weeks).forEach((w) => (w.daily || []).forEach((x) => { if (x.cat !== FUEL_CAT && String(x.date).startsWith(pre)) (byDay[x.date] = byDay[x.date] || []).push(x); }));
   const ks = Object.keys(byDay).sort(); if (!ks.length) return '';
-  const tot = r2(ks.reduce((a, k) => a + byDay[k].reduce((s, x) => s + (+x.amount || 0), 0), 0));
-  return `<div class="card" id="mDaily">${head('cal', T('Günlük harcamalar'), `<span class="sub">${money(tot)}</span>`)}<div class="log">${ks.map((k) => { const d = fromId(k), es = byDay[k], s = r2(es.reduce((a, x) => a + (+x.amount || 0), 0));
-    return `<div><span>${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} · ${T('{n} kayıt', { n: es.length })}</span><b>${money(s)}</b></div>`; }).join('')}</div></div>`;
+  const tot = r2(ks.reduce((a, k) => a + sumAmt(byDay[k]), 0));
+  return `<div id="mDaily" class="mdaily">${secHead(T('Günlük harcamalar'), `<span class="sub">${money(tot)}</span>`)}<div class="log">${ks.map((k) => { const d = fromId(k), es = byDay[k];
+    return `<div><span>${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} · ${T('{n} kayıt', { n: es.length })}</span><b>${money(sumAmt(es))}</b></div>`; }).join('')}</div></div>`;
 }
 function potState(p) { if (p.done) return [T('Satın alındı'), 'chip']; if (p.target > 0 && p.saved >= p.target) return [T('Hedefe ulaştı'), 'chip gold']; return [T('Yolda'), 'chip acc']; }
 function paraPots() {
@@ -1393,7 +1548,7 @@ function paraPots() {
   const total = active.reduce((a, p) => a + p.saved, 0);
   let html = `<div class="card">${head('jar', T('Kumbaralar'), `<button type="button" class="btn sm" data-act="newPot">${ico('plus')}${T('Yeni')}</button>`)}
     ${pots.length ? `<div class="tiles">${tile(T('Kumbaralarda'), usd(total), T('{n} açık kumbara', { n: active.length }))}${tile(T('Hedeflere kalan'), usd(active.reduce((a, p) => a + Math.max(0, p.target - p.saved), 0)), T('Toplam'))}</div>`
-      : empty('pots', T('Henüz kumbaran yok'), T('Bir şey için ayrı para biriktir: konsol, araba bakımı, Türkiye bileti ya da vergi gibi. Hedefe ulaşınca "Satın aldım" ile tutarı haftana gider olarak yaz.'), `<button type="button" class="btn sm" data-act="newPot">${ico('plus')}${T('İlk kumbarayı aç')}</button>`)}</div>`;
+      : empty('pots', T('Henüz kumbaran yok'), T('Bir şey için ayrı para biriktir: konsol, araba bakımı, Türkiye bileti ya da vergi gibi. Hedefe ulaşınca "Satın aldım" ile tutarı tek seferlik harcama olarak yaz.'), `<button type="button" class="btn sm" data-act="newPot">${ico('plus')}${T('İlk kumbarayı aç')}</button>`)}</div>`;
   html += active.map(potCard).join('');
   if (done.length) html += `<details class="card fold"><summary>${T('Tamamlananlar ({n})', { n: done.length })}</summary><div class="stack" style="margin-top:8px">${done.map(potCard).join('')}</div></details>`;
   return html;
@@ -1407,34 +1562,51 @@ function potCard(p) {
     ${p.log.length ? `<details class="fold"><summary>${T('Hareketler ({n})', { n: p.log.length })}</summary><div class="log">${p.log.slice().reverse().slice(0, 20).map((l) => `<div><span>${dShort(l.d)}${l.note ? ' · ' + esc(T(l.note)) : ''}</span><b class="${l.a >= 0 ? 'up' : 'down'}">${l.a >= 0 ? '+' : '−'}${usd(Math.abs(l.a))}</b></div>`).join('')}</div></details>` : ''}</article>`;
 }
 
-// ---------- daily expenses inside the week ----------
-const DCATS = [['yemek', 'Yemek'], ['market', 'Market'], ['kahve', 'Kahve'], ['yakit', 'Yakıt'], ['ulasim', 'Ulaşım'], ['eglence', 'Eğlence'], ['fatura', 'Fatura'], ['diger', 'Diğer']];
+// ---------- one spending list: daily entries inside the week ----------
+// "Yakıt (Uber)" entries are the week's fuel (shown in the waterfall and in Vergi), not personal spending.
+const DCATS = [['yemek', 'Yemek'], ['market', 'Market'], ['kahve', 'Kahve'], ['yakit', 'Yakıt (Uber)'], ['ulasim', 'Ulaşım'], ['eglence', 'Eğlence'], ['fatura', 'Fatura'], ['diger', 'Diğer']];
 const dcatName = (k) => { const c = DCATS.find((x) => x[0] === k); return c ? T(c[1]) : ''; };
-function catChips(cur, act) { return `<div class="chips" role="group" aria-label="${T('Kategori')}">${DCATS.map(([k, l]) => `<button type="button" class="chipbtn" data-act="${act}" data-v="${k}" aria-pressed="${cur === k}">${T(l)}</button>`).join('')}</div>`; }
+function catChips(cur, act) { return `<div class="chips" role="group" aria-label="${T('Kategori')}">${DCATS.map(([k, l]) => `<button type="button" class="chipbtn${k === FUEL_CAT ? ' fuel' : ''}" data-act="${act}" data-v="${k}" aria-pressed="${cur === k}">${T(l)}</button>`).join('')}</div>`; }
+// past names → last used category (for autocomplete)
+function pastNames() {
+  const m = new Map();
+  Object.keys(D.money.weeks).sort().forEach((id) => (D.money.weeks[id].daily || []).forEach((x) => { const n = (x.name || '').trim(); if (n) { m.delete(n); m.set(n, x.cat || null); } }));
+  return m;
+}
+const namesList = () => `<datalist id="pastNames">${[...pastNames().keys()].reverse().slice(0, 60).map((n) => `<option value="${esc(n)}"></option>`).join('')}</datalist>`;
 function dailyRow(x) {
-  return `<div class="swipe" data-swipe="${x.id}"><div class="swipe-bg"><button type="button" class="swipe-del" data-act="delDaily" data-id="${x.id}" tabindex="-1" aria-hidden="true">${ico('trash')}<span>${T('Sil')}</span></button></div><div class="swipe-fg">
-    <button type="button" class="dent" data-act="editDaily" data-id="${x.id}"><span class="dn"><b>${esc(x.name || T('Harcama'))}</b>${x.cat ? `<span class="chip">${dcatName(x.cat)}</span>` : ''}</span><span class="da">${money(+x.amount || 0)}</span></button>
+  const fuel = x.cat === FUEL_CAT, meta = [x.cat ? dcatName(x.cat) : '', x.oneOff ? T('tek seferlik') : '', fuel ? T('Uber yakıtı, harcamaya sayılmaz') : ''].filter(Boolean).join(' · ');
+  return `<div class="swipe${fuel ? ' is-fuel' : ''}" data-swipe="${x.id}"><div class="swipe-bg"><button type="button" class="swipe-del" data-act="delDaily" data-id="${x.id}" tabindex="-1" aria-hidden="true">${ico('trash')}<span>${T('Sil')}</span></button></div><div class="swipe-fg">
+    <button type="button" class="dent" data-act="editDaily" data-id="${x.id}"><span class="dn"><b>${esc(x.name || T('Harcama'))}</b>${meta ? `<small>${esc(meta)}</small>` : ''}</span><span class="da">${money(+x.amount || 0)}</span></button>
     <button type="button" class="del" data-act="delDaily" data-id="${x.id}" aria-label="${esc(T('Sil: {x}', { x: x.name || T('Harcama') }))}">${ico('x')}</button></div></div>`;
 }
 function dailyCard(w) {
   const mon = fromId(U.cur), tk = todayKey(), days = [...Array(7)].map((_, i) => idOf(addDays(mon, i)));
   if (U.openDayWeek !== U.cur) { U.openDayWeek = U.cur; U.openDay = days.includes(tk) ? tk : null; }
-  const list = (w && w.daily) || [], tot = dailySum(w);
-  return `<div class="card" id="dailyCard">${head('cal', T('Günlük harcamalar'), `<span class="sub" id="dailyWeekTotal">${tot ? money(tot) : ''}</span>`)}<div class="days">
-    ${days.map((k) => { const d = fromId(k), es = list.filter((x) => x.date === k), dsum = r2(es.reduce((a, x) => a + (+x.amount || 0), 0)), open = U.openDay === k;
-      return `<div class="day${open ? ' open' : ''}"><button type="button" class="day-h" data-act="dayOpen" data-d="${k}" aria-expanded="${open}"><span class="dn">${DAYS_LONG[d.getDay()]}<small>${d.getDate()} ${MONTHS[d.getMonth()]}${k === tk ? ' · ' + T('bugün') : ''}</small></span><span class="dt" id="dayTot-${k}">${es.length ? money(dsum) : '—'}</span>${ico(open ? 'up' : 'down')}</button>
-      ${open ? `<div class="day-b">${es.length ? `<div class="dlist">${es.map(dailyRow).join('')}</div>` : `<p class="note" style="margin:0 0 8px">${T('Bu güne ait harcama yok.')}</p>`}
-        <form class="stack" id="dailyForm" data-d="${k}"><div class="row"><div class="money" style="width:118px"><span>$</span><input id="dAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}" autocomplete="off"></div><input class="txt" id="dName" placeholder="${T('ör. Dışarıda yemek')}" aria-label="${T('Ne için?')}" autocomplete="off"></div>
-        ${catChips(U.dCat, 'dCat')}<button class="btn" type="submit" id="dSave">${T('Kaydet')}</button></form></div>` : ''}</div>`; }).join('')}</div>
-    <p class="note">${T('Günlük harcamaların toplamı haftanın giderlerine eklenir. Silmek için satırı sola kaydır, düzenlemek için dokun.')}</p></div>`;
+  const list = (w && w.daily) || [];
+  return `<section class="sec" id="dailyCard">${secHead(T('Harcamalar'), `<span class="sub" id="dailyWeekTotal"></span>`)}<div class="days">
+    ${days.map((k) => { const d = fromId(k), es = list.filter((x) => x.date === k), sp = sumAmt(es.filter((x) => x.cat !== FUEL_CAT)), fu = sumAmt(es.filter((x) => x.cat === FUEL_CAT)), open = U.openDay === k;
+      return `<div class="day${open ? ' open' : ''}"><button type="button" class="day-h" data-act="dayOpen" data-d="${k}" aria-expanded="${open}"><span class="dn">${DAYS_LONG[d.getDay()]}<small>${d.getDate()} ${MONTHS[d.getMonth()]}${k === tk ? ' · ' + T('bugün') : ''}${fu ? ' · ' + T('yakıt {x}', { x: money(fu) }) : ''}</small></span><span class="dt" id="dayTot-${k}">${es.some((x) => x.cat !== FUEL_CAT) ? money(sp) : ''}</span>${ico(open ? 'up' : 'down')}</button>
+      ${open ? `<div class="day-b">${es.length ? `<div class="dlist">${es.map(dailyRow).join('')}</div>` : ''}
+        <form class="stack" id="dailyForm" data-d="${k}"><div class="row"><div class="money" style="width:118px"><span>$</span><input id="dAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}" autocomplete="off"></div><input class="txt" id="dName" list="pastNames" placeholder="${T('ör. Dışarıda yemek')}" aria-label="${T('Ne için?')}" autocomplete="off"></div>
+        ${catChips(U.dCat, 'dCat')}<div class="row"><button type="button" class="tagbtn" data-act="dOneOff" id="dOneOff" aria-pressed="${!!U.dOneOff}">${T('Tek seferlik')}</button><button class="btn" type="submit" id="dSave" style="margin-left:auto">${T('Kaydet')}</button></div></form></div>` : ''}</div>`; }).join('')}</div>
+    ${namesList()}<p class="note">${T('Sola kaydırarak sil, düzenlemek için dokun. “Tek seferlik” harcamalar haftadan düşülür ama ortalamalara katılmaz.')}</p></section>`;
+}
+
+// big money numbers stay on one line; shrink the font until they fit their box
+function fitText(root) {
+  (root || document).querySelectorAll('.hero .v, .home-hero .v, .wf dd, .tile .v').forEach((el) => {
+    el.style.fontSize = ''; let i = 0;
+    while (el.scrollWidth > el.clientWidth + 1 && i++ < 12) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * 0.9) + 'px';
+  });
 }
 
 // ===================== GELİŞİM =====================
 function vGelisim() {
   const L = level();
   const segs = [['aliskanlik', 'Alışkanlık'], ['gorev', 'Görev'], ['hedef', 'Hedef'], ['kitap', 'Kitap'], ['gunluk', 'Günlük']];
-  return `<div class="seg top-seg" role="group" aria-label="${T('Gelişim bölümleri')}">${segs.map(([k, l]) => `<button type="button" data-act="gelSeg" data-v="${k}" aria-pressed="${U.gelSeg === k}">${T(l)}</button>`).join('')}</div>
-    <div style="display:flex;justify-content:flex-end"><span class="xp">${T('Seviye {n}', { n: L.lv })}<i><b style="width:${L.p}%"></b></i>${nf0.format(L.x)} XP</span></div>` +
+  return `<div class="seg top-seg" role="group" aria-label="${T('Gelişim bölümleri')}" data-swipe-zone="gelSeg">${segs.map(([k, l]) => `<button type="button" data-act="gelSeg" data-v="${k}" aria-pressed="${U.gelSeg === k}">${T(l)}</button>`).join('')}</div>
+    <div class="gel-top"><button type="button" class="link" data-act="openInsights" id="gelInsights">${ico('spark')}${T('İçgörüler')}</button><span class="xp">${T('Seviye {n}', { n: L.lv })}<i><b style="width:${L.p}%"></b></i>${nf0.format(L.x)} XP</span></div>` +
     ({ aliskanlik: gelHabits, gorev: gelTasks, hedef: gelGoals, kitap: gelBooks, gunluk: gelJournal })[U.gelSeg]();
 }
 function gelHabits() {
@@ -1907,8 +2079,9 @@ function snapAreas() { AREAS.forEach((a) => { lastSer[a] = JSON.stringify(areaDa
 function stampChanges() {
   if (!snapped) return; let ch = false;
 let uiCh = false;
-  AREAS.forEach((a) => { const s = JSON.stringify(areaData(a)); if (s !== lastSer[a]) { lastSer[a] = s; SY.updatedAt[a] = Date.now(); ch = true; if (a === 'ui') uiCh = true; } });
-  if (ch) { saveSync(); scheduleSync(2000); if (uiCh && isNative()) scheduleNotifs(); }
+  let moneyCh = false;
+  AREAS.forEach((a) => { const s = JSON.stringify(areaData(a)); if (s !== lastSer[a]) { lastSer[a] = s; SY.updatedAt[a] = Date.now(); ch = true; if (a === 'ui') uiCh = true; if (a === 'money') moneyCh = true; } });
+  if (ch) { saveSync(); scheduleSync(2000); if ((uiCh || moneyCh) && isNative()) scheduleNotifs(); }
 }
 function hasContent(a, d) {
   if (!d) return false;
@@ -2105,7 +2278,7 @@ function vConflictSheet(sh) {
 }
 
 // ---------- notifications (Android app via Capacitor LocalNotifications) ----------
-const NOTIF_DEF = { evening: { on: false, time: '21:00' }, habit: { on: false, time: '07:00' }, weekly: { on: false, time: '19:00' }, bas: { on: false, time: '09:00' } };
+const NOTIF_DEF = { evening: { on: false, time: '21:00' }, habit: { on: false, time: '07:00' }, weekly: { on: false, time: '19:00' }, bas: { on: false, time: '09:00' }, taxweek: { on: false, time: '19:00' } };
 function notifCfg() { const n = D.ui.notif = Object.assign({}, D.ui.notif); Object.keys(NOTIF_DEF).forEach((k) => { n[k] = Object.assign({}, NOTIF_DEF[k], n[k]); }); return n; }
 function lnPlugin() { const C = window.Capacitor; if (!C) return null; return (C.Plugins && C.Plugins.LocalNotifications) || (C.registerPlugin ? C.registerPlugin('LocalNotifications') : null); }
 let notifTimer = null;
@@ -2119,6 +2292,7 @@ async function doScheduleNotifs() {
     if (N.evening.on) list.push(Object.assign({ id: 101, title: 'Momentum', body: T('Akşam değerlendirmesi: bugün nasıl geçti?'), schedule: { on: hm(N.evening.time), allowWhileIdle: true } }, base));
     if (N.habit.on) list.push(Object.assign({ id: 102, title: 'Momentum', body: T('Günün alışkanlıklarını işaretlemeyi unutma.'), schedule: { on: hm(N.habit.time), allowWhileIdle: true } }, base));
     if (N.weekly.on) list.push(Object.assign({ id: 103, title: 'Momentum', body: T('Haftalık kontrol: Uber kazancını ve harcamalarını gir.'), schedule: { on: Object.assign({ weekday: 1 }, hm(N.weekly.time)), allowWhileIdle: true } }, base));
+    if (N.taxweek.on) { const x = r2(weekTaxOf(thisWeekId())); if (x > 0 && !weekSetAside(thisWeekId())) list.push(Object.assign({ id: 104, title: 'Momentum', body: T('Bu haftanın vergi payı: {x}. Aktardın mı?', { x: usd2(x) }), schedule: { on: Object.assign({ weekday: 1 }, hm(N.taxweek.time)), allowWhileIdle: true } }, base)); }
     if (N.bas.on) {
       let q = qShift(quarterOf(thisWeekId()).key, -1), id = 200; /* previous quarter BAS falls due during the current one */ const t = hm(N.bas.time);
       for (let i = 0; i < 5; i++, q = qShift(q, 1)) {
@@ -2143,22 +2317,22 @@ function vNotifs() {
   const row = (k, label, hint, timeLbl) => `<div class="nrow"><button type="button" class="trow" data-act="notifToggle" data-k="${k}" aria-pressed="${N[k].on}" ${native ? '' : 'disabled'}><span>${label}<small>${hint}</small></span><span class="sw" aria-hidden="true"></span></button>
     ${N[k].on ? `<label class="ntime">${timeLbl}<input class="txt" type="time" data-ntime="${k}" value="${N[k].time}"></label>` : ''}</div>`;
   return `${native ? '' : `<div class="card"><p class="note" style="margin:0" id="notifWebNote">${T('Bildirimler Android uygulamasında çalışır. Uygulamayı GitHub’daki “Sürümler” sayfasından Momentum.apk olarak indirebilirsin.')}</p></div>`}
-    <div class="card">${row('evening', T('Akşam değerlendirmesi'), T('Her gün'), T('Saat'))}${row('habit', T('Alışkanlık hatırlatması'), T('Her gün'), T('Saat'))}${row('weekly', T('Haftalık giriş'), T('Her pazar: Uber kazancı ve harcamalar'), T('Saat'))}${row('bas', T('BAS hatırlatması'), T('BAS son gününden 14 ve 3 gün önce'), T('Saat'))}</div>`;
+    <div class="card">${row('evening', T('Akşam değerlendirmesi'), T('Her gün'), T('Saat'))}${row('habit', T('Alışkanlık hatırlatması'), T('Her gün'), T('Saat'))}${row('weekly', T('Haftalık giriş'), T('Her pazar: Uber kazancı ve harcamalar'), T('Saat'))}${row('bas', T('BAS hatırlatması'), T('BAS son gününden 14 ve 3 gün önce'), T('Saat'))}${row('taxweek', T('Haftalık vergi payı'), T("Her pazar: bu haftanın vergi payını kumbaraya aktardın mı?"), T('Saat'))}</div>`;
 }
 
 // ===================== VERGİ (Uber GST + income tax set-aside, per BAS quarter) =====================
 // Quarter keys follow quarterOf(): '<FY end year>-Q<n>', e.g. Oct 2026 → '2027-Q2' (Q2 2026–27).
 const UEXP_CATS = [
-  ['fuel', 'Yakıt', 'car'], ['service', 'Servis ve bakım', 'car'], ['tyres', 'Lastik', 'car'], ['wash', 'Yıkama ve temizlik', 'car'],
+  ['service', 'Servis ve bakım', 'car'], ['tyres', 'Lastik', 'car'], ['wash', 'Yıkama ve temizlik', 'car'],
   ['phone', 'Telefon ve internet', 'phone'], ['parking', 'Otopark ve geçiş ücreti', 'car'], ['insurance', 'Sigorta', 'car'], ['rego', 'Rego, CTP ve BHSL', 'car'],
   ['amenities', 'Yolcu ikramı (su, şeker)', 'other'], ['fees', 'Muhasebe ve banka ücretleri', 'other'], ['other', 'Diğer', 'other']
 ];
 const UEXP_ICON = { fuel: 'car', service: 'car', tyres: 'car', wash: 'car', phone: 'phone', parking: 'car', insurance: 'receipt', rego: 'receipt', amenities: 'bag', fees: 'percent', other: 'list' };
-const catName = (k) => { const c = UEXP_CATS.find((x) => x[0] === k); return T(c ? c[1] : 'Diğer'); };
+const catName = (k) => { if (k === 'fuel') return T('Yakıt'); const c = UEXP_CATS.find((x) => x[0] === k); return T(c ? c[1] : 'Diğer'); };
 const logbook = () => { const v = +S.logbookPct; return v > 0 && v <= 100 ? v : 100; };
 // built-in defaults, overridable per category in Settings → Vergi (money.settings.catDefaults)
 function catDefaults(cat) {
-  const c = UEXP_CATS.find((x) => x[0] === cat) || UEXP_CATS[10], o = (S.catDefaults || {})[cat] || {};
+  const c = UEXP_CATS.find((x) => x[0] === cat) || UEXP_CATS[UEXP_CATS.length - 1], o = (S.catDefaults || {})[cat] || {};
   return { gst: o.gst != null ? !!o.gst : !['rego', 'fees'].includes(cat), biz: o.biz != null ? o.biz : c[2] === 'car' ? logbook() : c[2] === 'phone' ? 50 : 100 };
 }
 function setCatDefault(cat, patch) { const all = S.catDefaults = Object.assign({}, S.catDefaults); all[cat] = Object.assign({}, all[cat], patch); }
@@ -2172,38 +2346,72 @@ function qInfo(key) {
 const fyName = (fy) => `${fy - 1}–${String(fy).slice(2)}`;
 const qName = (key) => { const { fy, q } = qParts(key); return `Q${q} ${fyName(fy)}`; };
 function qShift(key, d) { let { fy, q } = qParts(key); q += d; while (q < 1) { q += 4; fy--; } while (q > 4) { q -= 4; fy++; } return fy + '-Q' + q; }
-function taxQuarter(key) {
+// Per-tick memo: taxQuarter scans every week; calc() needs it for each week shown. Cleared on save/render/paraCalc.
+let TAXC = null;
+function taxMemo(k, f) { if (!TAXC) { TAXC = new Map(); Promise.resolve().then(() => { TAXC = null; }); } if (!TAXC.has(k)) TAXC.set(k, f()); return TAXC.get(k); }
+function taxCacheReset() { TAXC = null; }
+// the Uber week (Monday id) an expense dated d belongs to: its own week if that week drove Uber in this quarter,
+// otherwise the nearest Uber week of the same quarter (so Σ weekly tax == the quarter's figure); null = no Uber week yet
+function nearestUberWeek(weeks, d) {
+  if (!weeks.length) return null; const own = idOf(mondayOf(parseKey(d))); if (weeks.includes(own)) return own;
+  const t = parseKey(d).getTime(); let best = null, bd = Infinity;
+  weeks.forEach((id) => { const a = parseKey(id).getTime(), b = a + 6 * 864e5, dist = t < a ? a - t : t > b ? t - b : 0; if (dist < bd) { bd = dist; best = id; } });
+  return best;
+}
+function taxQuarter(key) { return taxMemo('tq:' + key, () => taxQuarter0(key)); }
+function taxQuarter0(key) {
   const qi = qInfo(key), a = qi.startId, b = qi.endId;
-  const weeks = Object.keys(D.money.weeks).filter((id) => id >= a && id <= b && (+D.money.weeks[id].uberEarn || 0) > 0);
+  const weeks = Object.keys(D.money.weeks).filter((id) => id >= a && id <= b && (+D.money.weeks[id].uberEarn || 0) > 0).sort();
   const E = weeks.reduce((s, id) => s + (+D.money.weeks[id].uberEarn || 0), 0);
-  const ex = D.money.uberExpenses.filter((e) => e.d >= a && e.d <= b);
+  // "Yakıt (Uber)" entries from the daily spending list count here too (GST credit 1/11, work share = logbook %)
+  const fuelEx = [];
+  Object.entries(D.money.weeks).forEach(([wid, w]) => (w.daily || []).forEach((x) => { if (x.cat === FUEL_CAT && x.date >= a && x.date <= b) fuelEx.push({ id: x.id, d: x.date, cat: 'fuel', amount: +x.amount || 0, gst: true, biz: logbook(), fromDaily: true, week: wid, note: x.name && x.name !== 'Yakıt (Uber)' ? x.name : '' }); }));
+  const ex = D.money.uberExpenses.filter((e) => e.d >= a && e.d <= b).concat(fuelEx);
+  const wk = {}; weeks.forEach((id) => { wk[id] = { E: +D.money.weeks[id].uberEarn || 0, gross: 0, fees: 0, credit: 0, exEx: 0 }; });
+  const loose = { gross: 0, fees: 0, credit: 0, exEx: 0, n: 0, total: 0 };
   let credit = 0, exEx = 0, exTotal = 0;
-  ex.forEach((e) => { const amt = +e.amount || 0, biz = (e.biz == null ? 100 : +e.biz) / 100, g = e.gst ? amt / 11 : 0; credit += g * biz; exEx += (amt - g) * biz; exTotal += amt; });
+  ex.forEach((e) => { const amt = +e.amount || 0, biz = (e.biz == null ? 100 : +e.biz) / 100, g = e.gst ? amt / 11 : 0, cr = g * biz, xx = (amt - g) * biz;
+    credit += cr; exEx += xx; exTotal += amt;
+    const w = nearestUberWeek(weeks, e.d); if (w) { wk[w].credit += cr; wk[w].exEx += xx; } else { loose.credit += cr; loose.exEx += xx; loose.n++; loose.total += amt; } });
   const sm = D.money.taxSummaries[key] || {}, exact = +sm.grossFares > 0;
   const gross = exact ? +sm.grossFares : E, fees = exact ? +sm.uberFees || 0 : 0;
+  // Uber's exact quarter figures are spread over the weeks in proportion to each week's earnings
+  if (E > 0) weeks.forEach((id) => { wk[id].gross = gross * wk[id].E / E; wk[id].fees = fees * wk[id].E / E; }); else { loose.gross = gross; loose.fees = fees; }
   const g1A = gross / 11, g1B = credit + fees / 11;
   const profit = (gross - gross / 11) - (fees - fees / 11) - exEx;
-  return { key, qi, E, nWeeks: weeks.length, ex, exTotal, exact, gross, fees, g1A, g1B, credit, gst: g1A - g1B, exEx, profit };
+  return { key, qi, E, nWeeks: weeks.length, weeks, wk, loose, ex, exTotal, exact, gross, fees, g1A, g1B, credit, gst: g1A - g1B, exEx, profit };
+}
+// one week's (or the unattributed rest's) share of the quarter: GST_w + rate_q × profit_w, rate_q from taxShare
+function taxPart(x, ts) {
+  const gst = x.gross / 11 - x.credit - x.fees / 11, profit = (x.gross - x.gross / 11) - (x.fees - x.fees / 11) - x.exEx;
+  const inc = ts.rInc * profit, ml = ts.rMls * profit;
+  return { gross: x.gross, credit: x.credit, exEx: x.exEx, gst, profit, inc, mls: ml, tax: gst + inc + ml };
+}
+function weekTaxParts(id) {
+  const w = getWeek(id); if (!w || !((+w.uberEarn || 0) > 0)) return null;
+  const key = quarterOf(id).key, tq = taxQuarter(key), x = tq.wk[id]; if (!x) return null;
+  return Object.assign(taxPart(x, taxShare(key)), { key });
 }
 // income tax share: average weekly Uber profit over the weeks driven so far this FY (Q1..this quarter) x weeks per year
 // = estimated annual Uber profit, taxed on top of salary. Income tax + Medicare and the MLS are split so the MLS,
 // which applies to the whole income once over the threshold, is spread over the whole year's Uber profit.
-function taxShare(key) {
+function taxShare(key) { return taxMemo('ts:' + key, () => taxShare0(key)); }
+function taxShare0(key) {
   const { fy, q } = qParts(key); let P = 0, n = 0;
   for (let i = 1; i <= q; i++) { const x = taxQuarter(fy + '-Q' + i); P += x.profit; n += x.nWeeks; }
   const tq = taxQuarter(key), N = Math.max(1, +S.weeksPerYear || 48);
   const A = n > 0 ? P / n * N : P;
-  if (A <= 0 || tq.profit <= 0) return { A, rate: 0, tax: 0, incTax: 0, mlsTax: 0, mlsRate: 0 };
+  if (A <= 0 || tq.profit <= 0) return { A, rate: 0, rInc: 0, rMls: 0, tax: 0, incTax: 0, mlsTax: 0, mlsRate: 0 };
   const inc = (itax(S.salary + A) + 0.02 * (S.salary + A)) - (itax(S.salary) + 0.02 * S.salary);
   const m = mls(S.salary + A, S.cover) - mls(S.salary, S.cover);
   const incTax = inc / A * tq.profit, mlsTax = m / A * tq.profit;
-  return { A, rate: (inc + m) / A, tax: incTax + mlsTax, incTax, mlsTax, mlsRate: mls(S.salary + A, false) / (S.salary + A) };
+  return { A, rate: (inc + m) / A, rInc: inc / A, rMls: m / A, tax: incTax + mlsTax, incTax, mlsTax, mlsRate: mls(S.salary + A, false) / (S.salary + A) };
 }
 function taxFull(key) {
   const tq = taxQuarter(key), ts = taxShare(key);
   const sa = D.money.setAsides.filter((x) => x.q === key), saved = sa.reduce((s, x) => s + (+x.amount || 0), 0);
-  const need = tq.gst + ts.tax;
-  return Object.assign({}, tq, ts, { need, sa, saved, left: Math.max(0, need - saved) });
+  const need = tq.gst + ts.tax, looseTax = taxPart(tq.loose, ts).tax;
+  return Object.assign({}, tq, ts, { need, looseTax, sa, saved, left: Math.max(0, need - saved) });
 }
 const daysUntil = (d) => Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - parseKey(todayKey()).setHours(0, 0, 0, 0)) / 864e5);
 const longDate = (d) => new Intl.DateTimeFormat(LOC, { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
@@ -2217,21 +2425,29 @@ function paraTax() {
   // expenses grouped by month
   const byM = {}; f.ex.slice().sort((a, b) => b.d.localeCompare(a.d)).forEach((e) => { (byM[e.d.slice(0, 7)] = byM[e.d.slice(0, 7)] || []).push(e); });
   const expList = Object.keys(byM).sort().reverse().map((m) => { const [y, mm] = m.split('-').map(Number), tot = byM[m].reduce((s, e) => s + (+e.amount || 0), 0);
-    return `<div class="band-h" style="margin-top:6px;justify-content:space-between"><span>${MONTHS_FULL[mm - 1]} ${y}</span><span>${usd2(tot)}</span></div>` + byM[m].map((e) => `<button type="button" class="hold wrap" data-act="editUexp" data-id="${e.id}"><span class="sym">${ico(UEXP_ICON[e.cat] || 'list')}</span><span class="mid"><b>${esc(catName(e.cat))}</b><span>${dShort(e.d)}${e.note ? ' · ' + esc(e.note) : ''}</span></span><span class="rt"><b>${usd2(+e.amount || 0)}</b><span class="tags-mini">${e.gst ? `<span class="chip acc">GST</span>` : `<span class="chip">${T('GST yok')}</span>`}${(e.biz == null ? 100 : +e.biz) < 100 ? `<span class="chip">${T('iş {n}', { n: pct(e.biz) })}</span>` : ''}</span></span></button>`).join(''); }).join('');
-  return `<div class="weeknav"><button type="button" data-act="taxQGo" data-d="-1" id="taxPrev" aria-label="${T('Önceki çeyrek')}">${ico('left')}</button><div class="lbl"><span id="taxQLbl">${qName(key)}</span><small>${qi.range}</small></div><button type="button" data-act="taxQGo" data-d="1" id="taxNext" aria-label="${T('Sonraki çeyrek')}">${ico('right')}</button></div>
-  <section class="hero"><svg class="hero-deco" viewBox="0 0 210 210" aria-hidden="true"><circle cx="105" cy="105" r="96"/><circle cx="105" cy="105" r="74"/><circle cx="105" cy="105" r="52"/></svg>
-    <div class="big"><span class="k">${T('Kenara ayrılması gereken')}</span><span class="v" id="taxNeed">${usd2(f.need)}</span><span class="u">${T('Ödenecek GST {a} + gelir vergisi payı {b}', { a: usd2(f.gst), b: usd2(f.tax) })}</span></div>
+    return `<div class="band-h" style="margin-top:6px;justify-content:space-between"><span>${MONTHS_FULL[mm - 1]} ${y}</span><span>${usd2(tot)}</span></div>` + byM[m].map((e) => `<button type="button" class="hold wrap" ${e.fromDaily ? `data-act="openDay" data-week="${e.week}" data-d="${e.d}" title="${T('Günlük harcamalarda aç')}"` : `data-act="editUexp" data-id="${e.id}"`}><span class="sym">${ico(UEXP_ICON[e.cat] || 'list')}</span><span class="mid"><b>${esc(catName(e.cat))}</b><span>${dShort(e.d)}${e.note ? ' · ' + esc(e.note) : ''}</span></span><span class="rt"><b>${usd2(+e.amount || 0)}</b><span class="tags-mini">${e.fromDaily ? `<span class="chip">${T('günlükten')}</span>` : ''}${e.gst ? `<span class="chip acc">GST</span>` : `<span class="chip">${T('GST yok')}</span>`}${(e.biz == null ? 100 : +e.biz) < 100 ? `<span class="chip">${T('iş {n}', { n: pct(e.biz) })}</span>` : ''}</span></span></button>`).join(''); }).join('');
+  return `<div class="weeknav" data-swipe-zone="quarter"><button type="button" data-act="taxQGo" data-d="-1" id="taxPrev" aria-label="${T('Önceki çeyrek')}">${ico('left')}</button><div class="lbl"><span id="taxQLbl">${qName(key)}</span><small>${qi.range}</small></div><button type="button" data-act="taxQGo" data-d="1" id="taxNext" aria-label="${T('Sonraki çeyrek')}">${ico('right')}</button></div>
+  ${taxBox(thisWeekId()) ? `<section class="sec">${secHead(T('Bu hafta'), `<span class="sub">${weekLabel(thisWeekId())}</span>`)}${taxBox(thisWeekId())}</section>` : ''}
+  <section class="hero" data-swipe-zone="quarter"><svg class="hero-deco" viewBox="0 0 210 210" aria-hidden="true"><circle cx="105" cy="105" r="96"/><circle cx="105" cy="105" r="74"/><circle cx="105" cy="105" r="52"/></svg>
+    <div class="big"><span class="k">${T('Kenara ayrılması gereken')} ${per('q')}</span><span class="v" id="taxNeed">${usd2(f.need)}</span><span class="u">${T('Ödenecek GST {a} + gelir vergisi payı {b}', { a: usd2(f.gst), b: usd2(f.tax) })}</span></div>
     <div class="tiles">${tile(T('Kenara ayırdığın'), usd2(f.saved), pct(pc), 'taxSaved')}${tile(T('Kalan'), usd2(f.left), f.need > 0 && f.left <= 0.005 ? T('Tamamı ayrıldı') : T('Ayrılacak'), 'taxLeft')}</div>
     <div class="meter" style="background:var(--hero-tile)"><i style="width:${pc}%;background:var(--gold-line)"></i></div>
     <div class="hero-row"><span class="chip" id="taxDue">${T('BAS son günü: {d}', { d: longDate(qi.due) })} · ${dl > 0 ? T('{n} gün kaldı', { n: dl }) : dl === 0 ? T('bugün') : T('{n} gün geçti', { n: -dl })}</span></div></section>
-  <div class="card slip">${head('receipt', T('Çeyrek dökümü'), `<span class="chip ${f.exact ? 'gain' : ''}" id="taxMethod">${f.exact ? T('Uber vergi özeti') : T('Tahmin')}</span>`)}<dl class="receipt">
+  ${taxWeeksCard(key)}
+  <div class="card">${head('jar', T('Kenara ayırdığın'), '', true)}
+    ${f.sa.length ? `<div class="log" style="margin-bottom:10px">${f.sa.slice().sort((a, b) => b.d.localeCompare(a.d)).map((x) => `<div><span>${dShort(x.d)}</span><span style="display:flex;gap:6px;align-items:center"><b>${usd2(+x.amount || 0)}</b><button type="button" class="del" data-act="delSetAside" data-id="${x.id}" aria-label="${T('Sil')}">${U.armed === x.id ? T('Sil?') : ico('x')}</button></span></div>`).join('')}</div>` : `<p class="note" style="margin-top:0">${T('İş birikim hesabına aktardığın tutarları buraya yaz. Kalan tutar otomatik hesaplanır.')}</p>`}
+    <form class="row" id="saForm"><input class="txt" type="date" id="saDate" value="${todayKey()}" aria-label="${T('Tarih')}" style="flex:0 0 150px;width:150px"><div class="money" style="flex:1;width:auto"><span>$</span><input id="saAmt" inputmode="decimal" placeholder="${T('Tutar')}" aria-label="${T('Ayrılan tutar')}"></div><button class="btn sm" type="submit" aria-label="${T('Ekle')}">${ico('plus')}</button></form></div>
+  <div class="card">${head('car', T('Uber giderleri'), `<button type="button" class="btn sm" data-act="newUexp">${ico('plus')}${T('Ekle')}</button>`)}
+    ${f.ex.length ? `<div class="list">${expList}</div><p class="note">${T('Bu çeyrekte toplam {x}. Araç giderlerinde iş payı, ayarlardaki logbook yüzdesinden gelir.', { x: usd2(f.exTotal) })}</p>`
+      : empty('receipt', T('Bu çeyrekte gider yok'), T('Yakıt, servis, lastik, telefon gibi Uber giderlerini fişleriyle kaydet. GST kredisi ve kâr hesabı bunlardan çıkar.'), `<button type="button" class="btn sm" data-act="newUexp">${ico('plus')}${T('Gider ekle')}</button>`)}</div>
+  <details class="card slip fold" id="taxBreak"${fold('taxBreak', f.exact)}><summary>${T('Çeyrek dökümü')} <span class="chip ${f.exact ? 'gain' : ''}" id="taxMethod">${f.exact ? T('Uber vergi özeti') : T('Tahmin')}</span></summary><dl class="receipt">
     ${row('taxE', f.exact ? T('Yolcu ücretleri (GST dahil)') : T('Uber kazancı ({n} hafta)', { n: f.nWeeks }), usd2(f.gross))}
     ${row('tax1A', T('Satışlardaki GST (1A)'), usd2(f.g1A))}
     ${row('tax1B', T('GST kredileri (1B)'), '−' + usd2(f.g1B))}
     ${row('taxGst', T('Ödenecek GST'), usd2(f.gst), 'sub-tot')}
     ${f.exact ? row('taxFees', T('Uber ücretleri (GST hariç)'), '−' + usd2(f.fees - f.fees / 11)) : ''}
     ${row('taxExp', T('Giderler (GST hariç, iş payı)'), '−' + usd2(f.exEx))}
-    ${row('taxProfit', T('Uber kârı'), usd2(f.profit))}
+    ${row('taxProfit', T('Vergiye tabi kâr'), usd2(f.profit))}
     ${row('taxShare', T('Gelir vergisi + Medicare'), usd2(f.incTax))}
     ${f.mlsTax > 0.005 ? row('taxMls', T('MLS (hastane sigortası yok)'), usd2(f.mlsTax)) : ''}
     <div class="tot"><dt>${T('Kenara ayrılması gereken')}</dt><dd>${usd2(f.need)}</dd></div></dl>
@@ -2239,16 +2455,11 @@ function paraTax() {
     <p class="note">${f.exact ? T('1A, girdiğin yolcu ücretlerinin 1/11’i. Uber ücretlerinin GST’si 1B’ye eklendi.') : T('1A, Uber kazancının 1/11’i olarak tahmin edildi. Uber’in vergi özetindeki rakamları girersen kesin hesap yapılır.')} ${f.gst < 0 ? T('GST eksi çıktı: bu çeyrekte iade alırsın.') : ''}</p>
     <details class="fold" ${f.exact ? 'open' : ''}><summary>${T('Uber vergi özetinden kesin rakam gir')}</summary><div class="fields">
       <div class="field"><label for="tsGross">${T('Toplam yolcu ücretleri (GST dahil)')}</label><div class="money"><span>$</span><input id="tsGross" data-tsum="grossFares" inputmode="decimal" value="${fmtIn2(sm.grossFares)}"></div></div>
-      <div class="field"><label for="tsFees">${T('Uber ücretleri (GST dahil)')}</label><div class="money"><span>$</span><input id="tsFees" data-tsum="uberFees" inputmode="decimal" value="${fmtIn2(sm.uberFees)}"></div></div></div></details></div>
-  <div class="card">${head('jar', T('Kenara ayırdığın'), '', true)}
-    ${f.sa.length ? `<div class="log" style="margin-bottom:10px">${f.sa.slice().sort((a, b) => b.d.localeCompare(a.d)).map((x) => `<div><span>${dShort(x.d)}</span><span style="display:flex;gap:6px;align-items:center"><b>${usd2(+x.amount || 0)}</b><button type="button" class="del" data-act="delSetAside" data-id="${x.id}" aria-label="${T('Sil')}">${U.armed === x.id ? T('Sil?') : ico('x')}</button></span></div>`).join('')}</div>` : `<p class="note" style="margin-top:0">${T('İş birikim hesabına aktardığın tutarları buraya yaz. Kalan tutar otomatik hesaplanır.')}</p>`}
-    <form class="row" id="saForm"><input class="txt" type="date" id="saDate" value="${todayKey()}" aria-label="${T('Tarih')}" style="flex:0 0 150px;width:150px"><div class="money" style="flex:1;width:auto"><span>$</span><input id="saAmt" inputmode="decimal" placeholder="${T('Tutar')}" aria-label="${T('Ayrılan tutar')}"></div><button class="btn sm" type="submit" aria-label="${T('Ekle')}">${ico('plus')}</button></form></div>
-  <div class="card">${head('car', T('Uber giderleri'), `<button type="button" class="btn sm" data-act="newUexp">${ico('plus')}${T('Ekle')}</button>`)}
-    ${f.ex.length ? `<div class="list">${expList}</div><p class="note">${T('Bu çeyrekte toplam {x}. Araç giderlerinde iş payı, ayarlardaki logbook yüzdesinden gelir.', { x: usd2(f.exTotal) })}</p>`
-      : empty('receipt', T('Bu çeyrekte gider yok'), T('Yakıt, servis, lastik, telefon gibi Uber giderlerini fişleriyle kaydet. GST kredisi ve kâr hesabı bunlardan çıkar.'), `<button type="button" class="btn sm" data-act="newUexp">${ico('plus')}${T('Gider ekle')}</button>`)}</div>
-  <div class="card">${head('cal', T('{fy} mali yılı (şu ana kadar)', { fy: fyName(fy) }))}<div class="tiles" id="taxFy">${tile(T('Uber kazancı'), usd(fE), qi.q === 1 ? 'Q1' : T('Q1–Q{n}', { n: qi.q }))}${tile(T('Ödenecek GST'), usd(fG), 'BAS')}${tile(T('Gelir vergisi payı'), usd(fT), T('Yıl sonu için'))}${tile(T('Ayrılacak / ayrılan'), usd(fG + fT) + ' / ' + usd(fS), T('Toplam'))}</div>
-    <p class="note">${T('Gelir vergisi payı: bu mali yılda Uber yaptığın haftaların ortalama kârı, yılda kaç hafta Uber yaptığınla çarpılıp yıllık kâr tahmin edilir. Bu kâr maaşının üstüne eklenince çıkan ek vergi (Medicare %2 ve MLS dahil) oranıyla bu çeyreğin kârı çarpılır.')} ${T("Tahmindir; kesin rakamlar için Uber'in vergi özetini kullan.")}</p></div>`;
+      <div class="field"><label for="tsFees">${T('Uber ücretleri (GST dahil)')}</label><div class="money"><span>$</span><input id="tsFees" data-tsum="uberFees" inputmode="decimal" value="${fmtIn2(sm.uberFees)}"></div></div></div></details></details>
+  <details class="card fold" id="taxFyCard"${fold('taxFyCard')}><summary>${T('{fy} mali yılı (şu ana kadar)', { fy: fyName(fy) })}</summary><div class="tiles" id="taxFy" style="margin-top:10px">${tile(T('Uber kazancı'), usd(fE), qi.q === 1 ? 'Q1' : T('Q1–Q{n}', { n: qi.q }))}${tile(T('Ödenecek GST'), usd(fG), 'BAS')}${tile(T('Gelir vergisi payı'), usd(fT), T('Yıl sonu için'))}${tile(T('Ayrılacak / ayrılan'), usd(fG + fT) + ' / ' + usd(fS), T('Toplam'))}</div>
+    <p class="note">${T('Gelir vergisi payı: bu mali yılda Uber yaptığın haftaların ortalama kârı, yılda kaç hafta Uber yaptığınla çarpılıp yıllık kâr tahmin edilir. Bu kâr maaşının üstüne eklenince çıkan ek vergi (Medicare %2 ve MLS dahil) oranıyla bu çeyreğin kârı çarpılır.')} ${T("Tahmindir; kesin rakamlar için Uber'in vergi özetini kullan.")}</p></details>`;
 }
+const fold = (id, def) => ((U.fold && U.fold[id] != null ? U.fold[id] : def) ? ' open' : '');
 const fmtIn2 = (v) => (v === '' || v == null ? '' : nf2.format(v));
 function uexpSheet(sh) {
   const e = sh.id ? D.money.uberExpenses.find((x) => x.id === sh.id) : null;
@@ -2258,13 +2469,45 @@ function uexpSheet(sh) {
     <div class="field"><label for="ueBiz">${T('İş kullanım payı')}</label><div class="money"><input id="ueBiz" inputmode="decimal" value="${sh.biz}"><span>%</span></div></div></div>
     <div class="field inline"><span class="lab">${T('GST içerir')}</span><div class="seg inline" role="group" aria-label="${T('GST içerir')}"><button type="button" data-act="ueGst" data-v="true" aria-pressed="${!!sh.gst}">${T('Evet')}</button><button type="button" data-act="ueGst" data-v="false" aria-pressed="${!sh.gst}">${T('Hayır')}</button></div></div>
     <div class="field"><label for="ueNote">${T('Not (isteğe bağlı)')}</label><input class="txt" id="ueNote" value="${esc(sh.note != null ? sh.note : e ? e.note || '' : '')}" autocomplete="off"></div>
+    ${e ? '' : `<div class="fuelhint" id="ueFuelHint">${ico('car')}<span>${T("Yakıtı günlük harcamalara 'Yakıt (Uber)' olarak gir")}</span><button type="button" class="btn sm soft" data-act="fuelToDaily">${T('Yakıt gir')}</button></div>`}
     <p class="note" style="margin:0">${T('Rego, CTP, BHSL ve banka ücretlerinde GST yoktur. Telefonun varsayılan iş payı %50, araç giderlerininki logbook yüzdesidir.')}</p>
     <button class="btn" type="submit" id="ueSave">${T('Kaydet')}</button>${e ? `<button type="button" class="btn ghost" data-act="delUexp" data-id="${e.id}">${U.armed === e.id ? T('Silmek için tekrar dokun') : T('Gideri sil')}</button>` : ''}</form>`;
 }
 function uexpKeep() { return { d: val('ueDate'), amt: val('ueAmt'), biz: val('ueBiz'), note: val('ueNote') }; }
 function openUexp(id) {
-  const e = id ? D.money.uberExpenses.find((x) => x.id === id) : null, cat = e ? e.cat : 'fuel', def = catDefaults(cat);
+  const e = id ? D.money.uberExpenses.find((x) => x.id === id) : null, cat = e ? e.cat : 'service', def = catDefaults(cat);
   return { kind: 'uexp', id: id || null, cat, gst: e ? !!e.gst : def.gst, biz: e ? (e.biz == null ? 100 : e.biz) : def.biz };
+}
+
+// ---------- weekly tax set-aside ("Aktardım") ----------
+const per = (k) => `<span class="per">${T({ w: 'bu hafta', q: 'bu çeyrek', m: 'bu ay' }[k])}</span>`;
+function weeksOfQuarter(key) { const qi = qInfo(key); return Object.keys(D.money.weeks).filter((id) => id >= qi.startId && id <= qi.endId && (+D.money.weeks[id].uberEarn || 0) > 0).sort(); }
+function taxBox(id, compact) {
+  const c = calc(getWeek(id)); if (!(c.weekTax > 0)) return '';
+  const sa = weekSetAside(id), x = r2(c.weekTax), more = sa ? r2(x - (+sa.amount || 0)) : 0;
+  return `<div class="taxbox" id="taxBox-${id}">${sa ? `<div class="tb-done">${ico('check')}<span>${T('Aktarıldı {x}', { x: usd2(+sa.amount || 0) })} ${perW(id)}</span><button type="button" class="link" data-act="taxUndo" data-week="${id}">${T('Geri al')}</button></div>${more > 0.5 ? `<div class="tb-q"><span>${T('Bu haftanın vergi payı arttı: {x} daha aktar', { x: `<b>${usd2(more)}</b>` })}</span><button type="button" class="btn sm" data-act="taxTopUp" data-week="${id}" id="taxTopUp-${id}">${ico('check')}${T('Aktardım')}</button></div>` : ''}`
+    : `<div class="tb-q"><span>${T(id === thisWeekId() ? 'Bu hafta vergi kumbarasına {x} aktar' : 'Bu hafta için vergi kumbarasına {x} aktar', { x: `<b>${usd2(x)}</b>` })}</span><button type="button" class="btn sm" data-act="taxDone" data-week="${id}" id="taxDoneBtn-${id}">${ico('check')}${T('Aktardım')}</button></div>`}
+    ${compact ? '' : `<p class="note" style="margin:6px 0 0">${T("GST, gelir vergisi, Medicare ve MLS'in bu haftaya düşen payı. Uygulama bankadan para aktarmaz; aktarınca 'Aktardım'a bas.")}</p>`}</div>`;
+}
+function taxWeeksCard(key) {
+  const ids = weeksOfQuarter(key); if (!ids.length && !(Math.abs(taxFull(key).looseTax) > 0.005)) return '';
+  const done = ids.filter((id) => weekSetAside(id)).length;
+  return `<div class="card" id="taxWeeks">${head('cal', T('Haftalık aktarımlar'), `<span class="sub">${done}/${ids.length}</span>`)}<div class="wkt">${ids.map((id) => { const c = calc(getWeek(id)), sa = weekSetAside(id);
+    return `<div class="wkt-row"><span class="wl">${weekLabel(id)}<small>${usd2(r2(c.weekTax))}</small></span>${sa ? `<span class="chip gain">${ico('check')}${T('aktarıldı')}${r2(c.weekTax) - (+sa.amount || 0) > 0.5 ? ' · ' + T('fark {x}', { x: usd2(r2(c.weekTax) - (+sa.amount || 0)) }) : ''}</span>` : `<button type="button" class="btn sm ghost" data-act="taxDone" data-week="${id}">${T('Aktardım')}</button>`}</div>`; }).join('')}</div>
+    ${Math.abs(taxFull(key).looseTax) > 0.005 ? `<div class="wkt-row" id="taxLoose"><span class="wl">${T('Haftasız gider')}<small>${usd2(taxFull(key).looseTax)}</small></span><span class="sub">${T('Uber haftası yok')}</span></div>` : ''}
+    <p class="note">${T('Haftalık tutarlar o haftanın gerçek kazanç ve giderlerinden hesaplanır; toplamları yukarıdaki çeyrek tutarına eşittir. Gider ekledikçe güncellenir.')}</p></div>`;
+}
+function markTaxDone(id) {
+  if (weekSetAside(id)) return; const x = r2(weekTaxOf(id)); if (!(x > 0)) return;
+  D.money.setAsides.push({ id: uid(), d: todayKey(), amount: x, q: quarterOf(id).key, week: id }); save();
+}
+function topUpTaxDone(id) { const sa = weekSetAside(id), x = r2(weekTaxOf(id)); if (!sa || !(x > (+sa.amount || 0))) return; sa.amount = x; sa.d = todayKey(); save(); }
+function undoTaxDone(id) { D.money.setAsides = D.money.setAsides.filter((x) => x.week !== id); save(); }
+// nearest upcoming BAS due date (the previous quarter's BAS falls due during the current one)
+function nextBas() {
+  let q = qShift(quarterOf(thisWeekId()).key, -1);
+  for (let i = 0; i < 3; i++, q = qShift(q, 1)) { const d = daysUntil(qInfo(q).due); if (d >= 0) return { q, days: d, due: qInfo(q).due }; }
+  return null;
 }
 
 // ===================== pages: settings, insights =====================
@@ -2313,7 +2556,7 @@ function vSettings() {
     <div class="card">${head('car', T('Uber masrafları'))}<div class="fields">
       <div class="field"><label for="sFixed">${T('Sabit masraflar (yıllık)')}</label>${mny('sFixed', 'data-set="fixed"', fmtIn(S.fixed))}<span class="hint">${T('Sigorta, servis, rego/CTP, BHSL, telefon. Yakıt hariç, sadece Uber payı.')}</span></div>
       <div class="field"><label for="sWeeks">${T('Yılda kaç hafta Uber')}</label>${mny('sWeeks', 'data-set="weeksPerYear"', fmtIn(S.weeksPerYear), T('hf'), false)}</div>
-      <div class="field"><label for="sFuel">${T('Haftalık yakıt tahmini')}</label>${mny('sFuel', 'data-set="fuelDefault"', fmtIn(S.fuelDefault))}<span class="hint">${T('Hafta için yakıt girmezsen bu kullanılır')}</span></div></div></div>
+      <div class="field"><label for="sFuel">${T('Haftalık yakıt tahmini')}</label>${mny('sFuel', 'data-set="fuelDefault"', fmtIn(S.fuelDefault))}<span class="hint">${T('Bir haftada “Yakıt (Uber)” harcaması yoksa bu tahmin kullanılır')}</span></div></div></div>
     <div class="card">${head('repeat', T('Her hafta tekrarlayan giderler'))}<div class="list" id="recList">${rec.length ? rec.map((x, i) => `<div class="row"><input class="txt" id="rcN${i}" data-rc="name" data-i="${i}" value="${esc(x.name)}" aria-label="${T('Gider adı')}"><div class="money"><span>$</span><input id="rcV${i}" data-rc="amount" data-i="${i}" inputmode="decimal" value="${fmtIn(x.amount)}" aria-label="${T('Tutar')}"></div><button type="button" class="del" data-act="delRec" data-i="${i}" aria-label="${T('Sil')}">${ico('x')}</button></div>`).join('') : `<p class="empty-txt">${T('Henüz gider yok.')}</p>`}</div>
       <button type="button" class="add" id="recAdd" data-act="addRec">${ico('plus')}${T('Gider ekle')}</button><p class="note">${T("Aylık bir gideri haftalığa çevirmek için 4,33'e böl.")}</p></div>
     <div class="card"><p class="note" style="margin:0">${T("Hesap 2026–27 vergi oranlarına ve %2 Medicare'e göre yapılır. Uber kârı ve vergili nakit iş maaşının üstüne eklenir. MLS eşikleri $105k / $123k / $164k. GST kazancın 1/11'idir; yakıtın ve sabit masrafların %80'i için GST kredisi düşülür. Bu bir tahmindir, vergi danışmanlığı değildir.")}</p></div>`,
@@ -2357,7 +2600,7 @@ function vSheet() {
     const opts = [['harcama', 'Harcama', 'bag', 'a-para'], ['uber', 'Uber vardiyası', 'car', 'a-para'], ['uexp', 'Uber gideri', 'receipt', 'a-para'], ['sigara', 'Sigara +1', 'cig', 'a-sag'], ['alkol', 'Alkol +1', 'glass', 'a-sag'], ['kilo', 'Kilo', 'scale', 'a-sag'], ['aliskanlik', 'Alışkanlık', 'check', 'a-gel']];
     const k = sh.k, w = getWeek(thisWeekId()) || {};
     let form = '';
-    if (k === 'harcama') form = `<form class="card a-para stack" id="qForm" data-k="harcama"><div class="row"><div class="money" style="width:118px"><span>$</span><input id="qAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}"></div><input class="txt" id="qName" placeholder="${T('ör. Dışarıda yemek')}" aria-label="${T('Ne için?')}" autocomplete="off"></div>${catChips(U.dCat, 'dCat')}<button class="btn" type="submit">${T('Bugüne kaydet')}</button><p class="note" style="margin:0">${T('Bugünün günlük harcamalarına eklenir ve haftanın giderlerine sayılır.')}</p></form>`;
+    if (k === 'harcama') form = `<form class="card a-para stack" id="qForm" data-k="harcama"><div class="row"><div class="money" style="width:118px"><span>$</span><input id="qAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}" autocomplete="off"></div><input class="txt" id="qName" list="pastNames" placeholder="${T('ör. Dışarıda yemek')}" aria-label="${T('Ne için?')}" autocomplete="off"></div>${namesList()}${catChips(U.dCat, 'dCat')}<div class="row"><button type="button" class="tagbtn" data-act="dOneOff" id="qOneOff" aria-pressed="${!!U.dOneOff}">${T('Tek seferlik')}</button><button class="btn" type="submit" style="margin-left:auto">${T('Bugüne kaydet')}</button></div><p class="note" style="margin:0">${T('Bugünün harcamalarına eklenir ve haftanın giderlerine sayılır.')}</p></form>`;
     if (k === 'uber') form = `<form class="card a-para stack" id="qForm" data-k="uber"><div class="fields"><div class="field"><label for="qEarn">${T('Kazanç')}</label><div class="money"><span>$</span><input id="qEarn" inputmode="decimal" placeholder="0"></div></div><div class="field"><label for="qHours">${T('Çevrimiçi saat')}</label><div class="money"><input id="qHours" inputmode="decimal" placeholder="0"><span>${T('sa')}</span></div></div></div><button class="btn" type="submit">${T('Vardiyayı haftaya ekle')}</button><p class="note" style="margin:0">${T('Bu hafta şu ana kadar {x} · {h} saat. Yeni vardiya bunların üstüne eklenir.', { x: usd(+w.uberEarn || 0), h: nf1.format(+w.uberHours || 0) })}</p></form>`;
     if (k === 'kilo') form = `<form class="card a-sag stack" id="qForm" data-k="kilo"><div class="field"><label for="qWeight">${T('Bugünkü kilo')}</label><div class="money"><input id="qWeight" inputmode="decimal" placeholder="${latestWeight() ? nf1.format(latestWeight().v) : T('ör. 78,5')}"><span>kg</span></div></div><button class="btn" type="submit">${T('Kaydet')}</button></form>`;
     if (k === 'aliskanlik') form = `<div class="card a-gel">${G().habits.length ? `<div class="htiles">${G().habits.map((h) => `<button type="button" class="htile" data-act="habit" data-id="${h.id}" aria-pressed="${isDone(h.id, todayKey())}"><span class="chk">${ico('check')}</span><span class="n">${esc(h.name)}</span></button>`).join('')}</div>` : `<p class="note" style="margin:0">${T('Henüz alışkanlık yok. Gelişim sekmesinden ekleyebilirsin.')}</p>`}</div>`;
@@ -2370,7 +2613,7 @@ function vSheet() {
     return sheetShell(T('Harcamayı düzenle'), `<form class="stack" id="dailyEdit"><div class="fields"><div class="field"><label for="deAmt">${T('Tutar')}</label><div class="money"><span>$</span><input id="deAmt" inputmode="decimal" value="${sh.amt != null ? esc(sh.amt) : fmtIn(x.amount)}"></div></div>
       <div class="field"><label for="deDate">${T('Gün')}</label><select class="txt" id="deDate">${days.map((k) => { const d = fromId(k); return `<option value="${k}" ${(sh.date || x.date) === k ? 'selected' : ''}>${DAYS_LONG[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}</option>`; }).join('')}</select></div></div>
       <div class="field"><label for="deName">${T('Ne için?')}</label><input class="txt" id="deName" value="${esc(sh.name != null ? sh.name : x.name || '')}" autocomplete="off"></div>
-      ${catChips(sh.cat, 'deCat')}<button class="btn" type="submit" id="deSave">${T('Kaydet')}</button><button type="button" class="btn ghost" data-act="delDaily" data-id="${x.id}" id="deDel">${T('Harcamayı sil')}</button></form>`, 'a-para');
+      ${catChips(sh.cat, 'deCat')}<button type="button" class="tagbtn" data-act="deOneOff" id="deOneOff" aria-pressed="${!!(sh.oneOff != null ? sh.oneOff : x.oneOff)}">${T('Tek seferlik')}</button><button class="btn" type="submit" id="deSave">${T('Kaydet')}</button><button type="button" class="btn ghost" data-act="delDaily" data-id="${x.id}" id="deDel">${T('Harcamayı sil')}</button></form>`, 'a-para');
   }
   if (sh.kind === 'uexp') return sheetShell(sh.id ? T('Uber giderini düzenle') : T('Uber gideri ekle'), uexpSheet(sh), 'a-para');
   if (sh.kind === 'habits') {
@@ -2389,8 +2632,8 @@ function vSheet() {
   }
   if (sh.kind === 'potbuy') {
     const p = D.money.pots.find((x) => x.id === sh.id); if (!p) return '';
-    return sheetShell(T('Satın aldım'), `<form class="stack" id="potBuyForm"><p style="margin:0">${esc(T('{x} için ne kadar harcadın? Tutar {w} haftasına ekstra gider olarak eklenir ve kumbara tamamlandı olarak işaretlenir.', { x: p.name, w: weekLabel(thisWeekId()) }))}</p>
-      <div class="field"><label for="buyAmt">${T('Harcanan tutar')}</label><div class="money"><span>$</span><input id="buyAmt" inputmode="decimal" value="${fmtIn(p.saved)}"></div></div><button class="btn" type="submit" id="buyOk">${ico('check')}${T('Haftaya ekle ve kapat')}</button></form>`, 'a-para');
+    return sheetShell(T('Satın aldım'), `<form class="stack" id="potBuyForm"><p style="margin:0">${esc(T('{x} için ne kadar harcadın? Tutar bugünün harcamalarına tek seferlik olarak eklenir ve kumbara tamamlandı olarak işaretlenir.', { x: p.name }))}</p>
+      <div class="field"><label for="buyAmt">${T('Harcanan tutar')}</label><div class="money"><span>$</span><input id="buyAmt" inputmode="decimal" value="${fmtIn(p.saved)}"></div></div><button class="btn" type="submit" id="buyOk">${ico('check')}${T('Harcamaya ekle ve kapat')}</button></form>`, 'a-para');
   }
   if (sh.kind === 'holding') {
     const h = sh.id ? IV().holdings.find((x) => x.id === sh.id) : null;
@@ -2410,7 +2653,7 @@ function applyTheme() {
   const t = D.ui.theme, html = document.documentElement;
   if (t === 'light' || t === 'dark') html.setAttribute('data-theme', t); else html.removeAttribute('data-theme');
   const dark = t === 'dark' || (t !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
-  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', dark ? '#14110f' : '#f6f3ee');
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', dark ? '#1b1520' : '#f4eee6');
 }
 function applyLang() {
   setLocale(D.ui.lang);
@@ -2425,7 +2668,8 @@ function keepFocus(fn) {
   fn();
   if (id && ae.tagName !== 'BUTTON' && ae.type !== 'file') { const el = $(id); if (el && el !== ae) { el.focus({ preventScroll: true }); try { if (caret != null) el.setSelectionRange(caret, caret); } catch (e) {} } }
 }
-function render() {
+function render(dir) {
+  if (typeof taxCacheReset === 'function') taxCacheReset();
   keepFocus(() => {
     const v = $('view');
     v.className = AREA[U.tab];
@@ -2435,8 +2679,9 @@ function render() {
     $('fab').hidden = U.tab !== 'bugun';
     const sg = $('secGear'); if (sg) { sg.dataset.sec = TAB_SEC[U.tab]; sg.setAttribute('aria-label', T('Bu sekmenin ayarları')); sg.title = T('Bu sekmenin ayarları'); }
     if (U.tab === 'para' && U.paraSeg === 'hafta') paraCalc();
-    paintSyncChip();
+    paintSyncChip(); fitText($('view'));
   });
+  if (dir) { const v = $('view'); v.classList.remove('slide-l', 'slide-r'); void v.offsetWidth; v.classList.add(dir < 0 ? 'slide-r' : 'slide-l'); }
 }
 function renderSheet() { keepFocus(() => { $('sheetRoot').innerHTML = vSheet(); }); }
 function renderPage() { keepFocus(() => { $('pageRoot').innerHTML = U.page === 'settings' ? vSettings() : U.page === 'insights' ? vInsights() : ''; }); }
@@ -2466,9 +2711,10 @@ const dnum = (id) => num(val(id)); // decimal parse for kg, units, prices
 function after() { save(); renderAll(); }
 
 // ---------- daily expenses: add / find / delete with undo ----------
-function addDaily(day, name, amount, cat) {
+function addDaily(day, name, amount, cat, oneOff) {
   const w = weekObj(idOf(mondayOf(parseKey(day))));
-  w.daily.push({ id: uid(), date: day, name: name || T('Harcama'), amount: r2(amount), cat: cat || null });
+  const e = { id: uid(), date: day, name: name || (cat ? dcatName(cat) : T('Harcama')), amount: r2(amount), cat: cat || null };
+  if (oneOff) e.oneOff = true; w.daily.push(e); return e;
 }
 function findDaily(id) {
   for (const [week, w] of Object.entries(D.money.weeks)) { const i = (w.daily || []).findIndex((x) => x.id === id); if (i >= 0) return { week, w, i, x: w.daily[i] }; }
@@ -2534,9 +2780,15 @@ document.addEventListener('click', (e) => {
     case 'go': if (b.dataset.week) U.cur = b.dataset.week; go(b.dataset.tab, b.dataset.seg); break;
     case 'setSec': openOverlay('setSec', b.dataset.v); break;
     case 'dayOpen': U.openDay = U.openDay === b.dataset.d ? null : b.dataset.d; render(); { const f0 = $('dAmt'); if (f0 && U.openDay) f0.focus({ preventScroll: true }); } break;
+    case 'dOneOff': U.dOneOff = !U.dOneOff; b.setAttribute('aria-pressed', String(!!U.dOneOff)); break;
+    case 'deOneOff': { const x0 = findDaily(U.sheet.id); const cur0 = U.sheet.oneOff != null ? U.sheet.oneOff : !!(x0 && x0.x.oneOff); U.sheet.oneOff = !cur0; b.setAttribute('aria-pressed', String(U.sheet.oneOff)); break; }
+    case 'openDay': U.tab = 'para'; U.paraSeg = 'hafta'; U.cur = b.dataset.week; U.openDayWeek = U.cur; U.openDay = b.dataset.d; render(); window.scrollTo({ top: 0 }); break;
+    case 'taxDone': { const wid = b.dataset.week; markTaxDone(wid); renderAll(); toast(T('Aktarıldı: {x}', { x: usd2(+(weekSetAside(wid) || {}).amount || 0) })); break; }
+    case 'taxUndo': undoTaxDone(b.dataset.week); renderAll(); break;
+    case 'hideSwipeHint': D.ui.swipeHintSeen = true; after(); break;
     case 'dCat': { const keep = [val('dAmt'), val('dName'), val('qAmt'), val('qName')]; U.dCat = U.dCat === b.dataset.v ? null : b.dataset.v;
       if (U.dCat) { const lbl = dcatName(U.dCat), prev = dcatName(b.dataset.prev || ''); [1, 3].forEach((i) => { if (!keep[i].trim() || DCATS.some((c) => T(c[1]) === keep[i].trim())) keep[i] = lbl; }); } if (U.sheet && U.sheet.kind === 'fab') renderSheet(); else render(); [['dAmt', 0], ['dName', 1], ['qAmt', 2], ['qName', 3]].forEach(([x, i]) => { if ($(x)) $(x).value = keep[i]; }); break; }
-    case 'deCat': { Object.assign(U.sheet, { amt: val('deAmt'), name: val('deName'), date: val('deDate') }); U.sheet.cat = U.sheet.cat === b.dataset.v ? null : b.dataset.v; renderSheet(); break; }
+    case 'deCat': { Object.assign(U.sheet, { amt: val('deAmt'), name: val('deName'), date: val('deDate'), oneOff: $('deOneOff') ? $('deOneOff').getAttribute('aria-pressed') === 'true' : undefined }); U.sheet.cat = U.sheet.cat === b.dataset.v ? null : b.dataset.v; renderSheet(); break; }
     case 'editDaily': { if (swipeSuppress) { swipeSuppress = false; break; } const f0 = findDaily(id); if (f0) openOverlay('sheet', { kind: 'daily', id, week: f0.week, cat: f0.x.cat || null }); break; }
     case 'delDaily': { const inSheet = U.sheet && U.sheet.kind === 'daily'; deleteDaily(id); if (inSheet) closeOverlay(); break; }
     case 'undo': undoDelete(); break;
@@ -2564,7 +2816,7 @@ document.addEventListener('click', (e) => {
     case 'openSettings': openOverlay('page', 'settings'); if (b.dataset.sec) openOverlay('setSec', b.dataset.sec); if (b.dataset.focus) setTimeout(() => { const el = $(b.dataset.focus); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } }, 50); break;
     case 'openInsights': openOverlay('page', 'insights'); break;
     case 'closeOverlay': closeOverlay(); break;
-    case 'openFab': openOverlay('sheet', { kind: 'fab', k: null }); break;
+    case 'openFab': U.dCat = null; U.dOneOff = false; openOverlay('sheet', { kind: 'fab', k: null }); break;
     case 'dismissNotice': D.ui.notice = null; after(); break;
     case 'paraSeg': U.paraSeg = b.dataset.v; render(); break;
     case 'gelSeg': U.gelSeg = b.dataset.v; render(); break;
@@ -2573,7 +2825,7 @@ document.addEventListener('click', (e) => {
       const q = b.dataset.k;
       if (q === 'sigara' || q === 'alkol') { const f = q === 'sigara' ? 'cig' : 'alc'; const nv = (hd(k)[f] || 0) + 1; setH(k, { [f]: nv }); closeOverlay(); toast(T(q === 'sigara' ? 'Sigara: bugün {n}' : 'Alkol: bugün {n}', { n: nv })); render(); }
       else if (q === 'uexp') { U.sheet = openUexp(null); renderSheet(); }
-      else { U.sheet.k = q; renderSheet(); const first = document.querySelector('#qForm input'); if (first) first.focus(); }
+      else { if (q === 'harcama' && U.sheet.k !== 'harcama') { U.dCat = null; U.dOneOff = false; } U.sheet.k = q; renderSheet(); const first = document.querySelector('#qForm input'); if (first) first.focus(); }
       break;
     }
     // habits
@@ -2647,7 +2899,7 @@ document.addEventListener('click', (e) => {
     case 'impConfirm': impApply(); render(); break;
     case 'impCancel': U.imp = null; render(); break;
     // settings
-    case 'toggleCard': D.ui.hiddenCards[b.dataset.k] = showCard(b.dataset.k); if (!D.ui.hiddenCards[b.dataset.k]) delete D.ui.hiddenCards[b.dataset.k]; after(); break;
+    case 'toggleCard': toggleCardPref(b.dataset.k); after(); break;
     case 'toggleHome': IV().showOnHome = !IV().showOnHome; after(); break;
     case 'setTheme': D.ui.theme = b.dataset.v; applyTheme(); after(); break;
     case 'export': { const n = exportBackup(); U.bkMsg = n ? T('Yedek indirildi: {x} (İndirilenler klasörü)', { x: n }) : T('Yedek indirilemedi.'); renderPage(); break; }
@@ -2657,6 +2909,9 @@ document.addEventListener('click', (e) => {
     // tax
     case 'taxQGo': U.taxQ = qShift(U.taxQ, +b.dataset.d); render(); break;
     case 'newUexp': openOverlay('sheet', openUexp(null)); break;
+    // B2: fuel is entered once, in the daily list: open today's quick spending with "Yakıt (Uber)" chosen
+    case 'fuelToDaily': { U.dCat = FUEL_CAT; U.dOneOff = false; if (U.sheet) { U.sheet = { kind: 'fab', k: 'harcama' }; renderSheet(); } else openOverlay('sheet', { kind: 'fab', k: 'harcama' }); const n = $('qName'); if (n) n.value = dcatName(FUEL_CAT); const a0 = $('qAmt'); if (a0) a0.focus(); break; }
+    case 'taxTopUp': topUpTaxDone(b.dataset.week); render(); renderSheet(); toast(T('Aktarıldı: {x}', { x: usd2(r2(weekTaxOf(b.dataset.week))) })); break;
     case 'editUexp': openOverlay('sheet', openUexp(id)); break;
     case 'ueGst': { const keep = uexpKeep(); U.sheet.gst = b.dataset.v === 'true'; Object.assign(U.sheet, keep); renderSheet(); break; }
     case 'delUexp': arm(() => { D.money.uberExpenses = D.money.uberExpenses.filter((x) => x.id !== id); save(); closeOverlay(); render(); }); break;
@@ -2672,6 +2927,7 @@ document.addEventListener('input', (e) => {
   if (ds.tsum) { const v = parse(t.value), sm = D.money.taxSummaries[U.taxQ] = Object.assign({}, D.money.taxSummaries[U.taxQ]); if (v === '' || v <= 0) delete sm[ds.tsum]; else sm[ds.tsum] = v; if (!Object.keys(sm).length) delete D.money.taxSummaries[U.taxQ]; save(); return; }
   if (ds.rc) { const x = S.recurring[+ds.i]; if (!x) return; if (ds.rc === 'name') x.name = t.value; else { const n = parse(t.value); x.amount = n === '' ? 0 : n; } save(); return; }
   if (ds.j) { const j = G().journal[k] = Object.assign({}, G().journal[k], { [ds.j]: t.value }); if (!j.mood && !j.line && !(j.tags || []).length && !j.win && !j.learn && !j.focus) delete G().journal[k]; save(); return; }
+  if (t.id === 'dName' || t.id === 'qName') { const m = pastNames(), v = t.value.trim(); if (m.has(v)) { const c = m.get(v); U.dCat = c; (t.closest('form') || document).querySelectorAll('[data-act="dCat"]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === c))); } return; }
   if (t.hasAttribute('data-idtext')) { G().identity = t.value; save(); return; }
   if (ds.bnote) { const bk = G().books.find((x) => x.id === ds.bnote); if (bk) { bk.note = t.value; save(); } return; }
   if (ds.hedit != null && U.sheet && U.sheet.draft) { U.sheet.draft[+ds.hedit].name = t.value; return; }
@@ -2724,7 +2980,7 @@ document.addEventListener('submit', (e) => {
     case 'watchForm': { const s = val('watchSym').trim().toUpperCase().replace(/\.AX$/, ''); if (!s) return; const m = U.watchMkt || 'US'; if (!IV().watchlist.some((w) => w.symbol === s && w.market === m)) IV().watchlist.push({ symbol: s, market: m }); after(); if (m === 'US') refreshPrices(true); return; }
     case 'qForm': {
       const q = f.dataset.k, tw = thisWeekId();
-      if (q === 'harcama') { const amt = pnum('qAmt'); if (!amt || amt <= 0) { $('qAmt').focus(); return; } addDaily(k, val('qName').trim(), amt, U.dCat); save(); closeOverlay(); toast(T('Bugüne eklendi: {x}', { x: money(amt) })); render(); return; }
+      if (q === 'harcama') { const amt = pnum('qAmt'); if (!amt || amt <= 0) { $('qAmt').focus(); return; } addDaily(k, val('qName').trim(), amt, U.dCat, U.dOneOff); U.dOneOff = false; U.dCat = null; save(); closeOverlay(); toast(T('Bugüne eklendi: {x}', { x: money(amt) })); render(); return; }
       if (q === 'uber') { const er = pnum('qEarn') || 0, hr = dnum('qHours') || 0; if (er <= 0 && hr <= 0) { $('qEarn').focus(); return; } const w = weekObj(tw); w.uberEarn = Math.round(((+w.uberEarn || 0) + er) * 100) / 100; w.uberHours = Math.round(((+w.uberHours || 0) + hr) * 100) / 100; save(); closeOverlay(); toast(T('Uber vardiyası eklendi: {x} · {h} sa', { x: usd(er), h: nf1.format(hr) })); render(); return; }
       if (q === 'kilo') { const v = dnum('qWeight'); if (!v || v < 25 || v > 300) { $('qWeight').focus(); return; } setH(k, { weight: Math.round(v * 10) / 10 }); closeOverlay(); toast(T('Kilo kaydedildi: {x} kg', { x: nf1.format(v) })); render(); return; }
       return;
@@ -2737,9 +2993,9 @@ document.addEventListener('submit', (e) => {
     }
     case 'potBuyForm': {
       const p = D.money.pots.find((x) => x.id === U.sheet.id); if (!p) return; const amt = pnum('buyAmt'); if (!amt || amt <= 0) { $('buyAmt').focus(); return; }
-      weekObj(thisWeekId()).extras.push({ name: p.name, amount: amt });
+      addDaily(k, p.name, amt, null, true);
       p.done = true; p.doneOn = k; p.spent = amt; p.log.push({ d: k, a: -Math.min(amt, p.saved), note: 'Satın alındı' }); /* note is a TR key, translated on display */ p.saved = Math.max(0, Math.round((p.saved - amt) * 100) / 100);
-      save(); closeOverlay(); toast(T('{x}: {y} bu haftaya gider olarak eklendi.', { x: p.name, y: usd(amt) })); render(); return;
+      save(); closeOverlay(); toast(T('{x}: {y} tek seferlik harcama olarak eklendi.', { x: p.name, y: money(amt) })); render(); return;
     }
     case 'uexpForm': {
       const amt = pnum('ueAmt'), d0 = val('ueDate'), biz = dnum('ueBiz');
@@ -2750,11 +3006,13 @@ document.addEventListener('submit', (e) => {
     }
     case 'dailyForm': {
       const amt = pnum('dAmt'), day = f.dataset.d; if (!amt || amt <= 0) { $('dAmt').focus(); return; }
-      addDaily(day, val('dName').trim(), amt, U.dCat); save(); render(); toast(T('{d} gününe eklendi: {x}', { d: dShort(day), x: money(amt) })); { const n = $('dAmt'); if (n) n.focus({ preventScroll: true }); } return;
+      addDaily(day, val('dName').trim(), amt, U.dCat, U.dOneOff); U.dOneOff = false; U.dCat = null; save(); render(); toast(T('{d} gününe eklendi: {x}', { d: dShort(day), x: money(amt) })); { const n = $('dAmt'); if (n) n.focus({ preventScroll: true }); } return;
     }
     case 'dailyEdit': {
       const sh = U.sheet, f0 = findDaily(sh.id); if (!f0) return; const amt = pnum('deAmt'); if (!amt || amt <= 0) { $('deAmt').focus(); return; }
       const nd = val('deDate') || f0.x.date; Object.assign(f0.x, { amount: amt, name: val('deName').trim() || T('Harcama'), cat: sh.cat || null, date: nd });
+      if (sh.oneOff != null) { if (sh.oneOff) f0.x.oneOff = true; else delete f0.x.oneOff; }
+      const nw = idOf(mondayOf(parseKey(nd))); if (nw !== f0.week) { f0.w.daily.splice(f0.i, 1); weekObj(nw).daily.push(f0.x); }
       save(); closeOverlay(); render(); return;
     }
     case 'saForm': {
@@ -2774,6 +3032,51 @@ document.addEventListener('submit', (e) => {
   if (f.dataset.g) { const g = G().goals.find((x) => x.id === f.dataset.g), v = (f.querySelector('input').value || '').trim(); if (g && v) { g.steps.push({ id: uid(), text: v, done: false }); after(); const n = $('st-' + g.id); if (n) n.focus(); } }
 });
 
+
+// ===================== swipe navigation =====================
+// Horizontal swipe (|dx| >= 60 and |dx| > 1.5|dy|) switches bottom tabs; on the week header/hero it changes week,
+// on the Vergi quarter header changes quarter, on a sub-tab bar switches sub-tab. Never on inputs, spending rows,
+// horizontally scrollable elements or overlays.
+const TAB_ORDER = ['bugun', 'para', 'gelisim', 'saglik', 'yatirim'];
+const SEGS = { paraSeg: ['hafta', 'gecmis', 'kumbara', 'vergi'], gelSeg: ['aliskanlik', 'gorev', 'hedef', 'kitap', 'gunluk'] };
+let nav = null, navSuppressUntil = 0;
+function hScrollable(el) {
+  for (let n = el; n && n !== document.body; n = n.parentElement) {
+    const cs = getComputedStyle(n); if (/(auto|scroll)/.test(cs.overflowX) && n.scrollWidth > n.clientWidth + 2) return true;
+  }
+  return false;
+}
+document.addEventListener('pointerdown', (e) => {
+  nav = null;
+  if (e.button > 0 || U.sheet || U.page) return;
+  const t = e.target;
+  if (!t.closest || !t.closest('#view') || t.closest('input, textarea, select, [contenteditable], .swipe, .tbl-wrap, .months-scroll') || hScrollable(t)) return;
+  nav = { x: e.clientX, y: e.clientY, zone: (t.closest('[data-swipe-zone]') || {}).dataset ? t.closest('[data-swipe-zone]').dataset.swipeZone : 'tab', pid: e.pointerId };
+});
+document.addEventListener('pointerup', (e) => {
+  const n = nav; nav = null; if (!n || e.pointerId !== n.pid) return;
+  const dx = e.clientX - n.x, dy = e.clientY - n.y;
+  if (Math.abs(dx) < 60 || Math.abs(dx) <= 1.5 * Math.abs(dy)) return;
+  const dir = dx < 0 ? 1 : -1; // swipe left → next
+  navSuppressUntil = e.timeStamp + 400; // event clock: monotonic, immune to system-time changes
+  if (!D.ui.swipeHintSeen) { D.ui.swipeHintSeen = true; save(); }
+  if (n.zone === 'week' && U.tab === 'para' && U.paraSeg === 'hafta') { const d = fromId(U.cur); d.setDate(d.getDate() + 7 * dir); U.cur = idOf(d); render(dir); return; }
+  if (n.zone === 'quarter' && U.tab === 'para' && U.paraSeg === 'vergi') { U.taxQ = qShift(U.taxQ, dir); render(dir); return; }
+  if (n.zone === 'paraSeg' || n.zone === 'gelSeg') { const list = SEGS[n.zone], cur = U[n.zone], i = list.indexOf(cur) + dir; if (i >= 0 && i < list.length) { U[n.zone] = list[i]; render(dir); } return; }
+  const i = TAB_ORDER.indexOf(U.tab) + dir; if (i < 0 || i >= TAB_ORDER.length) return;
+  U.tab = TAB_ORDER[i]; U.armed = null; try { localStorage.setItem(TAB_KEY, U.tab); } catch (err) {}
+  render(dir); window.scrollTo({ top: 0 }); if (U.tab === 'yatirim') refreshPrices(false);
+});
+document.addEventListener('pointercancel', () => { nav = null; });
+// a swipe that ends on a button must not also "tap" it
+document.addEventListener('click', (e) => { if (e.timeStamp < navSuppressUntil && e.target.closest && e.target.closest('#view')) { e.stopPropagation(); e.preventDefault(); } }, true);
+
+// remember which collapsible cards (details with an id) the user opened or closed
+document.addEventListener('toggle', (e) => { const t = e.target; if (t && t.tagName === 'DETAILS' && t.id) (U.fold = U.fold || {})[t.id] = t.open; }, true);
+// a half-swiped row (red "Sil" showing) closes when you tap anywhere else
+document.addEventListener('pointerdown', (e) => {
+  document.querySelectorAll('.swipe.open').forEach((r) => { if (r.contains(e.target)) return; r.classList.remove('open', 'armed'); const fg = r.querySelector('.swipe-fg'); if (fg) fg.style.transform = ''; });
+}, true);
 
 // ===================== English (Australian) dictionary =====================
 const pl = (one, many) => (v) => (+v.n === 1 ? one : many);
@@ -3062,7 +3365,49 @@ const EN = {
   'Şifre çok zayıf. En az 8 karakter kullan; harf ve rakam karıştır.': 'That password is too weak. Use at least 8 characters with letters and numbers.',
   "E-posta adresin henüz onaylanmamış. Gelen e-postadaki bağlantıya tıkla ya da Supabase'te e-posta onayını kapat.": "Your email isn't confirmed yet. Click the link in the email or turn off email confirmation in Supabase.",
   'Çok fazla deneme yapıldı. Birkaç dakika sonra tekrar dene.': 'Too many attempts. Try again in a few minutes.', "Supabase'te yeni hesap açma kapalı.": 'New sign-ups are disabled in Supabase.',
-  'Giriş yapılamadı: {x}': "Couldn't sign in: {x}"
+  'Giriş yapılamadı: {x}': "Couldn't sign in: {x}",
+  // v1.0
+  'İpucu: sağa/sola kaydırarak geçiş yapabilirsin': 'Tip: swipe left or right to move between screens', 'Bu hafta harcayabileceğin': 'Safe to spend', 'Bu hafta bütçeyi aştın': "You're over budget this week",
+  'günde {x} · {n} gün kaldı': pl('{x} a day · {n} day left', '{x} a day · {n} days left'), 'Bu haftanın vergi payı ayrıldı': "This week's tax is set aside", 'Vergi için ayır: {x} bu hafta': 'Set aside for tax: {x} this week',
+  "BAS'a {n} gün": pl('BAS in {n} day', 'BAS in {n} days'), 'Açık görev yok.': 'No open tasks.', 'Henüz alışkanlık yok.': 'No habits yet.', 'tümü': 'all', 'Bu zaman diliminde alışkanlık yok.': 'No habits for this time of day.',
+  'Gelir': 'Income', 'Uygulamadaki haftalık kazanç, geçiş ücretleri hariç': 'Weekly earnings in the app, excluding tolls', 'Nakit iş saati': 'Cash work hours',
+  'Yakıtı aşağıda harcama olarak, “Yakıt (Uber)” kategorisiyle aldığın güne gir.': 'Log fuel below as spending on the day you bought it, with the “Fuel (Uber)” category.',
+  'Uygulamadaki haftalık kazanç': 'Weekly earnings in the app', "Kazancın 1/11'i; yakıt ve sabit masraf GST kredisi düşüldü": '1/11 of earnings, less GST credits on fuel and fixed costs',
+  'Bu hafta yakıt girilmedi; ayarlardaki haftalık tahmin': 'No fuel logged this week; using the weekly estimate from Settings', 'Bu haftaki “Yakıt (Uber)” harcamaları ({n})': pl('This week’s “Fuel (Uber)” entries ({n})', 'This week’s “Fuel (Uber)” entries ({n})'),
+  'tahmin': 'estimate', 'Bu hafta cebine giren': 'In your pocket this week', 'Arabanın sabit masraf payı': "Car's share of fixed costs", 'Yıllık {x} ÷ {n} hafta': '{x} a year ÷ {n} weeks',
+  'Bu haftanın kârı maaşının üstüne eklenince': "This week's profit added on top of your salary", 'Hastane sigortası yok': 'No private hospital cover', "Uber'den gerçek kâr": 'Real Uber profit', 'Bu hafta Uber kazancı yok.': 'No Uber earnings this week.',
+  'Haftalık, vergi sonrası': 'Weekly, after tax', 'Harcamalar': 'Spending', 'Tekrarlayan {a} + günlük {b}': 'Recurring {a} + daily {b}', '{x} tek seferlik': '{x} one-off', 'Çeyrek toplamı {x}': 'Quarter total {x}', 'haftaya düşen: {x}': 'per week: {x}',
+  'harcama {x}': 'spending {x}', 'tek seferlikler hariç': 'excluding one-offs', 'Uber gerçek kâr / hafta': 'Real Uber profit / week',
+  'Bir şey için ayrı para biriktir: konsol, araba bakımı, Türkiye bileti ya da vergi gibi. Hedefe ulaşınca "Satın aldım" ile tutarı tek seferlik harcama olarak yaz.': 'Save separately for something: a console, car service, a flight home or tax. When you get there, tap "I bought it" to log it as a one-off expense.',
+  'tek seferlik': 'one-off', 'Uber yakıtı, harcamaya sayılmaz': "Uber fuel, not counted as spending", 'yakıt {x}': 'fuel {x}', 'Tek seferlik': 'One-off', 'Yakıt (Uber)': 'Fuel (Uber)',
+  'Sola kaydırarak sil, düzenlemek için dokun. “Tek seferlik” harcamalar haftadan düşülür ama ortalamalara katılmaz.': 'Swipe left to delete, tap to edit. One-off expenses come out of the week but stay out of averages.',
+  'Bu haftanın vergi payı: {x}. Aktardın mı?': "This week's tax share: {x}. Did you transfer it?", 'Haftalık vergi payı': 'Weekly tax share', 'Her pazar: bu haftanın vergi payını kumbaraya aktardın mı?': "Every Sunday: did you move this week's tax share into your saver?",
+  'Günlük harcamalarda aç': 'Open in daily spending', 'günlükten': 'from daily', 'Aktarıldı {x}': 'Transferred {x}', 'Bu hafta vergi kumbarasına {x} aktar': 'Move {x} into your tax saver this week', 'Aktardım': 'Done, moved it',
+  "GST, gelir vergisi, Medicare ve MLS'in bu haftaya düşen payı. Uygulama bankadan para aktarmaz; aktarınca 'Aktardım'a bas.": "This week's share of GST, income tax, Medicare and MLS. The app doesn't move money from your bank; once you've moved it, tap 'Done, moved it'.",
+  'Haftalık aktarımlar': 'Weekly transfers', 'aktarıldı': 'moved', 'Haftalık tutarlar o haftanın tahminidir; çeyrek toplamı yukarıda gerçek giderlerle yeniden hesaplanır.': 'Weekly amounts are estimates for each week; the quarter total above is recalculated from your actual expenses.',
+  'Bir haftada “Yakıt (Uber)” harcaması yoksa bu tahmin kullanılır': 'Used for any week with no “Fuel (Uber)” entries', 'Bugünün harcamalarına eklenir ve haftanın giderlerine sayılır.': "Added to today's spending and counted in this week's costs.",
+  '{x} için ne kadar harcadın? Tutar bugünün harcamalarına tek seferlik olarak eklenir ve kumbara tamamlandı olarak işaretlenir.': "How much did you spend on {x}? It's added to today's spending as a one-off and the pot is marked as done.",
+  'Harcamaya ekle ve kapat': 'Add to spending and close', 'Aktarıldı: {x}': 'Transferred: {x}', '{x}: {y} tek seferlik harcama olarak eklendi.': '{x}: {y} added as a one-off expense.', 'Harcayabileceğin ve vergi satırı': 'Safe-to-spend and tax line',
+  'bu çeyrek': 'this quarter', 'bu ay': 'this month',
+  // v1.1
+  'geçen hafta': 'last week',
+  "Kazancın 1/11'i, bu haftaki gerçek Uber giderlerinin GST kredisi düşüldü": "1/11 of earnings, less the GST credits on this week's actual Uber expenses",
+  'Yakıt girilmedi; ayarlardaki haftalık tahmin. Planlama içindir, vergiyi düşürmez.': 'No fuel logged; the weekly estimate from Settings. For planning only, it doesn’t lower the tax.',
+  'Tahmini sabit masraf payı': 'Estimated fixed-cost share',
+  "Sigorta, servis gibi giderleri Vergi'ye girdikçe vergi payın düşer.": 'As you log costs like insurance or servicing under Tax, your tax share goes down.',
+  'Vergiye tabi kâr {x}, çeyreğin vergi oranıyla': 'Taxable profit {x}, at the quarter’s tax rate',
+  'Bu çeyrek: ayrılan {a} / gereken {b}': 'This quarter: set aside {a} / needed {b}',
+  'Bu hafta iki çeyreğe yayılıyor; kazanç haftanın başladığı çeyreğe yazılır.': 'This week spans two quarters; its earnings count in the quarter the week starts in.',
+  'Uber gerçek kâr (tahmini sabit masraf dahil)': 'Uber real profit (incl. estimated fixed costs)',
+  'Vergiye tabi kâr': 'Taxable profit',
+  "Yakıtı günlük harcamalara 'Yakıt (Uber)' olarak gir": "Log fuel in daily spending as 'Fuel (Uber)'",
+  'Yakıt gir': 'Log fuel',
+  'Bu haftanın vergi payı arttı: {x} daha aktar': "This week's tax share went up: move {x} more",
+  'Bu hafta için vergi kumbarasına {x} aktar': 'Move {x} into your tax saver for this week',
+  'fark {x}': '{x} short',
+  'Haftasız gider': 'Expenses outside an Uber week',
+  'Uber haftası yok': 'no Uber week',
+  'Haftalık tutarlar o haftanın gerçek kazanç ve giderlerinden hesaplanır; toplamları yukarıdaki çeyrek tutarına eşittir. Gider ekledikçe güncellenir.': "Each week's amount comes from that week's actual earnings and expenses; together they add up to the quarter total above. They update as you log expenses."
 };
 
 // ===================== init =====================
@@ -3082,7 +3427,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) { da
 setInterval(dayCheck, 60000);
 startSyncLoop();
 if (isNative()) scheduleNotifs();
-window.__adim = { get state() { return D; }, weekCalc: (w) => weekCalc(w), insights, saveNow, taxFull, ttax, missing: MISSING, parse, num, calc, sync: { get meta() { return SY; }, syncAll, areaData }, setLang: (l) => { D.ui.lang = l; applyLang(); renderAll(); } };
+window.__adim = { get state() { return D; }, weekCalc: (w) => weekCalc(w), insights, saveNow, taxFull, taxQuarter, quarterOf, weekTaxParts, ttax, missing: MISSING, parse, num, calc, sync: { get meta() { return SY; }, syncAll, areaData }, setLang: (l) => { D.ui.lang = l; applyLang(); renderAll(); } };
 
 })();
 </script>

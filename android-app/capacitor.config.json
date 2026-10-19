@@ -3,7 +3,7 @@
   "appName": "Momentum",
   "webDir": "www",
   "android": {
-    "backgroundColor": "#f6f3ee"
+    "backgroundColor": "#f4eee6"
   },
   "plugins": {
     "LocalNotifications": {
