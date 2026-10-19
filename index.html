@@ -1138,14 +1138,27 @@ function parseCSV(text, delim) {
 function sniffDelim(text) { const line = text.split(/\r?\n/).find((l) => l.trim()) || ''; const c = (line.match(/,/g) || []).length, s = (line.match(/;/g) || []).length, t = (line.match(/\t/g) || []).length; return t > c && t > s ? '\t' : s > c ? ';' : ','; }
 
 // ===================== backup: export / import (3 formats) =====================
-function exportBackup() {
+function capPlugin(n) { const C = window.Capacitor; if (!C) return null; return (C.Plugins && C.Plugins[n]) || (C.registerPlugin ? C.registerPlugin(n) : null); }
+async function exportBackup() {
   const name = 'adim-adim-yedek-' + todayKey() + '.json';
   const o = JSON.parse(serial()); o.app = 'adim-adim'; o.exportedAt = new Date().toISOString(); o.exportedOn = todayKey();
   const text = JSON.stringify(o, null, 2);
+  if (isNative()) {
+    // The Android WebView cannot download blobs: write the file, then open the share sheet (Drive, Files, Gmail…).
+    try {
+      const FS = capPlugin('Filesystem'), SH = capPlugin('Share');
+      const w = await FS.writeFile({ path: name, data: text, directory: 'CACHE', encoding: 'utf8' });
+      await SH.share({ title: name, text: name, url: w.uri, dialogTitle: T('Yedeği kaydet veya gönder') });
+      return { name, how: 'share' };
+    } catch (e) {
+      if (/cancel/i.test(String(e && (e.message || e)))) return { name, how: 'cancel' };
+      try { await navigator.clipboard.writeText(text); return { name, how: 'clip' }; } catch (e2) { return null; }
+    }
+  }
   try {
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = name;
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    return name;
+    return { name, how: 'download' };
   } catch (e) { return null; }
 }
 function detectBackup(o) {
@@ -2581,7 +2594,7 @@ function vSettings() {
     bildirim: vNotifs,
     yedek: () => `<div class="card stack"><div class="btns"><button type="button" class="btn" data-act="export" id="bkDown">${ico('backup')}${T('Yedek indir')}</button><label class="btn ghost filebtn">${ico('upload')}${T('Yedekten yükle')}<input type="file" id="bkFile" accept=".json,application/json" aria-label="${T('Yedek dosyası seç')}"></label></div>
       ${U.bk ? `<div class="confirm" id="bkConfirm"><b>${esc(U.bk.sum.title)}</b><span>${U.bk.sum.lines.map(esc).join(' · ')}</span><span class="note" style="margin:0">${esc(U.bk.sum.note)}</span><div class="btns"><button type="button" class="btn" data-act="bkYes" id="bkYes">${T('Evet, birleştir')}</button><button type="button" class="btn ghost" data-act="bkNo">${T('Vazgeç')}</button></div></div>` : ''}
-      <p class="note" id="bkMsg" style="margin:0">${esc(U.bkMsg || T('Yedek, İndirilenler klasörüne adim-adim-yedek-TARİH.json adıyla iner. İçe aktarma üç biçimi tanır: bu uygulamanın yedeği, eski Haftalık Bütçe yedeği ve eski Momentum verisi. Önce bir özet gösterilir; onaylarsan veriler birleştirilir.'))}</p></div>`
+      <p class="note" id="bkMsg" style="margin:0">${esc(U.bkMsg || (isNative() ? T('Yedek al, paylaşım menüsünü açar: dosyayı Drive, Dosyalar veya e-postaya kaydet. Geri yüklerken o dosyayı seç.') : '') || T('Yedek, İndirilenler klasörüne adim-adim-yedek-TARİH.json adıyla iner. İçe aktarma üç biçimi tanır: bu uygulamanın yedeği, eski Haftalık Bütçe yedeği ve eski Momentum verisi. Önce bir özet gösterilir; onaylarsan veriler birleştirilir.'))}</p></div>`
   }[sec];
   return setShell(sec, body ? body() : '');
 }
@@ -2902,7 +2915,15 @@ document.addEventListener('click', (e) => {
     case 'toggleCard': toggleCardPref(b.dataset.k); after(); break;
     case 'toggleHome': IV().showOnHome = !IV().showOnHome; after(); break;
     case 'setTheme': D.ui.theme = b.dataset.v; applyTheme(); after(); break;
-    case 'export': { const n = exportBackup(); U.bkMsg = n ? T('Yedek indirildi: {x} (İndirilenler klasörü)', { x: n }) : T('Yedek indirilemedi.'); renderPage(); break; }
+    case 'export': {
+      exportBackup().then((r) => {
+        U.bkMsg = !r ? T('Yedek indirilemedi.') : r.how === 'download' ? T('Yedek indirildi: {x} (İndirilenler klasörü)', { x: r.name })
+          : r.how === 'share' ? T('Yedek hazır: {x}. Açılan menüden Drive, Dosyalar veya e-postaya kaydet.', { x: r.name })
+          : r.how === 'clip' ? T('Paylaşım açılamadı; yedek panoya kopyalandı. Bir nota veya kendine e-postaya yapıştır.') : T('Yedek iptal edildi.');
+        renderPage();
+      });
+      break;
+    }
     case 'bkNo': U.bk = null; renderPage(); break;
     case 'bkYes': { const bk = U.bk; U.bk = null; if (!bk) break; try { U.bkMsg = applyImport(bk.o, bk.kind); } catch (err) { U.bkMsg = T('Yedek yüklenirken bir sorun oldu; verilerin değişmedi.'); } saveNow(); applyTheme(); applyLang(); renderAll(); break; }
     case 'setLang': D.ui.lang = b.dataset.v; applyLang(); after(); break;
@@ -3316,6 +3337,11 @@ const EN = {
   'Varlığı sil': 'Delete holding', 'Ayarlar ve yedek': 'Settings and backup', 'Bölümler': 'Sections',
   'Örnek alışkanlıklar eklendi. İstediğin gibi düzenleyebilirsin.': 'Sample habits added. Edit them however you like.', 'Hedef tamamlandı: {x}': 'Goal complete: {x}', 'Kitap bitti: {x}': 'Book finished: {x}',
   'Yeni harcama': 'New expense', 'Yeni gider': 'New expense', 'Kumbarada bu kadar para yok ({x}).': "There isn't that much in the pot ({x}).", '{x} hedefine ulaştı.': '{x} reached its goal.',
+  'Yedek al, paylaşım menüsünü açar: dosyayı Drive, Dosyalar veya e-postaya kaydet. Geri yüklerken o dosyayı seç.': 'Back up opens the share menu: save the file to Drive, Files or email. Pick that file when restoring.',
+  'Yedeği kaydet veya gönder': 'Save or send the backup',
+  'Yedek hazır: {x}. Açılan menüden Drive, Dosyalar veya e-postaya kaydet.': 'Backup ready: {x}. Save it to Drive, Files or email from the menu.',
+  'Paylaşım açılamadı; yedek panoya kopyalandı. Bir nota veya kendine e-postaya yapıştır.': "Couldn't open sharing; the backup was copied to the clipboard. Paste it into a note or an email to yourself.",
+  'Yedek iptal edildi.': 'Backup cancelled.',
   'Yedek indirildi: {x} (İndirilenler klasörü)': 'Backup downloaded: {x} (Downloads folder)', 'Yedek indirilemedi.': "Couldn't download the backup.",
   'Yedek yüklenirken bir sorun oldu; verilerin değişmedi.': 'Something went wrong restoring the backup; your data is unchanged.',
   'Bu dosya tanınan bir yedek değil. Momentum yedeği, Haftalık Bütçe yedeği ya da eski Momentum verisi seçmelisin.': "This file isn't a backup the app recognises. Choose a Momentum backup, a Weekly Budget backup or old Momentum data.",

@@ -1,4 +1,8 @@
-## Momentum v1.0.1
+## Momentum v1.0.2
+
+**Düzeltme:** Android uygulamasında **Yedek al** artık çalışıyor. Paylaşım menüsü açılıyor, dosyayı Drive, Dosyalar veya e-postaya kaydedebilirsin.
+
+### v1.0.1
 
 **Düzeltme:** APK artık her seferinde aynı anahtarla imzalanıyor. Bu sürümü bir kez eski uygulamayı silip kurman gerekiyor (önce Ayarlar → Yedek al). Bundan sonraki güncellemeler eskisinin üstüne kurulur, verilerin kalır.
 
