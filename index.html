@@ -726,6 +726,15 @@ table.rep td:nth-child(3) { font-weight: 700; }
 .pats li .i { flex: 0 0 18px; width: 18px; height: 18px; color: var(--acc-text); margin-top: 2px; }
 .tr-h { margin: 6px 0 2px; font-size: 0.82rem; color: var(--ink-2); }
 @media (max-width: 360px) { .pie-wrap { flex-direction: column; align-items: stretch; } .donut { align-self: center; } }
+/* ---------- receipts ---------- */
+.btns.tight { display: flex; gap: 6px; flex-wrap: nowrap; margin: 0; }
+.rc-top { display: flex; gap: 12px; align-items: center; }
+.rc-thumb { flex: 0 0 auto; padding: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); overflow: hidden; width: 74px; height: 96px; }
+.rc-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.rc-thumb img.big { position: fixed; inset: 0; z-index: 90; width: 100vw; height: 100vh; object-fit: contain; background: rgba(0,0,0,.92); }
+.rc-view img { width: 100%; max-height: 72vh; object-fit: contain; border-radius: 12px; background: var(--surface-2); display: block; min-height: 120px; }
+.dn b .i.clip { width: 14px; height: 14px; margin-left: 5px; vertical-align: -2px; color: var(--ink-3); }
+.chip .i { width: 13px; height: 13px; }
 
 </style>
 </head>
@@ -1679,9 +1688,9 @@ function pastNames() {
 }
 const namesList = () => `<datalist id="pastNames">${[...pastNames().keys()].reverse().slice(0, 60).map((n) => `<option value="${esc(n)}"></option>`).join('')}</datalist>`;
 function dailyRow(x) {
-  const fuel = x.cat === FUEL_CAT, meta = [x.cat ? dcatName(x.cat) : '', x.oneOff ? T('tek seferlik') : '', fuel ? T('Uber yakıtı, harcamaya sayılmaz') : ''].filter(Boolean).join(' · ');
+  const fuel = x.cat === FUEL_CAT, meta = [x.cat ? dcatName(x.cat) : '', x.work ? T('ana iş') : '', x.oneOff ? T('tek seferlik') : '', fuel ? T('Uber yakıtı, harcamaya sayılmaz') : ''].filter(Boolean).join(' · ');
   return `<div class="swipe${fuel ? ' is-fuel' : ''}" data-swipe="${x.id}"><div class="swipe-bg"><button type="button" class="swipe-del" data-act="delDaily" data-id="${x.id}" tabindex="-1" aria-hidden="true">${ico('trash')}<span>${T('Sil')}</span></button></div><div class="swipe-fg">
-    <button type="button" class="dent" data-act="editDaily" data-id="${x.id}"><span class="dn"><b>${esc(x.name || T('Harcama'))}</b>${meta ? `<small>${esc(meta)}</small>` : ''}</span><span class="da">${money(+x.amount || 0)}</span></button>
+    <button type="button" class="dent" data-act="editDaily" data-id="${x.id}"><span class="dn"><b>${esc(x.name || T('Harcama'))}${x.rc ? ico('receipt', 'clip') : ''}</b>${meta ? `<small>${esc(meta)}</small>` : ''}</span><span class="da">${money(+x.amount || 0)}</span></button>
     <button type="button" class="del" data-act="delDaily" data-id="${x.id}" aria-label="${esc(T('Sil: {x}', { x: x.name || T('Harcama') }))}">${ico('x')}</button></div></div>`;
 }
 function dailyCard(w) {
@@ -2364,6 +2373,175 @@ function lbCSV() {
   return L.map((r) => r.map(q).join(',')).join('\r\n') + '\r\n';
 }
 
+// ===================== FİŞ TARA (receipt scan → OCR → expense + photo in Supabase Storage) =====================
+// Android app: ML Kit document scanner + on-device text recognition. Web: camera/file photo, amounts typed by hand.
+// Photos are compressed (~1600 px JPEG) and kept in IndexedDB first, then uploaded to the private 'receipts' bucket
+// under <user id>/; an expense refers to its photo by `rc` (the storage path without the user folder).
+const FUEL_BRANDS = /\b(shell|bp|ampol|caltex|7[- ]?eleven|united|puma|liberty|metro|mobil|costco fuel|coles express|reddy express|eg (?:fuel|group|ampol)|astron|vibe|speedway|freedom fuels?|on the run|otr)\b/i;
+const FUEL_WORDS = /\b(unleaded|diesel|e10|u91|u95|u98|ulp|pulp|vortex|v-power|premium 9[58]|litres?|ltrs?|\/l\b|fuel)\b/i;
+const AMT = /(?:\$\s?)?(\d{1,4}(?:[,.]\d{3})*[.,]\d{2})(?!\d)/g;
+const toAmt = (s) => { const t = s.replace(/[$\s]/g, ''); const m = /^(\d{1,4}(?:[,.]\d{3})*)[.,](\d{2})$/.exec(t); return m ? +(m[1].replace(/[,.]/g, '') + '.' + m[2]) : null; };
+const MON3 = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
+function parseReceipt(text) {
+  const lines = String(text || '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean), all = lines.join('\n');
+  const amtsIn = (l) => [...l.matchAll(AMT)].map((m) => toAmt(m[1])).filter((v) => v != null);
+  // total: the amount on (or right after) a TOTAL / AMOUNT DUE / EFTPOS line; "subtotal" lines don't count
+  let total = null;
+  for (let i = 0; i < lines.length && total == null; i++) {
+    const l = lines[i];
+    if (/\b(grand\s+)?total\b|amount\s+(due|paid)|balance\s+due|\beftpos\b|\bpurchase\b|\bcredit\b|\bdebit\b|\bvisa\b|\bmastercard\b|\bpaid\b/i.test(l) && !/sub\s*-?\s*total|gst|tax\s+invoice|change|rounding|cash\s*out|tip/i.test(l)) {
+      const a = amtsIn(l); if (a.length) total = a[a.length - 1]; else if (lines[i + 1]) { const b = amtsIn(lines[i + 1]); if (b.length) total = b[0]; }
+    }
+  }
+  const every = lines.flatMap(amtsIn).filter((v) => v > 0 && v < 5000);
+  if (total == null && every.length) total = Math.max(...every);
+  // GST: "GST $6.18", "Includes GST 6.18", "GST included 6.18", "TOTAL INCLUDES GST OF $6.18"
+  let gst = null;
+  lines.forEach((l, i) => { if (gst == null && /\bgst\b/i.test(l) && !/abn|reg(istered|\.)?\s*for\s*gst|gst\s*(free|exempt)/i.test(l)) { const a = amtsIn(l); if (a.length) gst = a[a.length - 1]; else if (lines[i + 1]) { const b = amtsIn(lines[i + 1]); if (b.length) gst = b[0]; } } });
+  if (gst != null && total != null && (gst <= 0 || gst > total / 10 + 0.05)) gst = null; // GST is 1/11 of a fully taxable total, never more
+  // date: 21/10/2026, 21-10-26, 21.10.2026, 2026-10-21, 21 Oct 2026, 21OCT26
+  let date = null; const now = new Date();
+  const ok = (y, m, d) => { if (y < 100) y += 2000; const dt = new Date(y, m - 1, d); return dt.getMonth() === m - 1 && dt.getDate() === d && y >= 2020 && dt <= addDays(now, 2) ? idOf(dt) : null; };
+  let m = /\b(20\d{2})[-/.](\d{1,2})[-/.](\d{1,2})\b/.exec(all); if (m) date = ok(+m[1], +m[2], +m[3]);
+  if (!date) for (const x of all.matchAll(/\b(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})\b/g)) { date = ok(+x[3], +x[2], +x[1]); if (date) break; }
+  if (!date) { m = /\b(\d{1,2})\s*-?\s*(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s*-?\s*(\d{2,4})\b/i.exec(all); if (m) date = ok(+m[3], MON3[m[2].toLowerCase()], +m[1]); }
+  // merchant: a known brand, else the first line that looks like a name
+  const brand = FUEL_BRANDS.exec(all) || /\b(woolworths|coles|aldi|iga|bunnings|officeworks|kmart|target|big w|jb hi-?fi|mcdonald'?s|kfc|hungry jack'?s|subway|guzman|starbucks|gloria jean'?s|chemist warehouse|supercheap auto|repco|autobarn|ultra tune|mycar|bob jane|kmart tyre)\b/i.exec(all);
+  const nameLine = lines.find((l) => /[a-z]{3,}/i.test(l) && !/tax\s+invoice|receipt|abn|phone|ph:|tel|www\.|@|\d{4,}/i.test(l) && l.length <= 40);
+  const merchant = brand ? brand[0].replace(/\b\w/g, (c) => c.toUpperCase()) : nameLine ? nameLine.replace(/\s{2,}/g, ' ') : '';
+  const isFuel = !!(FUEL_BRANDS.test(all) && FUEL_WORDS.test(all)) || /\b(unleaded|diesel|e10|u91|u95|u98|litres?)\b/i.test(all);
+  const lm = /(\d{1,3}[.,]\d{1,3})\s*(?:l\b|ltrs?|litres?)/i.exec(all), litres = lm ? +lm[1].replace(',', '.') : null;
+  return { total, gst, date, merchant, isFuel, litres, hasText: lines.length > 0 };
+}
+
+// ---------- local photo store (IndexedDB) ----------
+let rcDbP = null;
+function rcDb() {
+  if (!rcDbP) rcDbP = new Promise((res, rej) => { try { const r = indexedDB.open('momentum-receipts', 1); r.onupgradeneeded = () => r.result.createObjectStore('img'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); } catch (e) { rej(e); } });
+  return rcDbP;
+}
+async function rcPut(path, rec) { const db = await rcDb(); return new Promise((res, rej) => { const t = db.transaction('img', 'readwrite'); t.objectStore('img').put(rec, path); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); }
+async function rcGet(path) { const db = await rcDb(); return new Promise((res) => { const q = db.transaction('img').objectStore('img').get(path); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }); }
+async function rcPending() { const db = await rcDb(); return new Promise((res) => { const out = [], q = db.transaction('img').objectStore('img').openCursor(); q.onsuccess = () => { const c = q.result; if (!c) { res(out); return; } if (!c.value.up) out.push(c.key); c.continue(); }; q.onerror = () => res(out); }); }
+
+// ---------- image → compressed JPEG ----------
+async function compressImage(blob) {
+  const bmp = await createImageBitmap(blob), k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+  const cv = document.createElement('canvas'); cv.width = Math.round(bmp.width * k); cv.height = Math.round(bmp.height * k);
+  cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height); if (bmp.close) bmp.close();
+  return new Promise((res) => cv.toBlob((b) => res(b || blob), 'image/jpeg', 0.72));
+}
+
+// ---------- Supabase Storage ----------
+const rcFull = (path) => SY.session.user.id + '/' + path;
+async function rcUpload(path) {
+  if (!SY.session) return false; const r = await rcGet(path); if (!r || r.up) return !!r;
+  await ensureFresh();
+  const res = await fetch(SB_URL + '/storage/v1/object/receipts/' + rcFull(path), { method: 'POST', headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SY.session.access_token, 'Content-Type': 'image/jpeg', 'x-upsert': 'true' }, body: r.blob });
+  if (!res.ok) throw new Error('upload ' + res.status);
+  r.up = true; await rcPut(path, r); return true;
+}
+let rcFlushing = false;
+async function rcFlush() {
+  if (rcFlushing || !SY.session || !navigator.onLine) return; rcFlushing = true;
+  try { for (const p of await rcPending()) { try { await rcUpload(p); } catch (e) { break; } } } catch (e) {} finally { rcFlushing = false; }
+}
+const rcUrls = {};
+async function rcUrl(path) {
+  if (rcUrls[path]) return rcUrls[path];
+  let r = null; try { r = await rcGet(path); } catch (e) {}
+  if (!r && SY.session) {
+    try { await ensureFresh(); const res = await fetch(SB_URL + '/storage/v1/object/authenticated/receipts/' + rcFull(path), { headers: { apikey: SB_KEY, Authorization: 'Bearer ' + SY.session.access_token } });
+      if (res.ok) { r = { blob: await res.blob(), up: true }; rcPut(path, r).catch(() => {}); } } catch (e) {}
+  }
+  return r ? (rcUrls[path] = URL.createObjectURL(r.blob)) : null;
+}
+async function rcDelete(path) {
+  try { const db = await rcDb(); db.transaction('img', 'readwrite').objectStore('img').delete(path); } catch (e) {}
+  if (SY.session) try { await rest('DELETE', '/storage/v1/object/receipts/' + rcFull(path)); } catch (e) {}
+}
+
+// ---------- scan flow ----------
+async function scanReceipt() {
+  let blob = null, text = '';
+  if (isNative() && capPlugin('DocumentScanner')) {
+    try {
+      const r = await capPlugin('DocumentScanner').scanDocument({ pageLimit: 1, resultFormats: 'JPEG', scannerMode: 'FULL', galleryImportAllowed: true });
+      const uri = r && r.scannedImages && r.scannedImages[0]; if (!uri) return;
+      try { const tr = await capPlugin('TextRecognition').processImage({ path: uri }); text = (tr && tr.text) || ''; } catch (e) { text = ''; }
+      blob = await (await fetch(window.Capacitor.convertFileSrc ? window.Capacitor.convertFileSrc(uri) : uri)).blob();
+    } catch (e) { if (/cancel/i.test(String(e && (e.message || e)))) return; toast(T('Tarayıcı açılamadı, fotoğraf seç.')); blob = null; }
+  }
+  if (!blob) { const f = await pickPhoto(); if (!f) return; blob = f; }
+  let small = blob; try { small = await compressImage(blob); } catch (e) {}
+  const p = parseReceipt(text), path = todayKey() + '-' + uid() + '.jpg';
+  await rcPut(path, { blob: small, up: false });
+  rcUrls[path] = URL.createObjectURL(small);
+  openOverlay('sheet', { kind: 'receipt', path, ocr: !!text, p, amt: p.total != null ? inNum(p.total.toFixed(2)) : '', gst: p.gst != null ? inNum(p.gst.toFixed(2)) : '', d: p.date || todayKey(), name: p.merchant || '', who: p.isFuel ? 'uber' : 'kisisel', ucat: p.isFuel ? 'fuel' : 'service', dcat: p.isFuel ? FUEL_CAT : null });
+}
+function pickPhoto() {
+  return new Promise((res) => {
+    const i = document.createElement('input'); i.type = 'file'; i.accept = 'image/*'; i.setAttribute('capture', 'environment'); i.style.display = 'none';
+    i.onchange = () => { const f = i.files && i.files[0]; i.remove(); res(f || null); };
+    document.body.appendChild(i); i.click();
+    setTimeout(() => { if (document.body.contains(i)) { /* still waiting for the picker */ } }, 0);
+  });
+}
+const WHO = [['uber', 'Uber', 'car'], ['is', 'Ana iş', 'brief'], ['kisisel', 'Kişisel', 'bag']];
+function receiptSheet(sh) {
+  const ucats = [['fuel', 'Yakıt']].concat(UEXP_CATS.map(([k, l]) => [k, l]));
+  return sheetShell(T('Fiş'), `<form class="stack" id="rcForm">
+    <div class="rc-top"><button type="button" class="rc-thumb" data-act="viewRc" data-p="${esc(sh.path)}" aria-label="${T('Fişi büyüt')}"><img id="rcImg" alt="${T('Fiş fotoğrafı')}"></button>
+      <p class="note" style="margin:0">${sh.ocr ? (sh.p.total != null ? T('Fişten okundu. Rakamları kontrol et.') : T('Tutar okunamadı; elle gir.')) : T('Tutarı fişten bakarak gir.')}</p></div>
+    <div class="fields"><div class="field"><label for="rcAmt">${T('Toplam (GST dahil)')}</label><div class="money"><span>$</span><input id="rcAmt" inputmode="decimal" value="${esc(sh.amt)}" placeholder="0,00"></div></div>
+      <div class="field"><label for="rcDate">${T('Tarih')}</label><input class="txt" type="date" id="rcDate" value="${esc(sh.d)}"></div></div>
+    <div class="fields"><div class="field"><label for="rcName">${T('Mağaza / ne için')}</label><input class="txt" id="rcName" value="${esc(sh.name)}" autocomplete="off"></div>
+      <div class="field"><label for="rcGst">${T('GST')}</label><div class="money"><span>$</span><input id="rcGst" inputmode="decimal" value="${esc(sh.gst)}" placeholder="${T('yok')}"></div></div></div>
+    <div class="field"><span class="lab">${T('Kimin için?')}</span><div class="seg" role="group" aria-label="${T('Kimin için?')}">${WHO.map(([k, l, ic]) => `<button type="button" data-act="rcWho" data-v="${k}" aria-pressed="${sh.who === k}">${ico(ic)}${T(l)}</button>`).join('')}</div></div>
+    ${sh.who === 'uber' ? `<div class="field"><label for="rcUcat">${T('Uber gider türü')}</label><select class="txt" id="rcUcat">${ucats.map(([k, l]) => `<option value="${k}" ${sh.ucat === k ? 'selected' : ''}>${T(l)}</option>`).join('')}</select><span class="hint">${sh.ucat === 'fuel' ? T('Günlük harcamalara “Yakıt (Uber)” olarak eklenir; GST kredisi logbook payıyla hesaplanır.') : T('Vergi → Uber giderlerine eklenir.')}</span></div>`
+      : catChips(sh.dcat, 'rcCat')}
+    ${sh.who === 'is' ? `<p class="note" style="margin:0">${T('Ana işin için yaptığın harcamalar ayrıca listelenir: yıl sonu vergiden düşmek ya da işverenden geri almak için.')}</p>` : ''}
+    <p class="err" id="rcErr" role="alert" hidden></p>
+    <button class="btn" type="submit" id="rcSave">${T('Kaydet')}</button><button type="button" class="btn ghost" data-act="rcDiscard">${T('Vazgeç')}</button></form>`, 'a-para');
+}
+function rcKeep() { const s = U.sheet; s.amt = val('rcAmt'); s.d = val('rcDate'); s.name = val('rcName'); s.gst = val('rcGst'); if ($('rcUcat')) s.ucat = val('rcUcat'); }
+function saveReceipt() {
+  const s = U.sheet; rcKeep();
+  const amt = parse(s.amt), g = parse(s.gst), d0 = s.d;
+  if (!(amt > 0)) return T('Tutarı gir.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d0)) return T('Tarihi seç.');
+  if (g !== '' && g > amt / 10 + 0.05) return T('GST toplamın 1/11’inden fazla olamaz.');
+  const name = (s.name || '').trim();
+  if (s.who === 'uber' && s.ucat !== 'fuel') {
+    const def = catDefaults(s.ucat); D.money.uberExpenses.push({ id: uid(), d: d0, cat: s.ucat, amount: amt, gst: g === '' ? def.gst : g > 0, gstAmt: g === '' ? null : g, biz: def.biz, bizAuto: isCarCat(s.ucat) && Math.abs(def.biz - logbook()) < 0.01, note: name, rc: s.path });
+  } else {
+    const cat = s.who === 'uber' ? FUEL_CAT : s.dcat, e = addDaily(d0, name || (cat ? dcatName(cat) : T('Harcama')), amt, cat, false);
+    e.rc = s.path; if (s.who === 'is') e.work = true; if (g !== '') e.gstAmt = g;
+  }
+  save(); rcFlush();
+  return { msg: T('Fiş kaydedildi: {x}', { x: money(amt) }) };
+}
+function rcViewSheet(sh) { return sheetShell(T('Fiş'), `<div class="rc-view"><img id="rcBig" alt="${T('Fiş fotoğrafı')}"><p class="note" id="rcViewNote">${T('Yükleniyor…')}</p></div>`, 'a-para'); }
+// fill <img> tags after a sheet renders (URLs come from IndexedDB or the bucket, asynchronously)
+function rcHydrate() {
+  const sh = U.sheet; if (!sh) return;
+  const set = (id, p) => rcUrl(p).then((u) => { const el = $(id); if (el && u) el.src = u; const n = $('rcViewNote'); if (n) n.textContent = u ? '' : T('Fiş bulunamadı. Bu cihazda değilse ve buluta yüklenmediyse açılamaz.'); });
+  if (sh.kind === 'receipt') set('rcImg', sh.path);
+  if (sh.kind === 'rcview') set('rcBig', sh.path);
+}
+// main-job expenses this financial year (for the tax return / reimbursement)
+function workExpenses() {
+  const fy = +quarterOf(todayKey()).key.split('-Q')[0], a = (fy - 1) + '-07-01', b = fy + '-06-30', out = [];
+  Object.values(D.money.weeks).forEach((w) => (w.daily || []).forEach((x) => { if (x.work && x.date >= a && x.date <= b) out.push(x); }));
+  return out.sort((x, y) => y.date.localeCompare(x.date));
+}
+function workCard() {
+  const ws = workExpenses(); if (!ws.length) return '';
+  const tot = ws.reduce((s, x) => s + (+x.amount || 0), 0);
+  return `<div class="card" id="workCard">${head('brief', T('Ana iş giderleri'), `<span class="chip">${usd2(tot)}</span>`)}<div class="list">${ws.slice(0, 12).map((x) => `<div class="hold"><span class="sym">${ico('brief')}</span><span class="mid"><b>${esc(x.name || T('Harcama'))}</b><span>${dShort(x.date)}</span></span><span class="rt"><b>${usd2(+x.amount || 0)}</b>${x.rc ? `<button type="button" class="link" data-act="viewRc" data-p="${esc(x.rc)}">${ico('receipt')}${T('fiş')}</button>` : ''}</span></div>`).join('')}</div>
+    <p class="note">${T('Bu mali yıl, ana işin için. Yıl sonu vergi beyannamesinde iş gideri olarak düşebilir ya da işverenden geri isteyebilirsin.')}</p></div>`;
+}
+
 // ===================== cloud sync (Supabase) + native notifications =====================
 // Local-first: localStorage stays the source of truth; each area (money, growth, health, invest, ui) is one row in
 // public.user_docs. Last writer wins per area by updated_at. Auth + REST use plain fetch (no library needed, works
@@ -2692,7 +2870,7 @@ function taxQuarter0(key) {
   const E = weeks.reduce((s, id) => s + (+D.money.weeks[id].uberEarn || 0), 0);
   // "Yakıt (Uber)" entries from the daily spending list count here too (GST credit 1/11, work share = logbook %)
   const fuelEx = [];
-  Object.entries(D.money.weeks).forEach(([wid, w]) => (w.daily || []).forEach((x) => { if (x.cat === FUEL_CAT && x.date >= a && x.date <= b) fuelEx.push({ id: x.id, d: x.date, cat: 'fuel', amount: +x.amount || 0, gst: true, biz: logbook(), fromDaily: true, week: wid, note: x.name && x.name !== 'Yakıt (Uber)' ? x.name : '' }); }));
+  Object.entries(D.money.weeks).forEach(([wid, w]) => (w.daily || []).forEach((x) => { if (x.cat === FUEL_CAT && x.date >= a && x.date <= b) fuelEx.push({ id: x.id, d: x.date, cat: 'fuel', amount: +x.amount || 0, gst: true, biz: logbook(), fromDaily: true, rc: x.rc, week: wid, note: x.name && x.name !== 'Yakıt (Uber)' ? x.name : '' }); }));
   const ex = D.money.uberExpenses.filter((e) => e.d >= a && e.d <= b).concat(fuelEx);
   const wk = {}; weeks.forEach((id) => { wk[id] = { E: +D.money.weeks[id].uberEarn || 0, gross: 0, fees: 0, credit: 0, exEx: 0 }; });
   const loose = { gross: 0, fees: 0, credit: 0, exEx: 0, n: 0, total: 0 };
@@ -2752,7 +2930,7 @@ function paraTax() {
   // expenses grouped by month
   const byM = {}; f.ex.slice().sort((a, b) => b.d.localeCompare(a.d)).forEach((e) => { (byM[e.d.slice(0, 7)] = byM[e.d.slice(0, 7)] || []).push(e); });
   const expList = Object.keys(byM).sort().reverse().map((m) => { const [y, mm] = m.split('-').map(Number), tot = byM[m].reduce((s, e) => s + (+e.amount || 0), 0);
-    return `<div class="band-h" style="margin-top:6px;justify-content:space-between"><span>${MONTHS_FULL[mm - 1]} ${y}</span><span>${usd2(tot)}</span></div>` + byM[m].map((e) => `<button type="button" class="hold wrap" ${e.fromDaily ? `data-act="openDay" data-week="${e.week}" data-d="${e.d}" title="${T('Günlük harcamalarda aç')}"` : `data-act="editUexp" data-id="${e.id}"`}><span class="sym">${ico(UEXP_ICON[e.cat] || 'list')}</span><span class="mid"><b>${esc(catName(e.cat))}</b><span>${dShort(e.d)}${e.note ? ' · ' + esc(e.note) : ''}</span></span><span class="rt"><b>${usd2(+e.amount || 0)}</b><span class="tags-mini">${e.fromDaily ? `<span class="chip">${T('günlükten')}</span>` : ''}${e.gst ? `<span class="chip acc">GST</span>` : `<span class="chip">${T('GST yok')}</span>`}${bizOf(e) < 100 ? `<span class="chip">${T('iş {n}', { n: pct(nf0.format(bizOf(e))) })}</span>` : ''}</span></span></button>`).join(''); }).join('');
+    return `<div class="band-h" style="margin-top:6px;justify-content:space-between"><span>${MONTHS_FULL[mm - 1]} ${y}</span><span>${usd2(tot)}</span></div>` + byM[m].map((e) => `<button type="button" class="hold wrap" ${e.fromDaily ? `data-act="openDay" data-week="${e.week}" data-d="${e.d}" title="${T('Günlük harcamalarda aç')}"` : `data-act="editUexp" data-id="${e.id}"`}><span class="sym">${ico(UEXP_ICON[e.cat] || 'list')}</span><span class="mid"><b>${esc(catName(e.cat))}</b><span>${dShort(e.d)}${e.note ? ' · ' + esc(e.note) : ''}</span></span><span class="rt"><b>${usd2(+e.amount || 0)}</b><span class="tags-mini">${e.rc ? `<span class="chip">${ico('receipt')}</span>` : ''}${e.fromDaily ? `<span class="chip">${T('günlükten')}</span>` : ''}${e.gst ? `<span class="chip acc">GST</span>` : `<span class="chip">${T('GST yok')}</span>`}${bizOf(e) < 100 ? `<span class="chip">${T('iş {n}', { n: pct(nf0.format(bizOf(e))) })}</span>` : ''}</span></span></button>`).join(''); }).join('');
   return `<div class="weeknav" data-swipe-zone="quarter"><button type="button" data-act="taxQGo" data-d="-1" id="taxPrev" aria-label="${T('Önceki çeyrek')}">${ico('left')}</button><div class="lbl"><span id="taxQLbl">${qName(key)}</span><small>${qi.range}</small></div><button type="button" data-act="taxQGo" data-d="1" id="taxNext" aria-label="${T('Sonraki çeyrek')}">${ico('right')}</button></div>
   ${taxBox(thisWeekId()) ? `<section class="sec">${secHead(T('Bu hafta'), `<span class="sub">${weekLabel(thisWeekId())}</span>`)}${taxBox(thisWeekId())}</section>` : ''}
   <section class="hero" data-swipe-zone="quarter"><svg class="hero-deco" viewBox="0 0 210 210" aria-hidden="true"><circle cx="105" cy="105" r="96"/><circle cx="105" cy="105" r="74"/><circle cx="105" cy="105" r="52"/></svg>
@@ -2765,9 +2943,10 @@ function paraTax() {
     ${f.sa.length ? `<div class="log" style="margin-bottom:10px">${f.sa.slice().sort((a, b) => b.d.localeCompare(a.d)).map((x) => `<div><span>${dShort(x.d)}</span><span style="display:flex;gap:6px;align-items:center"><b>${usd2(+x.amount || 0)}</b><button type="button" class="del" data-act="delSetAside" data-id="${x.id}" aria-label="${T('Sil')}">${U.armed === x.id ? T('Sil?') : ico('x')}</button></span></div>`).join('')}</div>` : `<p class="note" style="margin-top:0">${T('İş birikim hesabına aktardığın tutarları buraya yaz. Kalan tutar otomatik hesaplanır.')}</p>`}
     <form class="row" id="saForm"><input class="txt" type="date" id="saDate" value="${todayKey()}" aria-label="${T('Tarih')}" style="flex:0 0 150px;width:150px"><div class="money" style="flex:1;width:auto"><span>$</span><input id="saAmt" inputmode="decimal" placeholder="${T('Tutar')}" aria-label="${T('Ayrılan tutar')}"></div><button class="btn sm" type="submit" aria-label="${T('Ekle')}">${ico('plus')}</button></form></div>
   ${logbookCard()}
-  <div class="card">${head('car', T('Uber giderleri'), `<button type="button" class="btn sm" data-act="newUexp">${ico('plus')}${T('Ekle')}</button>`)}
+  <div class="card">${head('car', T('Uber giderleri'), `<span class="btns tight"><button type="button" class="btn sm soft" data-act="scanRc" id="scanRcTax">${ico('receipt')}${T('Fiş tara')}</button><button type="button" class="btn sm" data-act="newUexp">${ico('plus')}${T('Ekle')}</button></span>`)}
     ${f.ex.length ? `<div class="list">${expList}</div><p class="note">${T('Bu çeyrekte toplam {x}. Araç giderlerinde iş payı logbook yüzdesinden gelir ({p}).', { x: usd2(f.exTotal), p: pct(nf0.format(logbook())) })}</p>`
       : empty('receipt', T('Bu çeyrekte gider yok'), T('Yakıt, servis, lastik, telefon gibi Uber giderlerini fişleriyle kaydet. GST kredisi ve kâr hesabı bunlardan çıkar.'), `<button type="button" class="btn sm" data-act="newUexp">${ico('plus')}${T('Gider ekle')}</button>`)}</div>
+  ${workCard()}
   <details class="card slip fold" id="taxBreak"${fold('taxBreak', f.exact)}><summary>${T('Çeyrek dökümü')} <span class="chip ${f.exact ? 'gain' : ''}" id="taxMethod">${f.exact ? T('Uber vergi özeti') : T('Tahmin')}</span></summary><dl class="receipt">
     ${row('taxE', f.exact ? T('Yolcu ücretleri (GST dahil)') : T('Uber kazancı ({n} hafta)', { n: f.nWeeks }), usd2(f.gross))}
     ${row('tax1A', T('Satışlardaki GST (1A)'), usd2(f.g1A))}
@@ -2799,7 +2978,7 @@ function uexpSheet(sh) {
     <div class="field"><label for="ueNote">${T('Not (isteğe bağlı)')}</label><input class="txt" id="ueNote" value="${esc(sh.note != null ? sh.note : e ? e.note || '' : '')}" autocomplete="off"></div>
     ${e ? '' : `<div class="fuelhint" id="ueFuelHint">${ico('car')}<span>${T("Yakıtı günlük harcamalara 'Yakıt (Uber)' olarak gir")}</span><button type="button" class="btn sm soft" data-act="fuelToDaily">${T('Yakıt gir')}</button></div>`}
     <p class="note" style="margin:0">${T('Rego, CTP, BHSL ve banka ücretlerinde GST yoktur. Telefonun varsayılan iş payı %50, araç giderlerininki logbook yüzdesidir.')}</p>
-    <button class="btn" type="submit" id="ueSave">${T('Kaydet')}</button>${e ? `<button type="button" class="btn ghost" data-act="delUexp" data-id="${e.id}">${U.armed === e.id ? T('Silmek için tekrar dokun') : T('Gideri sil')}</button>` : ''}</form>`;
+    <button class="btn" type="submit" id="ueSave">${T('Kaydet')}</button>${e && e.rc ? `<button type="button" class="btn soft" data-act="viewRc" data-p="${esc(e.rc)}">${ico('receipt')}${T('Fişi gör')}</button>` : ''}${e ? `<button type="button" class="btn ghost" data-act="delUexp" data-id="${e.id}">${U.armed === e.id ? T('Silmek için tekrar dokun') : T('Gideri sil')}</button>` : ''}</form>`;
 }
 function uexpKeep() { return { d: val('ueDate'), amt: val('ueAmt'), biz: val('ueBiz'), note: val('ueNote') }; }
 function openUexp(id) {
@@ -2926,7 +3105,7 @@ function sheetShell(title, body, area) { return `<div class="scrim" data-act="sc
 function vSheet() {
   const sh = U.sheet; if (!sh) return '';
   if (sh.kind === 'fab') {
-    const opts = [['harcama', 'Harcama', 'bag', 'a-para'], ['uber', 'Uber vardiyası', 'car', 'a-para'], ['uexp', 'Uber gideri', 'receipt', 'a-para'], ['sigara', 'Sigara +1', 'cig', 'a-sag'], ['alkol', 'Alkol +1', 'glass', 'a-sag'], ['kilo', 'Kilo', 'scale', 'a-sag'], ['aliskanlik', 'Alışkanlık', 'check', 'a-gel']];
+    const opts = [['fis', 'Fiş tara', 'receipt', 'a-para'], ['harcama', 'Harcama', 'bag', 'a-para'], ['uber', 'Uber vardiyası', 'car', 'a-para'], ['uexp', 'Uber gideri', 'receipt', 'a-para'], ['sigara', 'Sigara +1', 'cig', 'a-sag'], ['alkol', 'Alkol +1', 'glass', 'a-sag'], ['kilo', 'Kilo', 'scale', 'a-sag'], ['aliskanlik', 'Alışkanlık', 'check', 'a-gel']];
     const k = sh.k, w = getWeek(thisWeekId()) || {};
     let form = '';
     if (k === 'harcama') form = `<form class="card a-para stack" id="qForm" data-k="harcama"><div class="row"><div class="money" style="width:118px"><span>$</span><input id="qAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}" autocomplete="off"></div><input class="txt" id="qName" list="pastNames" placeholder="${T('ör. Dışarıda yemek')}" aria-label="${T('Ne için?')}" autocomplete="off"></div>${namesList()}${catChips(U.dCat, 'dCat')}<div class="row"><button type="button" class="tagbtn" data-act="dOneOff" id="qOneOff" aria-pressed="${!!U.dOneOff}">${T('Tek seferlik')}</button><button class="btn" type="submit" style="margin-left:auto">${T('Bugüne kaydet')}</button></div><p class="note" style="margin:0">${T('Bugünün harcamalarına eklenir ve haftanın giderlerine sayılır.')}</p></form>`;
@@ -2942,9 +3121,11 @@ function vSheet() {
     return sheetShell(T('Harcamayı düzenle'), `<form class="stack" id="dailyEdit"><div class="fields"><div class="field"><label for="deAmt">${T('Tutar')}</label><div class="money"><span>$</span><input id="deAmt" inputmode="decimal" value="${sh.amt != null ? esc(sh.amt) : fmtIn(x.amount)}"></div></div>
       <div class="field"><label for="deDate">${T('Gün')}</label><select class="txt" id="deDate">${days.map((k) => { const d = fromId(k); return `<option value="${k}" ${(sh.date || x.date) === k ? 'selected' : ''}>${DAYS_LONG[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}</option>`; }).join('')}</select></div></div>
       <div class="field"><label for="deName">${T('Ne için?')}</label><input class="txt" id="deName" value="${esc(sh.name != null ? sh.name : x.name || '')}" autocomplete="off"></div>
-      ${catChips(sh.cat, 'deCat')}<button type="button" class="tagbtn" data-act="deOneOff" id="deOneOff" aria-pressed="${!!(sh.oneOff != null ? sh.oneOff : x.oneOff)}">${T('Tek seferlik')}</button><button class="btn" type="submit" id="deSave">${T('Kaydet')}</button><button type="button" class="btn ghost" data-act="delDaily" data-id="${x.id}" id="deDel">${T('Harcamayı sil')}</button></form>`, 'a-para');
+      ${catChips(sh.cat, 'deCat')}<button type="button" class="tagbtn" data-act="deOneOff" id="deOneOff" aria-pressed="${!!(sh.oneOff != null ? sh.oneOff : x.oneOff)}">${T('Tek seferlik')}</button><button class="btn" type="submit" id="deSave">${T('Kaydet')}</button>${x.rc ? `<button type="button" class="btn soft" data-act="viewRc" data-p="${esc(x.rc)}">${ico('receipt')}${T('Fişi gör')}</button>` : ''}<button type="button" class="btn ghost" data-act="delDaily" data-id="${x.id}" id="deDel">${T('Harcamayı sil')}</button></form>`, 'a-para');
   }
   if (sh.kind === 'shift') return shiftSheet(sh);
+  if (sh.kind === 'receipt') return receiptSheet(sh);
+  if (sh.kind === 'rcview') return rcViewSheet(sh);
   if (sh.kind === 'uexp') return sheetShell(sh.id ? T('Uber giderini düzenle') : T('Uber gideri ekle'), uexpSheet(sh), 'a-para');
   if (sh.kind === 'habits') {
     return sheetShell(T('Alışkanlıkları düzenle'), `<div class="list">${sh.draft.map((h, i) => `<div class="row"><input class="txt" data-hedit="${i}" value="${esc(h.name)}" aria-label="${T('Alışkanlık adı')}"><select class="txt" data-hband="${i}" style="flex:0 0 100px;width:100px" aria-label="${T('Zaman dilimi')}">${BANDS.map(([b, l]) => `<option value="${b}" ${h.band === b ? 'selected' : ''}>${T(l)}</option>`).join('')}</select><button type="button" class="del" data-act="delHabitDraft" data-i="${i}" aria-label="${T('Kaldır')}">${ico('trash')}</button></div>`).join('') || `<p class="empty-txt">${T('Liste boş.')}</p>`}</div>
@@ -3013,7 +3194,7 @@ function render(dir) {
   });
   if (dir) { const v = $('view'); v.classList.remove('slide-l', 'slide-r'); void v.offsetWidth; v.classList.add(dir < 0 ? 'slide-r' : 'slide-l'); }
 }
-function renderSheet() { keepFocus(() => { $('sheetRoot').innerHTML = vSheet(); }); }
+function renderSheet() { keepFocus(() => { $('sheetRoot').innerHTML = vSheet(); }); rcHydrate(); }
 function renderPage() { keepFocus(() => { $('pageRoot').innerHTML = U.page === 'settings' ? vSettings() : U.page === 'insights' ? vInsights() : ''; }); }
 function renderAll() { render(); renderSheet(); renderPage(); }
 function go(tab, seg) {
@@ -3149,6 +3330,12 @@ document.addEventListener('click', (e) => {
     case 'openFab': U.dCat = null; U.dOneOff = false; openOverlay('sheet', { kind: 'fab', k: null }); break;
     case 'dismissNotice': D.ui.notice = null; after(); break;
     case 'focusHours': { const el = $('wHours'); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } break; }
+    // receipts
+    case 'scanRc': scanReceipt().catch(() => toast(T('Fiş açılamadı.'))); break;
+    case 'rcWho': rcKeep(); U.sheet.who = b.dataset.v; if (b.dataset.v === 'uber') { if (!U.sheet.ucat) U.sheet.ucat = 'fuel'; } else if (U.sheet.dcat == null && U.sheet.ucat === 'fuel') U.sheet.dcat = FUEL_CAT; renderSheet(); break;
+    case 'rcCat': rcKeep(); U.sheet.dcat = U.sheet.dcat === b.dataset.v ? null : b.dataset.v; renderSheet(); break;
+    case 'rcDiscard': { const p0 = U.sheet && U.sheet.path; closeOverlay(); if (p0) rcDelete(p0); break; }
+    case 'viewRc': if (U.sheet && U.sheet.kind === 'receipt') { const im = $('rcImg'); if (im) im.classList.toggle('big'); } else openOverlay('sheet', { kind: 'rcview', path: b.dataset.p }); break;
     // Uber shifts + logbook
     case 'shiftStart': openOverlay('sheet', { kind: 'shift', mode: 'start' }); focusSoon('odoKm'); break;
     case 'shiftEnd': { const o = openShift(); if (o) { openOverlay('sheet', { kind: 'shift', mode: 'end', id: o.id }); focusSoon('odoKm'); } break; }
@@ -3166,6 +3353,7 @@ document.addEventListener('click', (e) => {
       const q = b.dataset.k;
       if (q === 'sigara' || q === 'alkol') { const f = q === 'sigara' ? 'cig' : 'alc'; const nv = (hd(k)[f] || 0) + 1; setH(k, { [f]: nv }); closeOverlay(); toast(T(q === 'sigara' ? 'Sigara: bugün {n}' : 'Alkol: bugün {n}', { n: nv })); render(); }
       else if (q === 'uexp') { U.sheet = openUexp(null); renderSheet(); }
+      else if (q === 'fis') { closeOverlay(); scanReceipt().catch(() => toast(T('Fiş açılamadı.'))); }
       else { if (q === 'harcama' && U.sheet.k !== 'harcama') { U.dCat = null; U.dOneOff = false; } U.sheet.k = q; renderSheet(); const first = document.querySelector('#qForm input'); if (first) first.focus(); }
       break;
     }
@@ -3292,6 +3480,7 @@ document.addEventListener('focusout', (e) => {
   else if (ds.rc === 'amount') { const x = S.recurring[+ds.i]; if (x) t.value = fmtIn(x.amount); }
 });
 document.addEventListener('change', async (e) => {
+  if (e.target && e.target.id === 'rcUcat' && U.sheet && U.sheet.kind === 'receipt') { rcKeep(); renderSheet(); return; }
   const t = e.target, k = todayKey(), ds = t.dataset;
   if (t.id === 'shFile') { if (t.files && t.files.length) importSamsung([...t.files]); t.value = ''; return; }
   if (t.id === 'stakeFile') { const f = t.files && t.files[0]; t.value = ''; if (f) readStakeFile(f); return; }
@@ -3345,6 +3534,11 @@ document.addEventListener('submit', (e) => {
       addDaily(k, p.name, amt, null, true);
       p.done = true; p.doneOn = k; p.spent = amt; p.log.push({ d: k, a: -Math.min(amt, p.saved), note: 'Satın alındı' }); /* note is a TR key, translated on display */ p.saved = Math.max(0, Math.round((p.saved - amt) * 100) / 100);
       save(); closeOverlay(); toast(T('{x}: {y} tek seferlik harcama olarak eklendi.', { x: p.name, y: money(amt) })); render(); return;
+    }
+    case 'rcForm': {
+      const r = saveReceipt();
+      if (typeof r === 'string') { const e = $('rcErr'); if (e) { e.textContent = r; e.hidden = false; } return; }
+      closeOverlay(); toast(r.msg); renderAll(); return;
     }
     case 'shiftForm': {
       const r = submitShift(f.dataset.mode);
@@ -3833,6 +4027,20 @@ const EN = {
   'Uber gerçek kâr': 'Uber real profit',
   'Net / saat: GST, yakıt, araç masraf payı ve vergi düşülmüş Uber kazancı. Harcamalar günlük listeden (yakıt dahil); kira gibi tekrarlayanlar hariç.': 'Net / hour: Uber earnings after GST, fuel, car cost share and tax. Spending is from the daily list (fuel included); recurring costs like rent are not.',
   'Harcama alışkanlıkların': 'Your spending habits', 'Son 8 hafta': 'Last 8 weeks', 'Uber net / saat': 'Uber net / hour', 'Haftalık harcamalar': 'Weekly spending',
+  // v1.4 receipts
+  'Fiş tara': 'Scan receipt', 'GST': 'GST', 'Tarayıcı açılamadı, fotoğraf seç.': "Couldn't open the scanner; pick a photo.", 'Ana iş': 'Main job',
+  'Fiş': 'Receipt', 'Fişi büyüt': 'Enlarge receipt', 'Fiş fotoğrafı': 'Receipt photo', 'Fişten okundu. Rakamları kontrol et.': 'Read from the receipt. Check the numbers.',
+  'Tutar okunamadı; elle gir.': "Couldn't read the amount; type it in.", 'Tutarı fişten bakarak gir.': 'Type the amount from the receipt.',
+  'Toplam (GST dahil)': 'Total (incl. GST)', 'Mağaza / ne için': 'Shop / what for', 'Kimin için?': 'Who is it for?', 'Uber gider türü': 'Uber cost type',
+  'Günlük harcamalara “Yakıt (Uber)” olarak eklenir; GST kredisi logbook payıyla hesaplanır.': 'Added to daily spending as “Fuel (Uber)”; the GST credit uses your logbook share.',
+  'Vergi → Uber giderlerine eklenir.': 'Added to Tax → Uber expenses.',
+  'Ana işin için yaptığın harcamalar ayrıca listelenir: yıl sonu vergiden düşmek ya da işverenden geri almak için.': 'Spending for your main job is listed separately, to claim at tax time or get reimbursed by your employer.',
+  'Tutarı gir.': 'Enter the amount.', 'Tarihi seç.': 'Pick the date.', 'GST toplamın 1/11’inden fazla olamaz.': "GST can't be more than 1/11 of the total.",
+  'Fiş kaydedildi: {x}': 'Receipt saved: {x}',
+  'Fiş bulunamadı. Bu cihazda değilse ve buluta yüklenmediyse açılamaz.': "Receipt not found. If it isn't on this device and wasn't uploaded, it can't be opened.",
+  'Ana iş giderleri': 'Main job expenses', 'fiş': 'receipt',
+  'Bu mali yıl, ana işin için. Yıl sonu vergi beyannamesinde iş gideri olarak düşebilir ya da işverenden geri isteyebilirsin.': 'This financial year, for your main job. Claim them as work expenses in your tax return or ask your employer to reimburse them.',
+  'Fişi gör': 'View receipt', 'ana iş': 'main job', 'Fiş açılamadı.': "Couldn't open the receipt.",
 };
 
 // ===================== init =====================
@@ -3851,8 +4059,9 @@ const dayCheck = () => { if (todayKey() !== lastDay) { lastDay = todayKey(); ren
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { dayCheck(); if (U.tab === 'yatirim') refreshPrices(false); } });
 setInterval(dayCheck, 60000);
 startSyncLoop();
+setTimeout(() => rcFlush(), 4000); window.addEventListener('online', () => rcFlush());
 if (isNative()) scheduleNotifs();
-window.__adim = { get state() { return D; }, weekCalc: (w) => weekCalc(w), insights, saveNow, taxFull, taxQuarter, quarterOf, weekTaxParts, ttax, missing: MISSING, parse, num, calc, sync: { get meta() { return SY; }, syncAll, areaData }, setLang: (l) => { D.ui.lang = l; applyLang(); renderAll(); } };
+window.__adim = { get state() { return D; }, parseReceipt, weekCalc: (w) => weekCalc(w), insights, saveNow, taxFull, taxQuarter, quarterOf, weekTaxParts, ttax, missing: MISSING, parse, num, calc, sync: { get meta() { return SY; }, syncAll, areaData }, setLang: (l) => { D.ui.lang = l; applyLang(); renderAll(); } };
 
 })();
 </script>
