@@ -1,3 +1,12 @@
+## Momentum v1.3.0
+
+### Yeni: Para → Rapor
+- **Kazanç performansı:** bu hafta ve geçen hafta yan yana. Uber brüt, saat, brüt ve net saatlik, gerçek kâr, harcamalar ve elinde kalan için ▲▼ değişim, en üstte tek cümlelik özet.
+- **Harcama dağılımı:** kategorilere göre halka grafik ve her kategorinin geçen haftaya göre farkı.
+- **Harcama alışkanlıkların:** en çok harcadığın kategori, kahve sayısı, en pahalı gün, hafta sonu ve hafta içi karşılaştırması (son 4 hafta).
+- **Son 8 hafta:** Uber net saatlik kazanç ve haftalık harcama grafikleri.
+- Sağa/sola kaydırarak haftalar arasında gezin.
+
 ## Momentum v1.2.0
 
 - **Saatlik kazancın:** Para → Hafta'da "Elinde kalan"ın altında maaş, Uber ve nakit iş için net saatlik kazanç (vergi ve masraflar sonrası) ve toplamı. Yanında geçen haftaya göre ▲▼ değişim.
