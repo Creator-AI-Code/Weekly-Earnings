@@ -1,3 +1,9 @@
+## Momentum v1.2.0
+
+- **Saatlik kazancın:** Para → Hafta'da "Elinde kalan"ın altında maaş, Uber ve nakit iş için net saatlik kazanç (vergi ve masraflar sonrası) ve toplamı. Yanında geçen haftaya göre ▲▼ değişim.
+- Uber saati girilmediyse vardiyalardan (Uber'e başla / Bitir) otomatik alınır.
+- Ayarlar → Para: **Maaşlı işte haftalık saat** (varsayılan 38).
+
 ## Momentum v1.1.0
 
 ### Yeni: Uber vardiyası ve araç logbook
