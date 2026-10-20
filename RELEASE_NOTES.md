@@ -1,3 +1,12 @@
+## Momentum v1.4.0
+
+### Yeni: Fiş tara
+- **+ → Fiş tara** ya da **Vergi → Uber giderleri → Fiş tara**. Telefonun belge tarayıcısı fişi kırpar ve düzleştirir. Toplam, GST, tarih ve mağaza adı **telefonun içinde** okunur.
+- **Kimin için:** Uber, Ana iş ya da Kişisel. Uber yakıtı günlük listeye "Yakıt (Uber)" olarak, servis gibi giderler Vergi → Uber giderlerine, ana iş harcamaları ayrı bir "Ana iş giderleri" listesine gider.
+- Fiş fotoğrafı sıkıştırılıp (~200 KB) sadece senin erişebildiğin özel bulut klasörüne yüklenir. İnternet yoksa telefonda bekler, sonra yüklenir. Kayıtlarda 📎 ile açılır.
+- Web sürümünde fotoğraf yüklenir, tutarı elle girersin.
+- Android uygulaması Capacitor 8'e geçti.
+
 ## Momentum v1.3.0
 
 ### Yeni: Para → Rapor
