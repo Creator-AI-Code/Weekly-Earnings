@@ -663,6 +663,29 @@ details.card.fold > summary { min-height: 44px; display: flex; align-items: cent
 .a-yat .ico:not(.gold) { background: var(--yat-soft); color: var(--yat-text); }
 #tabs .a-sag[aria-selected="true"] .pill { background: var(--sag-soft); color: var(--sag-text); }
 #tabs .a-yat[aria-selected="true"] .pill { background: var(--yat-soft); color: var(--yat-text); }
+/* ---------- Uber shift + logbook ---------- */
+.shift-row { display: flex; align-items: center; gap: 12px; }
+.shift .st { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.shift .st b { font-size: 0.98rem; }
+.shift .st span { font-size: 0.8rem; color: var(--ink-3); line-height: 1.35; }
+.shift .ico { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--acc-soft); color: var(--acc-text); flex: 0 0 auto; }
+.shift .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--gain); flex: 0 0 auto; margin: 0 6px; box-shadow: 0 0 0 0 var(--gain); animation: shiftPulse 2s infinite; }
+.shift.on { box-shadow: inset 0 0 0 2px var(--gain-soft), var(--card-shadow); }
+.shift.stale { background: var(--warn-soft); }
+.shift.stale .dot { background: var(--warn); animation: none; }
+@keyframes shiftPulse { 0% { box-shadow: 0 0 0 0 rgba(55, 106, 48, 0.45); } 70% { box-shadow: 0 0 0 9px rgba(55, 106, 48, 0); } 100% { box-shadow: 0 0 0 0 rgba(55, 106, 48, 0); } }
+@media (prefers-reduced-motion: reduce) { .shift .dot { animation: none; } }
+.shift .btn.sm { flex: 0 0 auto; }
+#lbCard .tiles { margin-bottom: 10px; }
+#lbCard .btns { margin-top: 12px; flex-wrap: wrap; }
+.trips { margin-top: 12px; border-top: 1px solid var(--line); }
+.trip { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); min-height: 52px; }
+.trip:last-child { border-bottom: 0; }
+.trip .mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.trip .mid b { font-size: 0.88rem; }
+.trip .mid span { font-size: 0.78rem; color: var(--ink-3); }
+.trip .km { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.err { color: var(--loss); font-size: 0.85rem; font-weight: 600; margin: 0; }
 
 </style>
 </head>
@@ -888,7 +911,7 @@ const dShort = (k) => { const d = parseKey(k); return d.getDate() + ' ' + MONTHS
 function blank() {
   return {
     schemaVersion: 1,
-    money: { settings: clone(DEF_SET), weeks: {}, pots: [], uberExpenses: [], taxSummaries: {}, setAsides: [] },
+    money: { settings: clone(DEF_SET), weeks: {}, pots: [], uberExpenses: [], taxSummaries: {}, setAsides: [], trips: [], odo: [], lb: null },
     growth: { habits: [], log: {}, tasks: [], goals: [], books: [], bookGoal: 12, readLog: {}, journal: {}, identity: '' },
     health: { days: {}, height: null, goalWeight: null, packPrice: 40, lastImport: null },
     invest: { holdings: [], watchlist: [], prices: {}, fx: null, finnhubKey: '', showOnHome: true, lastRefresh: 0 },
@@ -932,9 +955,11 @@ function normalize(o) {
   ['money', 'growth', 'health', 'invest', 'ui'].forEach((k) => { if (isObj(D0[k])) out[k] = Object.assign(b[k], D0[k]); });
   const m = out.money; m.settings = Object.assign(clone(DEF_SET), isObj(m.settings) ? m.settings : {}); if (!Array.isArray(m.settings.recurring)) m.settings.recurring = [];
   if (!isObj(m.weeks)) m.weeks = {}; Object.keys(m.weeks).forEach((id) => { m.weeks[id] = normWeek(m.weeks[id], id); });
-  ['uberExpenses', 'setAsides'].forEach((k) => { if (!Array.isArray(m[k])) m[k] = []; }); if (!isObj(m.taxSummaries)) m.taxSummaries = {};
+  ['uberExpenses', 'setAsides', 'trips', 'odo'].forEach((k) => { if (!Array.isArray(m[k])) m[k] = []; }); if (!isObj(m.taxSummaries)) m.taxSummaries = {}; if (!isObj(m.lb)) m.lb = null;
   migrateUexpFuel(m);
   if (m.settings.logbookPct == null) m.settings.logbookPct = 100;
+  // v1.1: car expenses follow the logbook % (bizAuto). Old car expenses saved at 100 % were the logbook default then.
+  if (!m.settings.bizAutoMig) { m.uberExpenses.forEach((e) => { const c = UEXP_CATS.find((x) => x[0] === e.cat); if (c && c[2] === 'car' && (e.biz == null || +e.biz === 100)) e.bizAuto = true; }); m.settings.bizAutoMig = true; }
   if (!Array.isArray(m.pots)) m.pots = []; m.pots.forEach((p) => { p.log = Array.isArray(p.log) ? p.log : []; p.saved = +p.saved || 0; p.target = +p.target || 0; p.icon = p.icon || 'jar'; });
   const g = out.growth;
   ['habits', 'tasks', 'goals', 'books'].forEach((k) => { if (!Array.isArray(g[k])) g[k] = []; });
@@ -1139,16 +1164,14 @@ function sniffDelim(text) { const line = text.split(/\r?\n/).find((l) => l.trim(
 
 // ===================== backup: export / import (3 formats) =====================
 function capPlugin(n) { const C = window.Capacitor; if (!C) return null; return (C.Plugins && C.Plugins[n]) || (C.registerPlugin ? C.registerPlugin(n) : null); }
-async function exportBackup() {
-  const name = 'adim-adim-yedek-' + todayKey() + '.json';
-  const o = JSON.parse(serial()); o.app = 'adim-adim'; o.exportedAt = new Date().toISOString(); o.exportedOn = todayKey();
-  const text = JSON.stringify(o, null, 2);
+// Saves a text file: the Android app writes it and opens the share sheet (the WebView cannot download blobs);
+// the browser downloads it. Resolves { name, how: download|share|clip|cancel } or null.
+async function saveFile(name, text, mime) {
   if (isNative()) {
-    // The Android WebView cannot download blobs: write the file, then open the share sheet (Drive, Files, Gmail…).
     try {
       const FS = capPlugin('Filesystem'), SH = capPlugin('Share');
       const w = await FS.writeFile({ path: name, data: text, directory: 'CACHE', encoding: 'utf8' });
-      await SH.share({ title: name, text: name, url: w.uri, dialogTitle: T('Yedeği kaydet veya gönder') });
+      await SH.share({ title: name, text: name, url: w.uri, dialogTitle: T('Dosyayı kaydet veya gönder') });
       return { name, how: 'share' };
     } catch (e) {
       if (/cancel/i.test(String(e && (e.message || e)))) return { name, how: 'cancel' };
@@ -1156,10 +1179,15 @@ async function exportBackup() {
     }
   }
   try {
-    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' })); a.download = name;
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: mime || 'application/octet-stream' })); a.download = name;
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
     return { name, how: 'download' };
   } catch (e) { return null; }
+}
+function exportBackup() {
+  const name = 'adim-adim-yedek-' + todayKey() + '.json';
+  const o = JSON.parse(serial()); o.app = 'adim-adim'; o.exportedAt = new Date().toISOString(); o.exportedOn = todayKey();
+  return saveFile(name, JSON.stringify(o, null, 2), 'application/json');
 }
 function detectBackup(o) {
   if (!isObj(o)) return null;
@@ -1317,7 +1345,7 @@ const JTAGS = ['Uber', 'Kebapçı', 'Spor', 'İş'];
 const POT_ICONS = [['jar', 'Kumbara'], ['console', 'Konsol'], ['car', 'Araba'], ['plane', 'Seyahat'], ['home', 'Ev'], ['gift', 'Hediye'], ['tax', 'Vergi']];
 const SPINE = ['#6B4E8A', '#8A4B2E', '#3B5B8C', '#6D5A8E', '#9C6B0C', '#4F6B2F', '#7B1E3C'];
 const SAMPLE_HABITS = [["06:00'da kalk", 'sabah', 'Wake up at 6:00'], ['2 litre su iç', 'sabah', 'Drink 2 litres of water'], ['30 dk çıraklık / teknik çalışma', 'is', '30 min apprenticeship study'], ['30 dk spor ya da yürüyüş', 'aksam', '30 min exercise or walk'], ['20 sayfa kitap oku', 'aksam', 'Read 20 pages'], ['Günün harcamalarını yaz', 'aksam', "Write down today's spending"]];
-const BUGUN_CARDS = [['money', 'Harcayabileceğin ve vergi satırı'], ['habits', 'Alışkanlıklar'], ['tasks', 'Yapılacaklar'], ['counters', 'Sigara ve alkol sayaçları'], ['evening', 'Akşam değerlendirmesi'], ['portfolio', 'Portföy satırı'], ['health', 'Sağlık özeti'], ['insight', 'İçgörü kartı']];
+const BUGUN_CARDS = [['money', 'Harcayabileceğin ve vergi satırı'], ['uber', 'Uber vardiyası'], ['habits', 'Alışkanlıklar'], ['tasks', 'Yapılacaklar'], ['counters', 'Sigara ve alkol sayaçları'], ['evening', 'Akşam değerlendirmesi'], ['portfolio', 'Portföy satırı'], ['health', 'Sağlık özeti'], ['insight', 'İçgörü kartı']];
 // portfolio, health and insight are off by default on Bugün (opt-in), the rest are on unless hidden
 const OPTIN_CARDS = ['portfolio', 'health', 'insight'];
 const showCard = (k) => (OPTIN_CARDS.includes(k) ? !!D.ui.shownCards[k] : !D.ui.hiddenCards[k]);
@@ -1404,6 +1432,7 @@ function vBugun() {
     const c = s.c, sa = weekSetAside(s.id), bas = nextBas(), z = sa ? 0 : r2(c.weekTax);
     if (c.weekTax > 0 || bas && taxFull(bas.q).need > 0.005) html += `<button type="button" class="taxline a-para" data-act="go" data-tab="para" data-seg="vergi" id="bTaxLine">${ico('jar')}<span>${sa ? T('Bu haftanın vergi payı ayrıldı') : T('Vergi için ayır: {x} bu hafta', { x: usd(z) })}${bas ? ' · ' + T("BAS'a {n} gün", { n: bas.days }) : ''}</span>${ico('right')}</button>`;
   }
+  if (showCard('uber')) html += shiftCard();
   if (showCard('habits')) html += `<section class="sec a-gel">${habitTodayCard(k, bandNow(h))}</section>`;
   if (showCard('tasks')) {
     const open = G().tasks.filter((t) => !t.done).sort((a, b) => a.prio - b.prio || String(a.created).localeCompare(String(b.created)));
@@ -2053,6 +2082,144 @@ function impApply() {
   refreshPrices(true);
 }
 
+// ===================== LOGBOOK (Uber shifts by odometer → ATO 12-week car logbook) =====================
+// money.trips: [{ id, start: ms, end: ms|null, kmStart, kmEnd }]   one Uber shift = online → offline
+// money.odo:   [{ id, ts: ms, km }]                                  extra odometer readings (catch private km)
+// money.lb:    { startTs, odoStart, vehicle, endTs?, odoEnd?, pct? } the current / last logbook period
+const LB_WEEKS = 12, WEEK_MS = 7 * 864e5;
+const TRIPS = () => D.money.trips;
+const focusSoon = (id) => setTimeout(() => { const el = $(id); if (el) el.focus(); }, 60);
+const openShift = () => TRIPS().find((t) => !t.end) || null;
+// a shift left open from an earlier day (forgot to tap Bitir)
+const isStale = (o) => !!o && keyOf(new Date(o.start)) !== todayKey() && Date.now() - o.start > 6 * 36e5;
+const shiftKm = (t) => (t.end && t.kmEnd != null && t.kmStart != null ? Math.max(0, t.kmEnd - t.kmStart) : 0);
+const fmtKm = (v) => nf0.format(Math.round(+v || 0));
+const durTxt = (ms) => { const m = Math.max(0, Math.round(ms / 6e4)); return m < 60 ? T('{m} dk', { m }) : m % 60 ? T('{h} sa {m} dk', { h: Math.floor(m / 60), m: m % 60 }) : T('{h} sa', { h: m / 60 }); };
+const dtLocal = (ts) => { const d = new Date(ts); return idOf(d) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+const fromDtLocal = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(s || ''); return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]).getTime() : null; };
+// every odometer reading the app knows about, oldest first
+function odoReadings() {
+  const r = [];
+  TRIPS().forEach((t) => { if (t.kmStart != null) r.push({ ts: t.start, km: +t.kmStart }); if (t.end && t.kmEnd != null) r.push({ ts: t.end, km: +t.kmEnd }); });
+  D.money.odo.forEach((o) => r.push({ ts: o.ts, km: +o.km }));
+  const lb = D.money.lb; if (lb) { r.push({ ts: lb.startTs, km: +lb.odoStart }); if (lb.endTs && lb.odoEnd != null) r.push({ ts: lb.endTs, km: +lb.odoEnd }); }
+  return r.filter((x) => isFinite(x.km) && x.ts).sort((a, b) => a.ts - b.ts);
+}
+const lastOdo = () => { const r = odoReadings(); return r.length ? r[r.length - 1] : null; };
+// a reading must not go below the latest earlier reading (odometers only go up)
+function odoFloor(ts) { let f = null; odoReadings().forEach((x) => { if (x.ts <= ts && (f == null || x.km > f)) f = x.km; }); return f; }
+function lbStats() {
+  const lb = D.money.lb; if (!lb) return null;
+  const a = lb.startTs, b = lb.endTs || Date.now();
+  const trips = TRIPS().filter((t) => t.end && t.start >= a && t.end <= b);
+  const biz = trips.reduce((s, t) => s + shiftKm(t), 0);
+  const top = odoReadings().filter((x) => x.ts >= a && x.ts <= b).reduce((m, x) => Math.max(m, x.km), +lb.odoStart);
+  const total = Math.max(0, top - lb.odoStart), pctV = total > 0 ? Math.min(100, biz / total * 100) : null;
+  const weeks = Math.min(LB_WEEKS, Math.floor((b - a) / WEEK_MS)), days = Math.floor((b - a) / 864e5);
+  return { lb, a, b, trips, biz, total, top, pct: pctV, weeks, days, ready: b - a >= LB_WEEKS * WEEK_MS, done: !!lb.endTs };
+}
+function weekShifts(id) {
+  const a = fromId(id).getTime(), b = a + WEEK_MS, ts = TRIPS().filter((t) => t.end && t.start >= a && t.start < b);
+  return { n: ts.length, km: ts.reduce((s, t) => s + shiftKm(t), 0), ms: ts.reduce((s, t) => s + (t.end - t.start), 0) };
+}
+
+// ---------- Bugün card ----------
+function shiftCard() {
+  const o = openShift(), now = Date.now();
+  if (o) {
+    const stale = isStale(o);
+    return `<section class="sec a-para shift ${stale ? 'stale' : 'on'}" id="shiftCard"><div class="shift-row"><span class="dot" aria-hidden="true"></span><span class="st"><b>${stale ? T('Vardiya açık kaldı') : T('Uber\'desin')}</b><span>${stale ? T('{d} {t} başladı · bitiş km\'sini gir', { d: dShort(keyOf(new Date(o.start))), t: hhmm(o.start) }) : T('{t}\'den beri · {x} · başlangıç {k} km', { t: hhmm(o.start), x: durTxt(now - o.start), k: fmtKm(o.kmStart) })}</span></span>
+      <button type="button" class="btn sm" data-act="shiftEnd" id="shiftEndBtn">${T('Bitir')}</button></div></section>`;
+  }
+  const w = weekShifts(thisWeekId()), st = lbStats();
+  const sub = [w.n ? T('Bu hafta {n} vardiya · {k} km · {h} sa', { n: w.n, k: fmtKm(w.km), h: nf1.format(w.ms / 36e5) }) : T('Online olunca gösterge km\'sini gir')];
+  if (st && !st.done) sub.push(st.ready ? T('Logbook tamamlandı, bitir') : T('Logbook {n}/{t} hafta', { n: st.weeks, t: LB_WEEKS }));
+  return `<section class="sec a-para shift" id="shiftCard"><div class="shift-row"><span class="ico" aria-hidden="true">${ico('car')}</span><span class="st"><b>${T('Uber vardiyası')}</b><span id="shiftSub">${sub.join(' · ')}</span></span>
+    <button type="button" class="btn sm" data-act="shiftStart" id="shiftStartBtn">${ico('plus')}${T('Uber\'e başla')}</button></div></section>`;
+}
+
+// ---------- Vergi tab card ----------
+function logbookCard() {
+  const st = lbStats(), recent = TRIPS().filter((t) => t.end).sort((a, b) => b.start - a.start).slice(0, 8);
+  const tripRow = (t) => `<div class="trip"><span class="mid"><b>${dShort(keyOf(new Date(t.start)))} · ${hhmm(t.start)}–${hhmm(t.end)}</b><span>${fmtKm(t.kmStart)} → ${fmtKm(t.kmEnd)} km · ${durTxt(t.end - t.start)}</span></span><b class="km">${T('{k} km', { k: fmtKm(shiftKm(t)) })}</b><button type="button" class="del${U.armed === t.id ? ' arm' : ''}" data-act="delTrip" data-id="${t.id}" aria-label="${T('Vardiyayı sil')}">${U.armed === t.id ? T('Sil?') : ico('x')}</button></div>`;
+  const list = recent.length ? `<div class="trips" id="tripList">${recent.map(tripRow).join('')}</div>` : '';
+  if (!st) {
+    return `<div class="card" id="lbCard">${head('car', T('Araç logbook'))}
+      <p class="note" style="margin-top:0">${T('ATO, araç giderlerinin Uber payını 12 haftalık logbook ile ister. Uber\'de online olduğun her km (yolcu beklerken bölge değiştirmek dahil) iş kullanımıdır; işe gidiş geliş ve özel kullanım değildir.')}</p>
+      <div class="btns"><button type="button" class="btn sm" data-act="lbStart" id="lbStartBtn">${ico('flag')}${T('Logbook\'u başlat')}</button></div>${list}</div>`;
+  }
+  const p = st.pct, cur = logbook(), applyBtn = p != null && Math.floor(p) !== cur ? `<button type="button" class="btn sm" data-act="lbApply" id="lbApply">${T('Vergiye uygula: {p}', { p: pct(Math.floor(p)) })}</button>` : (p != null ? `<span class="chip gain">${T('Vergide kullanılıyor')}</span>` : '');
+  const prog = Math.round(Math.min(st.b - st.a, LB_WEEKS * WEEK_MS) / (LB_WEEKS * WEEK_MS) * 100);
+  return `<div class="card" id="lbCard">${head('car', T('Araç logbook'), `<span class="chip ${st.done ? 'gain' : 'acc'}">${st.done ? T('Tamamlandı') : T('{n}/{t} hafta', { n: st.weeks, t: LB_WEEKS })}</span>`)}
+    <div class="tiles">${tile(T('Uber km'), fmtKm(st.biz), T('{n} vardiya', { n: st.trips.length }), 'lbBiz')}${tile(T('Toplam km'), fmtKm(st.total), T('gösterge farkı'), 'lbTotal')}${tile(T('Uber payı'), p == null ? '–' : pct(nf0.format(Math.floor(p))), T('vergide {p}', { p: pct(nf0.format(cur)) }), 'lbPct')}</div>
+    ${st.done ? '' : `<div class="meter"><i style="width:${prog}%"></i></div>`}
+    <p class="note">${st.done ? T('{a} – {b} arası. Logbook 5 yıl geçerli; arabanı ya da çalışma düzenini değiştirirsen yenisini başlat.', { a: longDate(new Date(st.a)), b: longDate(new Date(st.b)) })
+      : T('Başlangıç: {d}, {k} km. Toplam km en son gösterge okumasından gelir; arada özel kullanım olduysa "Gösterge oku" ile güncelle.', { d: longDate(new Date(st.a)), k: fmtKm(st.lb.odoStart) })}</p>
+    <div class="btns">${applyBtn}${st.done ? '' : `<button type="button" class="btn sm ghost" data-act="odoRead" id="odoReadBtn">${T('Gösterge oku')}</button>`}${!st.done && st.ready ? `<button type="button" class="btn sm" data-act="lbEnd" id="lbEndBtn">${T('Logbook\'u bitir')}</button>` : ''}
+      <button type="button" class="btn sm ghost" data-act="lbExport" id="lbExport">${ico('backup')}${T('Logbook dosyası')}</button>${st.done ? `<button type="button" class="btn sm ghost" data-act="lbNew">${T('Yeni logbook')}</button>` : `<button type="button" class="link" data-act="delLb" data-id="lbCancel" id="lbCancel">${U.armed === 'lbCancel' ? T('Emin misin? Tekrar dokun') : T('Logbook\'u iptal et')}</button>`}</div>
+    ${list}</div>`;
+}
+
+// ---------- sheets ----------
+function shiftSheet(sh) {
+  const o = sh.id ? TRIPS().find((t) => t.id === sh.id) : null, lo = lastOdo();
+  const title = { start: T('Uber\'e başla'), end: T('Vardiyayı bitir'), odo: T('Gösterge oku'), lbStart: T('Logbook\'u başlat'), lbEnd: T('Logbook\'u bitir') }[sh.mode];
+  const ts = sh.ts || (sh.mode === 'end' && isStale(o) ? Math.min(Date.now(), o.start + 4 * 36e5) : Date.now());
+  const hint = sh.mode === 'end' && o ? T('Başlangıç: {t}, {k} km', { t: hhmm(o.start), k: fmtKm(o.kmStart) }) : lo ? T('Son okuma: {k} km ({d})', { k: fmtKm(lo.km), d: dShort(keyOf(new Date(lo.ts))) }) : T('Aracın göstergesindeki toplam km');
+  return sheetShell(title, `<form class="stack" id="shiftForm" data-mode="${sh.mode}">
+    <div class="field"><label for="odoKm">${T('Gösterge (km)')}</label><div class="money"><input id="odoKm" inputmode="numeric" autocomplete="off" value="${sh.km != null ? esc(sh.km) : ''}" placeholder="${lo ? fmtKm(lo.km) : '0'}"><span>km</span></div><span class="hint" id="odoHint">${hint}</span></div>
+    <div class="field"><label for="odoAt">${sh.mode === 'odo' || sh.mode.startsWith('lb') ? T('Tarih ve saat') : sh.mode === 'start' ? T('Online olduğun saat') : T('Offline olduğun saat')}</label><input class="txt" type="datetime-local" id="odoAt" value="${dtLocal(ts)}"></div>
+    ${sh.mode === 'lbStart' ? `<div class="field"><label for="lbVeh">${T('Araç (marka, model, plaka)')}</label><input class="txt" id="lbVeh" value="${esc(sh.veh || '')}" placeholder="${T('ör. BMW X3 2015, 351LZ6')}" autocomplete="off"></div><p class="note" style="margin:0">${T('12 hafta boyunca her Uber vardiyasında başlangıç ve bitiş km\'sini gir. Sonunda Uber payın otomatik hesaplanır.')}</p>` : ''}
+    ${sh.mode === 'end' && isStale(o) ? `<p class="note" style="margin:0">${T('Vardiyayı bitirmeyi unutmuşsun; saati gerçek bitiş saatine göre düzelt.')}</p>` : ''}
+    <p class="err" id="odoErr" role="alert" hidden></p>
+    <button class="btn" type="submit" id="odoSave">${sh.mode === 'start' ? T('Başla') : sh.mode === 'end' ? T('Bitir') : T('Kaydet')}</button>
+    ${sh.mode === 'end' && o ? `<button type="button" class="btn ghost" data-act="delTrip" data-id="${o.id}">${U.armed === o.id ? T('Silmek için tekrar dokun') : T('Bu vardiyayı sil')}</button>` : ''}</form>`, 'a-para');
+}
+// returns an error string or null; saves on success
+function submitShift(mode) {
+  const raw = val('odoKm').replace(/\D/g, ''), km = raw ? parseInt(raw, 10) : null, ts = fromDtLocal(val('odoAt'));
+  if (km == null || !(km >= 0) || km > 3e6) return T('Göstergedeki km\'yi yaz.');
+  if (!ts) return T('Tarih ve saati seç.');
+  if (ts > Date.now() + 5 * 6e4) return T('Gelecekte bir saat seçilemez.');
+  const o = openShift();
+  if (mode === 'end') {
+    if (!o) return T('Açık vardiya yok.');
+    if (ts <= o.start) return T('Bitiş saati başlangıçtan ({t}) sonra olmalı.', { t: hhmm(o.start) });
+    if (km < o.kmStart) return T('Bitiş km\'si başlangıçtan ({k}) küçük olamaz.', { k: fmtKm(o.kmStart) });
+    if (km - o.kmStart > 1500) return T('Tek vardiyada {k} km çok fazla; rakamı kontrol et.', { k: fmtKm(km - o.kmStart) });
+    o.end = ts; o.kmEnd = km; save();
+    return { msg: T('Vardiya kaydedildi: {k} km · {d}', { k: fmtKm(km - o.kmStart), d: durTxt(ts - o.start) }) };
+  }
+  const fl = odoFloor(ts); if (fl != null && km < fl) return T('Gösterge daha önceki okumadan ({k} km) küçük olamaz.', { k: fmtKm(fl) });
+  if (mode === 'start') {
+    if (o) return T('Zaten açık bir vardiya var.');
+    TRIPS().push({ id: uid(), start: ts, end: null, kmStart: km, kmEnd: null }); save();
+    return { msg: T('İyi vardiyalar! Başlangıç {k} km', { k: fmtKm(km) }) };
+  }
+  if (mode === 'odo') { D.money.odo.push({ id: uid(), ts, km }); save(); return { msg: T('Gösterge kaydedildi: {k} km', { k: fmtKm(km) }) }; }
+  if (mode === 'lbStart') { D.money.lb = { startTs: ts, odoStart: km, vehicle: val('lbVeh').trim() }; save(); return { msg: T('Logbook başladı. 12 hafta sonra hatırlatacağım.') }; }
+  if (mode === 'lbEnd') {
+    const lb = D.money.lb; if (!lb) return T('Logbook yok.'); if (ts <= lb.startTs) return T('Bitiş, başlangıçtan sonra olmalı.');
+    lb.endTs = ts; lb.odoEnd = km; const st = lbStats(); lb.pct = st.pct == null ? null : Math.floor(st.pct);
+    if (lb.pct != null) S.logbookPct = Math.max(1, lb.pct); save();
+    return { msg: lb.pct != null ? T('Logbook tamamlandı: Uber payın {p}. Vergi ayarına uygulandı.', { p: pct(lb.pct) }) : T('Logbook tamamlandı.') };
+  }
+  return null;
+}
+
+// ---------- export (ATO logbook as CSV) ----------
+function lbCSV() {
+  const st = lbStats(); if (!st) return null; const lb = st.lb;
+  const q = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
+  const dt = (ts) => { const d = new Date(ts); return idOf(d) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
+  const L = [['Momentum car logbook (rideshare)'], ['Vehicle', lb.vehicle || ''], ['Logbook period', idOf(new Date(st.a)) + ' to ' + idOf(new Date(st.b))],
+    ['Odometer at start', Math.round(lb.odoStart)], ['Odometer at end', Math.round(st.top)], ['Total km', Math.round(st.total)], ['Business km', Math.round(st.biz)],
+    ['Business use %', st.pct == null ? '' : Math.floor(st.pct)], [],
+    ['Date', 'Start', 'End', 'Odometer start', 'Odometer end', 'Km', 'Purpose']];
+  st.trips.slice().sort((a, b) => a.start - b.start).forEach((t) => L.push([idOf(new Date(t.start)), dt(t.start).slice(11), dt(t.end).slice(11), Math.round(t.kmStart), Math.round(t.kmEnd), Math.round(shiftKm(t)), 'Uber X rideshare: logged on (passenger trips, pickups and repositioning)']));
+  return L.map((r) => r.map(q).join(',')).join('\r\n') + '\r\n';
+}
+
 // ===================== cloud sync (Supabase) + native notifications =====================
 // Local-first: localStorage stays the source of truth; each area (money, growth, health, invest, ui) is one row in
 // public.user_docs. Last writer wins per area by updated_at. Auth + REST use plain fetch (no library needed, works
@@ -2343,6 +2510,8 @@ const UEXP_CATS = [
 const UEXP_ICON = { fuel: 'car', service: 'car', tyres: 'car', wash: 'car', phone: 'phone', parking: 'car', insurance: 'receipt', rego: 'receipt', amenities: 'bag', fees: 'percent', other: 'list' };
 const catName = (k) => { if (k === 'fuel') return T('Yakıt'); const c = UEXP_CATS.find((x) => x[0] === k); return T(c ? c[1] : 'Diğer'); };
 const logbook = () => { const v = +S.logbookPct; return v > 0 && v <= 100 ? v : 100; };
+const isCarCat = (cat) => { const c = UEXP_CATS.find((x) => x[0] === cat); return !!c && c[2] === 'car'; };
+const bizOf = (e) => (e.bizAuto ? logbook() : e.biz == null ? 100 : +e.biz);
 // built-in defaults, overridable per category in Settings → Vergi (money.settings.catDefaults)
 function catDefaults(cat) {
   const c = UEXP_CATS.find((x) => x[0] === cat) || UEXP_CATS[UEXP_CATS.length - 1], o = (S.catDefaults || {})[cat] || {};
@@ -2353,7 +2522,8 @@ function qParts(key) { const [fy, q] = key.split('-Q').map(Number); return { fy,
 function qInfo(key) {
   const { fy, q } = qParts(key), sm = [6, 9, 0, 3][q - 1], y = q <= 2 ? fy - 1 : fy;
   const start = new Date(y, sm, 1), end = new Date(y, sm + 3, 0);
-  const due = q === 1 ? new Date(y, 9, 28) : q === 2 ? new Date(y + 1, 1, 28) : q === 3 ? new Date(y, 3, 28) : new Date(y, 6, 28);
+  // due dates when you lodge online yourself (ATO 2-week extension for Q1, Q3, Q4; Q2 stays 28 Feb)
+  const due = q === 1 ? new Date(y, 10, 11) : q === 2 ? new Date(y + 1, 1, 28) : q === 3 ? new Date(y, 4, 12) : new Date(y, 7, 25);
   return { fy, q, startId: idOf(start), endId: idOf(end), due, range: `${MONTHS[sm]}–${MONTHS[(sm + 2) % 12]} ${y}` };
 }
 const fyName = (fy) => `${fy - 1}–${String(fy).slice(2)}`;
@@ -2383,7 +2553,7 @@ function taxQuarter0(key) {
   const wk = {}; weeks.forEach((id) => { wk[id] = { E: +D.money.weeks[id].uberEarn || 0, gross: 0, fees: 0, credit: 0, exEx: 0 }; });
   const loose = { gross: 0, fees: 0, credit: 0, exEx: 0, n: 0, total: 0 };
   let credit = 0, exEx = 0, exTotal = 0;
-  ex.forEach((e) => { const amt = +e.amount || 0, biz = (e.biz == null ? 100 : +e.biz) / 100, g = e.gst ? amt / 11 : 0, cr = g * biz, xx = (amt - g) * biz;
+  ex.forEach((e) => { const amt = +e.amount || 0, biz = bizOf(e) / 100, g = e.gst ? amt / 11 : 0, cr = g * biz, xx = (amt - g) * biz;
     credit += cr; exEx += xx; exTotal += amt;
     const w = nearestUberWeek(weeks, e.d); if (w) { wk[w].credit += cr; wk[w].exEx += xx; } else { loose.credit += cr; loose.exEx += xx; loose.n++; loose.total += amt; } });
   const sm = D.money.taxSummaries[key] || {}, exact = +sm.grossFares > 0;
@@ -2438,7 +2608,7 @@ function paraTax() {
   // expenses grouped by month
   const byM = {}; f.ex.slice().sort((a, b) => b.d.localeCompare(a.d)).forEach((e) => { (byM[e.d.slice(0, 7)] = byM[e.d.slice(0, 7)] || []).push(e); });
   const expList = Object.keys(byM).sort().reverse().map((m) => { const [y, mm] = m.split('-').map(Number), tot = byM[m].reduce((s, e) => s + (+e.amount || 0), 0);
-    return `<div class="band-h" style="margin-top:6px;justify-content:space-between"><span>${MONTHS_FULL[mm - 1]} ${y}</span><span>${usd2(tot)}</span></div>` + byM[m].map((e) => `<button type="button" class="hold wrap" ${e.fromDaily ? `data-act="openDay" data-week="${e.week}" data-d="${e.d}" title="${T('Günlük harcamalarda aç')}"` : `data-act="editUexp" data-id="${e.id}"`}><span class="sym">${ico(UEXP_ICON[e.cat] || 'list')}</span><span class="mid"><b>${esc(catName(e.cat))}</b><span>${dShort(e.d)}${e.note ? ' · ' + esc(e.note) : ''}</span></span><span class="rt"><b>${usd2(+e.amount || 0)}</b><span class="tags-mini">${e.fromDaily ? `<span class="chip">${T('günlükten')}</span>` : ''}${e.gst ? `<span class="chip acc">GST</span>` : `<span class="chip">${T('GST yok')}</span>`}${(e.biz == null ? 100 : +e.biz) < 100 ? `<span class="chip">${T('iş {n}', { n: pct(e.biz) })}</span>` : ''}</span></span></button>`).join(''); }).join('');
+    return `<div class="band-h" style="margin-top:6px;justify-content:space-between"><span>${MONTHS_FULL[mm - 1]} ${y}</span><span>${usd2(tot)}</span></div>` + byM[m].map((e) => `<button type="button" class="hold wrap" ${e.fromDaily ? `data-act="openDay" data-week="${e.week}" data-d="${e.d}" title="${T('Günlük harcamalarda aç')}"` : `data-act="editUexp" data-id="${e.id}"`}><span class="sym">${ico(UEXP_ICON[e.cat] || 'list')}</span><span class="mid"><b>${esc(catName(e.cat))}</b><span>${dShort(e.d)}${e.note ? ' · ' + esc(e.note) : ''}</span></span><span class="rt"><b>${usd2(+e.amount || 0)}</b><span class="tags-mini">${e.fromDaily ? `<span class="chip">${T('günlükten')}</span>` : ''}${e.gst ? `<span class="chip acc">GST</span>` : `<span class="chip">${T('GST yok')}</span>`}${bizOf(e) < 100 ? `<span class="chip">${T('iş {n}', { n: pct(nf0.format(bizOf(e))) })}</span>` : ''}</span></span></button>`).join(''); }).join('');
   return `<div class="weeknav" data-swipe-zone="quarter"><button type="button" data-act="taxQGo" data-d="-1" id="taxPrev" aria-label="${T('Önceki çeyrek')}">${ico('left')}</button><div class="lbl"><span id="taxQLbl">${qName(key)}</span><small>${qi.range}</small></div><button type="button" data-act="taxQGo" data-d="1" id="taxNext" aria-label="${T('Sonraki çeyrek')}">${ico('right')}</button></div>
   ${taxBox(thisWeekId()) ? `<section class="sec">${secHead(T('Bu hafta'), `<span class="sub">${weekLabel(thisWeekId())}</span>`)}${taxBox(thisWeekId())}</section>` : ''}
   <section class="hero" data-swipe-zone="quarter"><svg class="hero-deco" viewBox="0 0 210 210" aria-hidden="true"><circle cx="105" cy="105" r="96"/><circle cx="105" cy="105" r="74"/><circle cx="105" cy="105" r="52"/></svg>
@@ -2450,8 +2620,9 @@ function paraTax() {
   <div class="card">${head('jar', T('Kenara ayırdığın'), '', true)}
     ${f.sa.length ? `<div class="log" style="margin-bottom:10px">${f.sa.slice().sort((a, b) => b.d.localeCompare(a.d)).map((x) => `<div><span>${dShort(x.d)}</span><span style="display:flex;gap:6px;align-items:center"><b>${usd2(+x.amount || 0)}</b><button type="button" class="del" data-act="delSetAside" data-id="${x.id}" aria-label="${T('Sil')}">${U.armed === x.id ? T('Sil?') : ico('x')}</button></span></div>`).join('')}</div>` : `<p class="note" style="margin-top:0">${T('İş birikim hesabına aktardığın tutarları buraya yaz. Kalan tutar otomatik hesaplanır.')}</p>`}
     <form class="row" id="saForm"><input class="txt" type="date" id="saDate" value="${todayKey()}" aria-label="${T('Tarih')}" style="flex:0 0 150px;width:150px"><div class="money" style="flex:1;width:auto"><span>$</span><input id="saAmt" inputmode="decimal" placeholder="${T('Tutar')}" aria-label="${T('Ayrılan tutar')}"></div><button class="btn sm" type="submit" aria-label="${T('Ekle')}">${ico('plus')}</button></form></div>
+  ${logbookCard()}
   <div class="card">${head('car', T('Uber giderleri'), `<button type="button" class="btn sm" data-act="newUexp">${ico('plus')}${T('Ekle')}</button>`)}
-    ${f.ex.length ? `<div class="list">${expList}</div><p class="note">${T('Bu çeyrekte toplam {x}. Araç giderlerinde iş payı, ayarlardaki logbook yüzdesinden gelir.', { x: usd2(f.exTotal) })}</p>`
+    ${f.ex.length ? `<div class="list">${expList}</div><p class="note">${T('Bu çeyrekte toplam {x}. Araç giderlerinde iş payı logbook yüzdesinden gelir ({p}).', { x: usd2(f.exTotal), p: pct(nf0.format(logbook())) })}</p>`
       : empty('receipt', T('Bu çeyrekte gider yok'), T('Yakıt, servis, lastik, telefon gibi Uber giderlerini fişleriyle kaydet. GST kredisi ve kâr hesabı bunlardan çıkar.'), `<button type="button" class="btn sm" data-act="newUexp">${ico('plus')}${T('Gider ekle')}</button>`)}</div>
   <details class="card slip fold" id="taxBreak"${fold('taxBreak', f.exact)}><summary>${T('Çeyrek dökümü')} <span class="chip ${f.exact ? 'gain' : ''}" id="taxMethod">${f.exact ? T('Uber vergi özeti') : T('Tahmin')}</span></summary><dl class="receipt">
     ${row('taxE', f.exact ? T('Yolcu ücretleri (GST dahil)') : T('Uber kazancı ({n} hafta)', { n: f.nWeeks }), usd2(f.gross))}
@@ -2489,7 +2660,7 @@ function uexpSheet(sh) {
 function uexpKeep() { return { d: val('ueDate'), amt: val('ueAmt'), biz: val('ueBiz'), note: val('ueNote') }; }
 function openUexp(id) {
   const e = id ? D.money.uberExpenses.find((x) => x.id === id) : null, cat = e ? e.cat : 'service', def = catDefaults(cat);
-  return { kind: 'uexp', id: id || null, cat, gst: e ? !!e.gst : def.gst, biz: e ? (e.biz == null ? 100 : e.biz) : def.biz };
+  return { kind: 'uexp', id: id || null, cat, gst: e ? !!e.gst : def.gst, biz: e ? bizOf(e) : def.biz };
 }
 
 // ---------- weekly tax set-aside ("Aktardım") ----------
@@ -2573,7 +2744,7 @@ function vSettings() {
     <div class="card">${head('repeat', T('Her hafta tekrarlayan giderler'))}<div class="list" id="recList">${rec.length ? rec.map((x, i) => `<div class="row"><input class="txt" id="rcN${i}" data-rc="name" data-i="${i}" value="${esc(x.name)}" aria-label="${T('Gider adı')}"><div class="money"><span>$</span><input id="rcV${i}" data-rc="amount" data-i="${i}" inputmode="decimal" value="${fmtIn(x.amount)}" aria-label="${T('Tutar')}"></div><button type="button" class="del" data-act="delRec" data-i="${i}" aria-label="${T('Sil')}">${ico('x')}</button></div>`).join('') : `<p class="empty-txt">${T('Henüz gider yok.')}</p>`}</div>
       <button type="button" class="add" id="recAdd" data-act="addRec">${ico('plus')}${T('Gider ekle')}</button><p class="note">${T("Aylık bir gideri haftalığa çevirmek için 4,33'e böl.")}</p></div>
     <div class="card"><p class="note" style="margin:0">${T("Hesap 2026–27 vergi oranlarına ve %2 Medicare'e göre yapılır. Uber kârı ve vergili nakit iş maaşının üstüne eklenir. MLS eşikleri $105k / $123k / $164k. GST kazancın 1/11'idir; yakıtın ve sabit masrafların %80'i için GST kredisi düşülür. Bu bir tahmindir, vergi danışmanlığı değildir.")}</p></div>`,
-    vergi: () => `<div class="card stack">${head('car', T('Logbook'))}<div class="field"><label for="sLogbook">${T('Logbook iş kullanım yüzdesi')}</label>${mny('sLogbook', 'data-set="logbookPct"', fmtIn(logbook()), '%', false)}<span class="hint">${T('Araç giderlerinin varsayılan iş payıdır.')}</span></div></div>
+    vergi: () => `<div class="card stack">${head('car', T('Logbook'))}<div class="field"><label for="sLogbook">${T('Logbook iş kullanım yüzdesi')}</label>${mny('sLogbook', 'data-set="logbookPct"', fmtIn(logbook()), '%', false)}<span class="hint">${T('Araç giderlerinin iş payı. Logbook bitince otomatik güncellenir (Para → Vergi → Araç logbook).')}</span></div></div>
       <div class="card">${head('receipt', T('Kategori varsayılanları'))}<div class="list">${UEXP_CATS.map(([k, l]) => { const d = catDefaults(k); return `<div class="catrow"><span class="cn">${T(l)}</span><div class="seg inline" role="group" aria-label="${esc(T('{x}: GST', { x: T(l) }))}"><button type="button" data-act="catGst" data-k="${k}" data-v="true" aria-pressed="${d.gst}">GST</button><button type="button" data-act="catGst" data-k="${k}" data-v="false" aria-pressed="${!d.gst}">${T('Yok')}</button></div><div class="money" style="width:84px;min-height:44px"><input data-catbiz="${k}" inputmode="decimal" value="${fmtIn(d.biz)}" aria-label="${esc(T('{x}: iş payı', { x: T(l) }))}"><span>%</span></div></div>`; }).join('')}</div>
         <p class="note">${T('Yeni Uber giderlerinde bu GST ve iş payı değerleri önceden seçili gelir. Araç kategorileri logbook yüzdesini kullanır, değiştirmediğin sürece.')}</p></div>
       <div class="card stack">${head('jar', T('Uber vergisi'))}<div class="kv"><div><span>${T('Maaş')}</span><b>${usd(S.salary)}</b></div><div><span>${T('Hastane sigortası')}</span><b>${S.cover ? T('Var') : T('Yok')}</b></div><div><span>Logbook</span><b>${pct(nf0.format(logbook()))}</b></div></div>
@@ -2628,6 +2799,7 @@ function vSheet() {
       <div class="field"><label for="deName">${T('Ne için?')}</label><input class="txt" id="deName" value="${esc(sh.name != null ? sh.name : x.name || '')}" autocomplete="off"></div>
       ${catChips(sh.cat, 'deCat')}<button type="button" class="tagbtn" data-act="deOneOff" id="deOneOff" aria-pressed="${!!(sh.oneOff != null ? sh.oneOff : x.oneOff)}">${T('Tek seferlik')}</button><button class="btn" type="submit" id="deSave">${T('Kaydet')}</button><button type="button" class="btn ghost" data-act="delDaily" data-id="${x.id}" id="deDel">${T('Harcamayı sil')}</button></form>`, 'a-para');
   }
+  if (sh.kind === 'shift') return shiftSheet(sh);
   if (sh.kind === 'uexp') return sheetShell(sh.id ? T('Uber giderini düzenle') : T('Uber gideri ekle'), uexpSheet(sh), 'a-para');
   if (sh.kind === 'habits') {
     return sheetShell(T('Alışkanlıkları düzenle'), `<div class="list">${sh.draft.map((h, i) => `<div class="row"><input class="txt" data-hedit="${i}" value="${esc(h.name)}" aria-label="${T('Alışkanlık adı')}"><select class="txt" data-hband="${i}" style="flex:0 0 100px;width:100px" aria-label="${T('Zaman dilimi')}">${BANDS.map(([b, l]) => `<option value="${b}" ${h.band === b ? 'selected' : ''}>${T(l)}</option>`).join('')}</select><button type="button" class="del" data-act="delHabitDraft" data-i="${i}" aria-label="${T('Kaldır')}">${ico('trash')}</button></div>`).join('') || `<p class="empty-txt">${T('Liste boş.')}</p>`}</div>
@@ -2831,6 +3003,16 @@ document.addEventListener('click', (e) => {
     case 'closeOverlay': closeOverlay(); break;
     case 'openFab': U.dCat = null; U.dOneOff = false; openOverlay('sheet', { kind: 'fab', k: null }); break;
     case 'dismissNotice': D.ui.notice = null; after(); break;
+    // Uber shifts + logbook
+    case 'shiftStart': openOverlay('sheet', { kind: 'shift', mode: 'start' }); focusSoon('odoKm'); break;
+    case 'shiftEnd': { const o = openShift(); if (o) { openOverlay('sheet', { kind: 'shift', mode: 'end', id: o.id }); focusSoon('odoKm'); } break; }
+    case 'odoRead': openOverlay('sheet', { kind: 'shift', mode: 'odo' }); focusSoon('odoKm'); break;
+    case 'lbStart': case 'lbNew': openOverlay('sheet', { kind: 'shift', mode: 'lbStart' }); focusSoon('odoKm'); break;
+    case 'lbEnd': openOverlay('sheet', { kind: 'shift', mode: 'lbEnd' }); focusSoon('odoKm'); break;
+    case 'delTrip': arm(() => { D.money.trips = TRIPS().filter((t) => t.id !== id); if (U.sheet && U.sheet.kind === 'shift') { U.sheet = null; renderSheet(); } after(); toast(T('Vardiya silindi.')); }); if (U.sheet && U.sheet.kind === 'shift') renderSheet(); break;
+    case 'delLb': arm(() => { D.money.lb = null; after(); toast(T('Logbook iptal edildi. Vardiyaların duruyor.')); }); break;
+    case 'lbApply': { const st = lbStats(); if (st && st.pct != null) { S.logbookPct = Math.max(1, Math.floor(st.pct)); after(); toast(T('Araç giderlerinin iş payı artık {p}.', { p: pct(S.logbookPct) })); } break; }
+    case 'lbExport': { const csv = lbCSV(); if (csv) saveFile('logbook-' + todayKey() + '.csv', csv, 'text/csv').then((r) => { if (r && r.how !== 'cancel') toast(r.how === 'download' ? T('Logbook indirildi: {x}', { x: r.name }) : r.how === 'clip' ? T('Logbook panoya kopyalandı.') : T('Logbook hazır: {x}', { x: r.name })); else if (!r) toast(T('Dosya oluşturulamadı.')); }); break; }
     case 'paraSeg': U.paraSeg = b.dataset.v; render(); break;
     case 'gelSeg': U.gelSeg = b.dataset.v; render(); break;
     // quick add
@@ -3018,10 +3200,15 @@ document.addEventListener('submit', (e) => {
       p.done = true; p.doneOn = k; p.spent = amt; p.log.push({ d: k, a: -Math.min(amt, p.saved), note: 'Satın alındı' }); /* note is a TR key, translated on display */ p.saved = Math.max(0, Math.round((p.saved - amt) * 100) / 100);
       save(); closeOverlay(); toast(T('{x}: {y} tek seferlik harcama olarak eklendi.', { x: p.name, y: money(amt) })); render(); return;
     }
+    case 'shiftForm': {
+      const r = submitShift(f.dataset.mode);
+      if (!r || typeof r === 'string') { const e = $('odoErr'); if (e) { e.textContent = r || T('Kaydedilemedi.'); e.hidden = false; } return; }
+      closeOverlay(); toast(r.msg); renderAll(); return;
+    }
     case 'uexpForm': {
       const amt = pnum('ueAmt'), d0 = val('ueDate'), biz = dnum('ueBiz');
       if (!amt || amt <= 0) { $('ueAmt').focus(); return; } if (!/^\d{4}-\d{2}-\d{2}$/.test(d0)) { $('ueDate').focus(); return; }
-      const sh = U.sheet, rec = { d: d0, cat: val('ueCat') || sh.cat, amount: amt, gst: !!sh.gst, biz: biz == null ? 100 : Math.max(0, Math.min(100, biz)), note: val('ueNote').trim() };
+      const sh = U.sheet, cat0 = val('ueCat') || sh.cat, b0 = biz == null ? 100 : Math.max(0, Math.min(100, biz)), rec = { d: d0, cat: cat0, amount: amt, gst: !!sh.gst, biz: b0, bizAuto: isCarCat(cat0) && Math.abs(b0 - logbook()) < 0.01, note: val('ueNote').trim() };
       if (sh.id) { const e = D.money.uberExpenses.find((x) => x.id === sh.id); if (e) Object.assign(e, rec); } else D.money.uberExpenses.push(Object.assign({ id: uid() }, rec));
       save(); closeOverlay(); toast(T('Uber gideri kaydedildi: {x}', { x: usd2(amt) })); render(); return;
     }
@@ -3433,7 +3620,51 @@ const EN = {
   'fark {x}': '{x} short',
   'Haftasız gider': 'Expenses outside an Uber week',
   'Uber haftası yok': 'no Uber week',
-  'Haftalık tutarlar o haftanın gerçek kazanç ve giderlerinden hesaplanır; toplamları yukarıdaki çeyrek tutarına eşittir. Gider ekledikçe güncellenir.': "Each week's amount comes from that week's actual earnings and expenses; together they add up to the quarter total above. They update as you log expenses."
+  'Haftalık tutarlar o haftanın gerçek kazanç ve giderlerinden hesaplanır; toplamları yukarıdaki çeyrek tutarına eşittir. Gider ekledikçe güncellenir.': "Each week's amount comes from that week's actual earnings and expenses; together they add up to the quarter total above. They update as you log expenses.",
+  // v1.1 Uber shifts + logbook
+  '{m} dk': '{m} min', '{h} sa {m} dk': '{h} h {m} min', '{h} sa': '{h} h', '{k} km': '{k} km',
+  'Vardiya açık kaldı': 'Shift still open', "Uber'desin": "You're on Uber",
+  "{d} {t} başladı · bitiş km'sini gir": 'Started {d} {t} · enter the end km',
+  "{t}'den beri · {x} · başlangıç {k} km": 'Since {t} · {x} · start {k} km',
+  'Bitir': 'Finish', 'Bu hafta {n} vardiya · {k} km · {h} sa': pl('This week 1 shift · {k} km · {h} h', 'This week {n} shifts · {k} km · {h} h'),
+  "Online olunca gösterge km'sini gir": 'Enter the odometer when you go online',
+  'Logbook tamamlandı, bitir': 'Logbook complete, finish it', 'Logbook {n}/{t} hafta': 'Logbook {n}/{t} weeks',
+  "Uber'e başla": 'Start Uber',
+  'Vardiyayı sil': 'Delete shift',
+  'Araç logbook': 'Car logbook',
+  "ATO, araç giderlerinin Uber payını 12 haftalık logbook ile ister. Uber'de online olduğun her km (yolcu beklerken bölge değiştirmek dahil) iş kullanımıdır; işe gidiş geliş ve özel kullanım değildir.": "The ATO wants a 12-week logbook for the Uber share of your car costs. Every km while you're online in Uber (including repositioning between trips) is business use; commuting and private trips are not.",
+  "Logbook'u başlat": 'Start logbook', 'Vergiye uygula: {p}': 'Apply to tax: {p}', 'Vergide kullanılıyor': 'Used for tax',
+  'Tamamlandı': 'Complete', '{n}/{t} hafta': '{n}/{t} weeks', 'Uber km': 'Uber km', '{n} vardiya': pl('1 shift', '{n} shifts'),
+  'Toplam km': 'Total km', 'gösterge farkı': 'odometer difference', 'Uber payı': 'Uber share', 'vergide {p}': 'tax uses {p}',
+  '{a} – {b} arası. Logbook 5 yıl geçerli; arabanı ya da çalışma düzenini değiştirirsen yenisini başlat.': '{a} – {b}. A logbook is valid for 5 years; start a new one if you change car or how you work.',
+  'Başlangıç: {d}, {k} km. Toplam km en son gösterge okumasından gelir; arada özel kullanım olduysa "Gösterge oku" ile güncelle.': 'Started {d} at {k} km. Total km comes from the latest odometer reading; after private driving, update it with "Read odometer".',
+  'Gösterge oku': 'Read odometer', "Logbook'u bitir": 'Finish logbook', 'Logbook dosyası': 'Logbook file', 'Yeni logbook': 'New logbook',
+  'Emin misin? Tekrar dokun': 'Sure? Tap again', "Logbook'u iptal et": 'Cancel logbook',
+  'Vardiyayı bitir': 'Finish shift', 'Başlangıç: {t}, {k} km': 'Started {t}, {k} km', 'Son okuma: {k} km ({d})': 'Last reading: {k} km ({d})',
+  'Aracın göstergesindeki toplam km': "The total km on your car's odometer",
+  'Gösterge (km)': 'Odometer (km)', 'Tarih ve saat': 'Date and time', 'Online olduğun saat': 'Time you went online', 'Offline olduğun saat': 'Time you went offline',
+  'Araç (marka, model, plaka)': 'Car (make, model, rego)', 'ör. BMW X3 2015, 351LZ6': 'e.g. BMW X3 2015, 351LZ6',
+  "12 hafta boyunca her Uber vardiyasında başlangıç ve bitiş km'sini gir. Sonunda Uber payın otomatik hesaplanır.": 'For 12 weeks, enter the start and end km of every Uber shift. Your Uber share is then worked out for you.',
+  'Vardiyayı bitirmeyi unutmuşsun; saati gerçek bitiş saatine göre düzelt.': 'Looks like you forgot to finish this shift; set the time you actually went offline.',
+  'Başla': 'Start', 'Bu vardiyayı sil': 'Delete this shift',
+  "Göstergedeki km'yi yaz.": 'Enter the odometer km.', 'Tarih ve saati seç.': 'Pick the date and time.', 'Gelecekte bir saat seçilemez.': "The time can't be in the future.",
+  'Açık vardiya yok.': 'No open shift.', 'Bitiş saati başlangıçtan ({t}) sonra olmalı.': 'The end time must be after the start ({t}).',
+  "Bitiş km'si başlangıçtan ({k}) küçük olamaz.": "The end km can't be below the start ({k}).",
+  'Tek vardiyada {k} km çok fazla; rakamı kontrol et.': '{k} km in one shift is a lot; check the number.',
+  'Vardiya kaydedildi: {k} km · {d}': 'Shift saved: {k} km · {d}',
+  'Gösterge daha önceki okumadan ({k} km) küçük olamaz.': "The odometer can't be below an earlier reading ({k} km).",
+  'Zaten açık bir vardiya var.': 'A shift is already open.', 'İyi vardiyalar! Başlangıç {k} km': 'Have a good shift! Start {k} km',
+  'Gösterge kaydedildi: {k} km': 'Odometer saved: {k} km', 'Logbook başladı. 12 hafta sonra hatırlatacağım.': "Logbook started. You'll be reminded after 12 weeks.",
+  'Logbook yok.': 'No logbook.', 'Bitiş, başlangıçtan sonra olmalı.': 'The end must be after the start.',
+  'Logbook tamamlandı: Uber payın {p}. Vergi ayarına uygulandı.': 'Logbook complete: your Uber share is {p}. Applied to your tax settings.',
+  'Logbook tamamlandı.': 'Logbook complete.', 'Vardiya silindi.': 'Shift deleted.',
+  'Araç giderlerinin iş payı artık {p}.': 'Car costs now use a {p} business share.',
+  'Logbook indirildi: {x}': 'Logbook downloaded: {x}', 'Logbook panoya kopyalandı.': 'Logbook copied to the clipboard.', 'Logbook hazır: {x}': 'Logbook ready: {x}',
+  'Dosya oluşturulamadı.': "Couldn't create the file.", 'Kaydedilemedi.': "Couldn't save.",
+  'Logbook iptal edildi. Vardiyaların duruyor.': 'Logbook cancelled. Your shifts are kept.',
+  'Dosyayı kaydet veya gönder': 'Save or send the file',
+  'Bu çeyrekte toplam {x}. Araç giderlerinde iş payı logbook yüzdesinden gelir ({p}).': 'Total this quarter {x}. Car costs use the logbook business share ({p}).',
+  'Araç giderlerinin iş payı. Logbook bitince otomatik güncellenir (Para → Vergi → Araç logbook).': 'Business share of car costs. Updated automatically when a logbook finishes (Money → Tax → Car logbook).',
 };
 
 // ===================== init =====================

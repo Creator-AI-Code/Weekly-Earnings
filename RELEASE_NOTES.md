@@ -1,4 +1,14 @@
-## Momentum v1.0.2
+## Momentum v1.1.0
+
+### Yeni: Uber vardiyası ve araç logbook
+- **Bugün** ekranında **Uber'e başla** butonu. Online olunca gösterge km'sini gir, offline olunca **Bitir**'e bas. Vardiyanın km'si ve süresi otomatik hesaplanır.
+- Vardiyayı bitirmeyi unutursan ertesi gün kart sarı yanar ve bitiş saati başlangıç + 4 saat olarak önerilir.
+- **Para → Vergi → Araç logbook:** ATO'nun istediği 12 haftalık logbook. Uber km'si, toplam km ve Uber payın canlı görünür. **Vergiye uygula** ile araç giderlerinin iş payı güncellenir.
+- 12 hafta dolunca **Logbook'u bitir**. Sonuç vergi ayarına otomatik işlenir. **Logbook dosyası** ile ATO formatında CSV alırsın.
+- Araç giderleri (servis, lastik, sigorta…) artık logbook yüzdesini otomatik izler.
+- BAS son günleri online verdiğin duruma göre: Q1 11 Kasım, Q2 28 Şubat, Q3 12 Mayıs, Q4 25 Ağustos.
+
+### v1.0.2
 
 **Düzeltme:** Android uygulamasında **Yedek al** artık çalışıyor. Paylaşım menüsü açılıyor, dosyayı Drive, Dosyalar veya e-postaya kaydedebilirsin.
 
