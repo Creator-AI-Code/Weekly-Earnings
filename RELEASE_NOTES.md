@@ -1,3 +1,10 @@
+## Momentum v1.8.0
+
+- **Hangi hesaptan ödedin?** Harcama girerken (gün listesi, hızlı kayıt, fiş tarama) hesap seçersin; tutar o hesabın bakiyesinden düşer. Son seçtiğin hesap hatırlanır.
+- Harcamayı silince bakiye geri gelir, "Geri al" ile tekrar düşer. Tutarı ya da hesabı değiştirirsen bakiyeler kendiliğinden düzelir.
+- **Kredi kartı** hesap türü: borcunu yazarsın, eksi bakiye olarak tutulur; kartla harcadıkça borç artar.
+- Harcama satırında hangi hesaptan ödendiği yazar.
+
 ## Momentum v1.7.2
 
 - Aşağı kaydırırken üstteki başlık ile Hafta/Rapor/Geçmiş/Hesaplar/Vergi şeridi arasında açılan boşluk kapatıldı. Şerit artık başlığın gerçek yüksekliğine göre yapışıyor.
