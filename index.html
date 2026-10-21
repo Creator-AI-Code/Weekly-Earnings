@@ -741,6 +741,34 @@ table.rep td:nth-child(3) { font-weight: 700; }
 #renList .rt { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
 .due-line { margin-top: 8px; }
 .due-line.hot { background: var(--loss-soft); color: var(--loss); }
+/* ---------- "Ne için?" combobox ---------- */
+.combo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.combo-in { position: relative; display: flex; }
+.combo input.txt { flex: 1; min-width: 0; padding-right: 104px; }
+.combo-cat { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); display: inline-flex; align-items: center; gap: 2px; max-width: 100px; min-height: 34px; padding: 0 6px 0 9px; border: 0; border-radius: 9px; background: var(--surface-2); color: var(--ink-3); font-size: 0.76rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.combo-cat.set { background: var(--acc-soft); color: var(--acc-text); }
+.combo-cat .i { width: 14px; height: 14px; flex: 0 0 auto; }
+.combo-list { background: var(--surface); border: 1px solid var(--line-strong); border-radius: 14px; max-height: 232px; overflow-y: auto; padding: 4px; }
+.combo-it { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 8px; min-height: 44px; padding: 0 10px; border: 0; background: none; border-radius: 10px; text-align: left; color: var(--ink); font-size: 0.9rem; }
+.combo-it:hover, .combo-it:focus-visible { background: var(--surface-2); }
+.combo-it span { display: inline-flex; align-items: center; gap: 6px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.combo-it small { color: var(--ink-3); font-size: 0.74rem; flex: 0 0 auto; }
+.combo-it.new { color: var(--acc-text); font-weight: 600; }
+.combo-it.new .i { width: 16px; height: 16px; }
+.combo-h { font-size: 0.72rem; color: var(--ink-3); padding: 6px 10px 2px; font-weight: 600; }
+/* ---------- chart tooltips ---------- */
+.chart-box { position: relative; }
+.chart .hit { fill: transparent; cursor: pointer; outline: none; }
+.chart circle.hit.on, .chart circle.hit:focus-visible { fill: var(--acc-line); fill-opacity: .18; stroke: var(--acc-line); stroke-width: 1.5; }
+.chart rect.hit.on, .chart rect.hit:focus-visible { fill: var(--ink); fill-opacity: .07; }
+.chart-tip { position: absolute; z-index: 5; pointer-events: none; background: var(--ink); color: var(--surface); font-size: 0.78rem; font-weight: 650; padding: 5px 9px; border-radius: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; box-shadow: 0 6px 16px -6px rgba(0,0,0,.4); }
+/* ---------- Hesaplarım ---------- */
+.acc-tot { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0 8px; border-bottom: 1px solid var(--line); }
+.acc-tot b { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.hold.acc .rt { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.acc-tax { margin: 10px 0 0; padding: 10px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; line-height: 1.4; }
+.acc-tax.ok { background: var(--gain-soft); color: var(--gain); } .acc-tax.short { background: var(--warn-soft); color: var(--warn); }
+.chart-wrap { margin: -4px 0 4px; }
 
 </style>
 </head>
@@ -966,7 +994,7 @@ const dShort = (k) => { const d = parseKey(k); return d.getDate() + ' ' + MONTHS
 function blank() {
   return {
     schemaVersion: 1,
-    money: { settings: clone(DEF_SET), weeks: {}, pots: [], uberExpenses: [], taxSummaries: {}, setAsides: [], trips: [], odo: [], lb: null, car: {}, renewals: [] },
+    money: { settings: clone(DEF_SET), weeks: {}, pots: [], uberExpenses: [], taxSummaries: {}, setAsides: [], trips: [], odo: [], lb: null, car: {}, renewals: [], accounts: [] },
     growth: { habits: [], log: {}, tasks: [], goals: [], books: [], bookGoal: 12, readLog: {}, journal: {}, identity: '' },
     health: { days: {}, height: null, goalWeight: null, packPrice: 40, lastImport: null },
     invest: { holdings: [], watchlist: [], prices: {}, fx: null, finnhubKey: '', showOnHome: true, lastRefresh: 0 },
@@ -1010,7 +1038,7 @@ function normalize(o) {
   ['money', 'growth', 'health', 'invest', 'ui'].forEach((k) => { if (isObj(D0[k])) out[k] = Object.assign(b[k], D0[k]); });
   const m = out.money; m.settings = Object.assign(clone(DEF_SET), isObj(m.settings) ? m.settings : {}); if (!Array.isArray(m.settings.recurring)) m.settings.recurring = [];
   if (!isObj(m.weeks)) m.weeks = {}; Object.keys(m.weeks).forEach((id) => { m.weeks[id] = normWeek(m.weeks[id], id); });
-  ['uberExpenses', 'setAsides', 'trips', 'odo', 'renewals'].forEach((k) => { if (!Array.isArray(m[k])) m[k] = []; }); if (!isObj(m.taxSummaries)) m.taxSummaries = {}; if (!isObj(m.lb)) m.lb = null; if (!isObj(m.car)) m.car = {};
+  ['uberExpenses', 'setAsides', 'trips', 'odo', 'renewals', 'accounts'].forEach((k) => { if (!Array.isArray(m[k])) m[k] = []; }); if (!isObj(m.taxSummaries)) m.taxSummaries = {}; if (!isObj(m.lb)) m.lb = null; if (!isObj(m.car)) m.car = {}; m.accounts.forEach((a) => { if (!Array.isArray(a.log)) a.log = []; });
   migrateUexpFuel(m);
   if (m.settings.logbookPct == null) m.settings.logbookPct = 100;
   // v1.1: car expenses follow the logbook % (bizAuto). Old car expenses saved at 100 % were the logbook default then.
@@ -1427,6 +1455,15 @@ const ILLO = {
 function empty(illo, title, hint, actions) { return `<div class="illo">${ILLO[illo] || ''}<b>${title}</b><span>${hint}</span>${actions ? `<div class="btns">${actions}</div>` : ''}</div>`; }
 
 // ---------- charts (ported) ----------
+const tipOf = (o, p, fmt) => (o.tip ? o.tip(p) : (p.lbl ? p.lbl + ': ' : '') + fmt(p.v));
+function chartTip(el) {
+  const box = el.closest('.chart-box'), tip = box && box.querySelector('.chart-tip'); if (!tip) return;
+  box.querySelectorAll('.hit.on').forEach((h) => h.classList.remove('on'));
+  if (!tip.hidden && tip.dataset.for === el.dataset.x) { tip.hidden = true; tip.dataset.for = ''; return; }
+  el.classList.add('on'); tip.textContent = el.dataset.tip; tip.hidden = false; tip.dataset.for = el.dataset.x;
+  const w = box.clientWidth, h = box.querySelector('svg').clientHeight, px = +el.dataset.x * w, py = +el.dataset.y * h;
+  tip.style.left = Math.max(4, Math.min(w - tip.offsetWidth - 4, px - tip.offsetWidth / 2)) + 'px'; tip.style.top = Math.max(0, py - tip.offsetHeight - 10) + 'px';
+}
 function lineChart(pts, o = {}) {
   const W = o.w || 300, H = o.h || 90, P = { l: 30, r: 8, t: 10, b: 18 };
   const vals = pts.filter((p) => p.v != null);
@@ -1446,13 +1483,15 @@ function lineChart(pts, o = {}) {
   const top = mx - pad2, bot = mn + pad2;
   const band = o.band ? `<rect x="${P.l}" y="${y(Math.min(o.band[1], mx)).toFixed(1)}" width="${W - P.l - P.r}" height="${Math.max(0, y(Math.max(o.band[0], mn)) - y(Math.min(o.band[1], mx))).toFixed(1)}" fill="${col}" opacity=".08"/>` : '';
   const goal = o.goal != null ? `<line x1="${P.l}" x2="${W - P.r}" y1="${y(o.goal).toFixed(1)}" y2="${y(o.goal).toFixed(1)}" stroke="var(--gold-line)" stroke-dasharray="3 3"/>` : '';
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label || T('grafik'))}">${band}${goal}
+  return `<div class="chart-box"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label || T('grafik'))}">${band}${goal}
     <line x1="${P.l}" x2="${W - P.r}" y1="${y(top)}" y2="${y(top)}" stroke="var(--line)" stroke-dasharray="2 3"/>
     <line x1="${P.l}" x2="${W - P.r}" y1="${y(bot)}" y2="${y(bot)}" stroke="var(--line)" stroke-dasharray="2 3"/>
     <text x="${P.l - 4}" y="${y(top) + 3}" text-anchor="end">${fmt(top)}</text><text x="${P.l - 4}" y="${y(bot) + 3}" text-anchor="end">${fmt(bot)}</text>
     ${vals.length > 1 ? `<path d="${area}" fill="${col}" opacity=".12"/><path d="${dpath}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>` : ''}
+    ${o.dots !== false ? pts.map((p, i) => (p.v == null ? '' : `<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="2.6" fill="${col}" opacity=".55"/>`)).join('') : ''}
     <circle cx="${x(li[1])}" cy="${y(li[0].v)}" r="3.5" fill="${col}" stroke="var(--surface)" stroke-width="1.5"/>
-    <text x="${P.l}" y="${H - 4}">${esc(pts[0].lbl || '')}</text><text x="${W - P.r}" y="${H - 4}" text-anchor="end">${esc(pts[pts.length - 1].lbl || '')}</text></svg>`;
+    ${pts.map((p, i) => (p.v == null ? '' : `<circle class="hit" cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="13" data-act="chartTip" data-x="${(x(i) / W).toFixed(4)}" data-y="${(y(p.v) / H).toFixed(4)}" data-tip="${esc(tipOf(o, p, fmt))}" tabindex="0" role="button" aria-label="${esc(tipOf(o, p, fmt))}"/>`)).join('')}
+    <text x="${P.l}" y="${H - 4}">${esc(pts[0].lbl || '')}</text><text x="${W - P.r}" y="${H - 4}" text-anchor="end">${esc(pts[pts.length - 1].lbl || '')}</text></svg><div class="chart-tip" hidden></div></div>`;
 }
 function barChart(pts, o = {}) {
   const W = o.w || 300, H = o.h || 90, P = { l: 30, r: 4, t: 10, b: 18 };
@@ -1461,12 +1500,13 @@ function barChart(pts, o = {}) {
   const y = (v) => P.t + (1 - v / mx) * (H - P.t - P.b);
   const col = o.color || 'var(--acc-line)';
   const fmt = o.fmt || ((v) => Math.round(v));
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label || T('grafik'))}">
+  return `<div class="chart-box"><svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.label || T('grafik'))}">
     <text x="${P.l - 4}" y="${y(mx) + 3}" text-anchor="end">${fmt(mx)}</text><text x="${P.l - 4}" y="${H - P.b + 3}" text-anchor="end">0</text>
     <line x1="${P.l}" x2="${W - P.r}" y1="${H - P.b}" y2="${H - P.b}" stroke="var(--line)"/>
     ${o.goal ? `<line x1="${P.l}" x2="${W - P.r}" y1="${y(o.goal)}" y2="${y(o.goal)}" stroke="var(--gold-line)" stroke-dasharray="3 3"/>` : ''}
     ${pts.map((p, i) => (p.v ? `<rect x="${(P.l + i * bw + bw * 0.18).toFixed(1)}" y="${y(p.v).toFixed(1)}" width="${(bw * 0.64).toFixed(1)}" height="${(H - P.b - y(p.v)).toFixed(1)}" rx="2" fill="${col}"/>` : '')).join('')}
-    <text x="${P.l}" y="${H - 4}">${esc(pts[0].lbl || '')}</text><text x="${W - P.r}" y="${H - 4}" text-anchor="end">${esc(pts[pts.length - 1].lbl || '')}</text></svg>`;
+    ${pts.map((p, i) => (p.v ? `<rect class="hit" x="${(P.l + i * bw).toFixed(1)}" y="${P.t}" width="${bw.toFixed(1)}" height="${H - P.b - P.t}" data-act="chartTip" data-x="${((P.l + i * bw + bw / 2) / W).toFixed(4)}" data-y="${(y(p.v) / H).toFixed(4)}" data-tip="${esc(tipOf(o, p, fmt))}" tabindex="0" role="button" aria-label="${esc(tipOf(o, p, fmt))}"/>` : '')).join('')}
+    <text x="${P.l}" y="${H - 4}">${esc(pts[0].lbl || '')}</text><text x="${W - P.r}" y="${H - 4}" text-anchor="end">${esc(pts[pts.length - 1].lbl || '')}</text></svg><div class="chart-tip" hidden></div></div>`;
 }
 function series(field, days, tf) { const out = []; for (let i = days - 1; i >= 0; i--) { const d = addDays(new Date(), -i), k = keyOf(d); let v = hd(k)[field]; if (v != null && tf) v = tf(v); out.push({ v: v == null ? null : v, lbl: i === 0 ? T('bugün') : d.getDate() + ' ' + MONTHS[d.getMonth()] }); } return out; }
 function series7(field) { const out = []; for (let i = 6; i >= 0; i--) { const d = addDays(new Date(), -i); const v = hd(keyOf(d))[field]; out.push({ v: v || 0, lbl: i === 0 ? T('bugün') : DAYS[d.getDay()] }); } return out; }
@@ -1547,7 +1587,7 @@ function eveningCard(k) {
 // ===================== PARA =====================
 function vPara() {
   if (U.paraSeg === 'takvim') U.paraSeg = 'gecmis';
-  const segs = [['hafta', 'Hafta'], ['rapor', 'Rapor'], ['gecmis', 'Geçmiş'], ['kumbara', 'Kumbara'], ['vergi', 'Vergi']];
+  const segs = [['hafta', 'Hafta'], ['rapor', 'Rapor'], ['gecmis', 'Geçmiş'], ['kumbara', 'Hesaplar'], ['vergi', 'Vergi']];
   const top = `<div class="seg top-seg" role="group" aria-label="${T('Para bölümleri')}" data-swipe-zone="paraSeg">${segs.map(([k, l]) => `<button type="button" data-act="paraSeg" data-v="${k}" aria-pressed="${U.paraSeg === k}">${T(l)}</button>`).join('')}</div>`;
   return top + ({ hafta: paraWeek, rapor: paraReport, gecmis: paraHist, kumbara: paraPots, vergi: paraTax })[U.paraSeg]();
 }
@@ -1590,8 +1630,8 @@ function paraCalc() {
     h += wfRow('wfGst', '−', 'GST', neg(c.gst), T("Kazancın 1/11'i, bu haftaki gerçek Uber giderlerinin GST kredisi düşüldü"));
     h += wfRow('wfFuel', '−', T('Yakıt'), neg(c.fuel), c.fuelEst ? T('Yakıt girilmedi; ayarlardaki haftalık tahmin. Planlama içindir, vergiyi düşürmez.') : T('Bu haftaki “Yakıt (Uber)” harcamaları ({n})', { n: c.nFuel }), '', c.fuelEst ? ` <span class="chip warn">${T('tahmin')}</span>` : '');
     h += wfRow('wfPocket', '=', T('Bu hafta cebine giren'), m2(c.pocket), '', 'sub');
-    h += wfRow('wfFixed', '−', T('Tahmini sabit masraf payı'), neg(c.fx), T('Yıllık {x} ÷ {n} hafta', { x: usd(S.fixed), n: N }) + '. ' + T("Sigorta, servis gibi giderleri Vergi'ye girdikçe vergi payın düşer."));
-    h += wfRow('wfTax', '−', T('Gelir vergisi + Medicare'), neg(c.incTax), T('Vergiye tabi kâr {x}, çeyreğin vergi oranıyla', { x: usd2(r2(c.taxProfit || 0)) }));
+    h += wfRow('wfFixed', '−', T('Araç masrafları için ayır'), neg(c.fx), T('Sigorta, rego, servis gibi yıllık {x} masrafın haftalık payı ({n} hafta). Bu para bu hafta harcanmadı; o faturalar gelince ödemek için. Vergiyi düşürmez, çünkü vergi sadece gerçekten ödediğin ve girdiğin giderlerle hesaplanır.', { x: usd(S.fixed), n: N }));
+    h += wfRow('wfTax', '−', T('Gelir vergisi + Medicare'), neg(c.incTax), T('Brütten değil, kârdan: GST, yakıt ve girdiğin Uber giderleri düşüldükten sonra kalan {x} üzerinden', { x: usd2(r2(c.taxProfit || 0)) }));
     if (c.mlsTax > 0.005) h += wfRow('wfMls', '−', 'MLS', neg(c.mlsTax), T('Hastane sigortası yok'));
     h += wfRow('wfProfit', '=', T("Uber'den gerçek kâr"), m2(c.uberNet), c.H > 0 ? T('Saatte {x}', { x: usd2(c.netH) }) : '', 'sub strong');
   } else h += `<p class="note" style="margin:0 0 8px">${T('Bu hafta Uber kazancı yok.')}</p>`;
@@ -1665,7 +1705,7 @@ function potState(p) { if (p.done) return [T('Satın alındı'), 'chip']; if (p.
 function paraPots() {
   const pots = D.money.pots, active = pots.filter((p) => !p.done), done = pots.filter((p) => p.done);
   const total = active.reduce((a, p) => a + p.saved, 0);
-  let html = `<div class="card">${head('jar', T('Kumbaralar'), `<button type="button" class="btn sm" data-act="newPot">${ico('plus')}${T('Yeni')}</button>`)}
+  let html = accountsCard() + `<div class="card">${head('jar', T('Kumbaralar'), `<button type="button" class="btn sm" data-act="newPot">${ico('plus')}${T('Yeni')}</button>`)}
     ${pots.length ? `<div class="tiles">${tile(T('Kumbaralarda'), usd(total), T('{n} açık kumbara', { n: active.length }))}${tile(T('Hedeflere kalan'), usd(active.reduce((a, p) => a + Math.max(0, p.target - p.saved), 0)), T('Toplam'))}</div>`
       : empty('pots', T('Henüz kumbaran yok'), T('Bir şey için ayrı para biriktir: konsol, araba bakımı, Türkiye bileti ya da vergi gibi. Hedefe ulaşınca "Satın aldım" ile tutarı tek seferlik harcama olarak yaz.'), `<button type="button" class="btn sm" data-act="newPot">${ico('plus')}${T('İlk kumbarayı aç')}</button>`)}</div>`;
   html += active.map(potCard).join('');
@@ -1686,6 +1726,33 @@ function potCard(p) {
 const DCATS = [['yemek', 'Yemek'], ['market', 'Market'], ['kahve', 'Kahve'], ['yakit', 'Yakıt (Uber)'], ['ulasim', 'Ulaşım'], ['eglence', 'Eğlence'], ['fatura', 'Fatura'], ['diger', 'Diğer']];
 const dcatName = (k) => { const c = DCATS.find((x) => x[0] === k); return c ? T(c[1]) : ''; };
 function catChips(cur, act) { return `<div class="chips" role="group" aria-label="${T('Kategori')}">${DCATS.map(([k, l]) => `<button type="button" class="chipbtn${k === FUEL_CAT ? ' fuel' : ''}" data-act="${act}" data-v="${k}" aria-pressed="${cur === k}">${T(l)}</button>`).join('')}</div>`; }
+// ---------- "Ne için?" combobox: tap for categories + recent names, type to filter, or keep your own text ----------
+const fold0 = (s) => String(s || '').toLocaleLowerCase('tr').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i');
+const CAT_WORDS = [['kahve', /kahve|coffee|latte|cappuccino|flat white|long black|espresso|starbucks|gloria jean|zarraffa|merlo/], ['market', /market|woolworths|woolies|coles(?! express)|aldi|\biga\b|costco|bakkal|grocer|supermarket|bim\b|migros/], ['yakit', /yakit|fuel|shell|\bbp\b|ampol|caltex|7.?eleven|benzin|mazot|diesel|dizel|petrol|unleaded/], ['ulasim', /ulasim|go ?card|translink|train|tren|otobus|\bbus\b|toll|linkt|parking|otopark|taxi|taksi|didi|uber ride/], ['eglence', /eglence|sinema|cinema|netflix|spotify|disney|\bbar\b|bira|beer|club|ps5|playstation|game|oyun|konser|concert/], ['fatura', /fatura|bill|elektrik|electricity|internet|telefon|phone|telstra|optus|vodafone|kira|rent|insurance|sigorta|kredi karti|credit card|abonelik|subscription|gym/], ['yemek', /yemek|food|lunch|dinner|breakfast|kahvalti|ogle|aksam|kebab|kebap|pizza|burger|mcdonald|kfc|subway|sushi|restaurant|restoran|cafe|kafe|uber eats|doordash|menulog|snack|vending|bakery|firin|guzman|nandos/]];
+function guessCat(name) { const n = fold0(name).trim(); if (!n) return null; const m = pastNames(); for (const [k, c] of m) if (fold0(k) === n) return c || null; const c = CAT_WORDS.find(([, re]) => re.test(n)); return c ? c[0] : null; }
+function comboInput(id) {
+  return `<div class="combo" id="${id}Box"><div class="combo-in"><input class="txt" id="${id}" placeholder="${T('Ne için? Seç ya da yaz')}" aria-label="${T('Ne için?')}" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="${id}List">
+    <button type="button" class="combo-cat${U.dCat ? ' set' : ''}" data-act="comboCats" data-for="${id}" id="${id}Cat" aria-label="${T('Kategori')}">${U.dCat ? esc(dcatName(U.dCat)) : T('Kategori')}${ico('down')}</button></div>
+    <div class="combo-list" id="${id}List" role="listbox" hidden></div></div>`;
+}
+function comboItems(id, catsOnly) {
+  const inp = $(id), q = catsOnly ? '' : fold0(inp ? inp.value : '').trim(), out = [];
+  if (!catsOnly) {
+    const names = [...pastNames()].reverse().filter(([n]) => !DCATS.some((c) => T(c[1]) === n));
+    names.filter(([n]) => !q || fold0(n).includes(q)).slice(0, q ? 6 : 5).forEach(([n, c]) => out.push({ n, c, kind: 'name' }));
+  }
+  DCATS.filter(([k, l]) => !q || fold0(T(l)).includes(q) || fold0(k).includes(q)).forEach(([k, l]) => out.push({ n: T(l), c: k, kind: 'cat' }));
+  if (q && inp && !out.some((x) => fold0(x.n) === q)) out.unshift({ n: inp.value.trim(), c: guessCat(inp.value), kind: 'new' });
+  return out;
+}
+function comboOpen(id, catsOnly) {
+  const box = $(id + 'List'), inp = $(id); if (!box) return;
+  const items = comboItems(id, catsOnly);
+  box.innerHTML = (catsOnly ? `<div class="combo-h">${T('Kategori seç')}</div>` : '') + items.map((x) => `<button type="button" class="combo-it ${x.kind}" role="option" data-act="comboPick" data-for="${id}" data-n="${esc(x.n)}" data-c="${x.c || ''}"${catsOnly ? ' data-only="1"' : ''}><span>${x.kind === 'new' ? `${ico('plus')}${esc(T('“{x}” ekle', { x: x.n }))}` : esc(x.n)}</span>${x.c && x.kind !== 'cat' ? `<small>${esc(dcatName(x.c))}</small>` : x.kind === 'cat' ? `<small>${T('kategori')}</small>` : ''}</button>`).join('');
+  box.hidden = !items.length; if (inp) inp.setAttribute('aria-expanded', String(!box.hidden));
+}
+function comboClose() { document.querySelectorAll('.combo-list').forEach((l) => { l.hidden = true; }); document.querySelectorAll('.combo input').forEach((i) => i.setAttribute('aria-expanded', 'false')); }
+function comboSetCat(id, c) { U.dCat = c || null; const b = $(id + 'Cat'); if (b) { b.innerHTML = (U.dCat ? esc(dcatName(U.dCat)) : T('Kategori')) + ico('down'); b.classList.toggle('set', !!U.dCat); } }
 // past names → last used category (for autocomplete)
 function pastNames() {
   const m = new Map();
@@ -1707,8 +1774,8 @@ function dailyCard(w) {
     ${days.map((k) => { const d = fromId(k), es = list.filter((x) => x.date === k), sp = sumAmt(es.filter((x) => x.cat !== FUEL_CAT)), fu = sumAmt(es.filter((x) => x.cat === FUEL_CAT)), open = U.openDay === k;
       return `<div class="day${open ? ' open' : ''}"><button type="button" class="day-h" data-act="dayOpen" data-d="${k}" aria-expanded="${open}"><span class="dn">${DAYS_LONG[d.getDay()]}<small>${d.getDate()} ${MONTHS[d.getMonth()]}${k === tk ? ' · ' + T('bugün') : ''}${fu ? ' · ' + T('yakıt {x}', { x: money(fu) }) : ''}</small></span><span class="dt" id="dayTot-${k}">${es.some((x) => x.cat !== FUEL_CAT) ? money(sp) : ''}</span>${ico(open ? 'up' : 'down')}</button>
       ${open ? `<div class="day-b">${es.length ? `<div class="dlist">${es.map(dailyRow).join('')}</div>` : ''}
-        <form class="stack" id="dailyForm" data-d="${k}"><div class="row"><div class="money" style="width:118px"><span>$</span><input id="dAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}" autocomplete="off"></div><input class="txt" id="dName" list="pastNames" placeholder="${T('ör. Dışarıda yemek')}" aria-label="${T('Ne için?')}" autocomplete="off"></div>
-        ${catChips(U.dCat, 'dCat')}<div class="row"><button type="button" class="tagbtn" data-act="dOneOff" id="dOneOff" aria-pressed="${!!U.dOneOff}">${T('Tek seferlik')}</button><button class="btn" type="submit" id="dSave" style="margin-left:auto">${T('Kaydet')}</button></div></form></div>` : ''}</div>`; }).join('')}</div>
+        <form class="stack" id="dailyForm" data-d="${k}"><div class="row">${comboInput('dName')}</div>
+        <div class="row"><div class="money" style="width:112px;flex:0 0 112px"><span>$</span><input id="dAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}" autocomplete="off"></div><button type="button" class="tagbtn" data-act="dOneOff" id="dOneOff" aria-pressed="${!!U.dOneOff}">${T('Tek seferlik')}</button><button class="btn" type="submit" id="dSave" style="margin-left:auto">${T('Kaydet')}</button></div></form></div>` : ''}</div>`; }).join('')}</div>
     ${namesList()}<p class="note">${T('Sola kaydırarak sil, düzenlemek için dokun. “Tek seferlik” harcamalar haftadan düşülür ama ortalamalara katılmaz.')}</p></section>`;
 }
 
@@ -1718,6 +1785,44 @@ function fitText(root) {
     el.style.fontSize = ''; let i = 0;
     while (el.scrollWidth > el.clientWidth + 1 && i++ < 12) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * 0.9) + 'px';
   });
+}
+
+// ===================== HESAPLARIM (bank balances typed in by hand: main, savings, business, tax saver, cash) =====================
+// money.accounts: [{ id, name, type, bal, d (last update), log: [{ d, v }] }]
+const ACC_TYPES = [['main', 'Ana hesap', 'wallet'], ['savings', 'Birikim', 'jar'], ['biz', 'İş hesabı', 'brief'], ['tax', 'Vergi birikimi', 'tax'], ['cash', 'Nakit', 'cash'], ['other', 'Diğer', 'list']];
+const accType = (k) => ACC_TYPES.find((x) => x[0] === k) || ACC_TYPES[ACC_TYPES.length - 1];
+const agoDays = (k) => { const n = daysTo(k); return n === 0 ? T('bugün') : n === -1 ? T('dün') : T('{n} gün önce', { n: -n }); };
+function accountsCard() {
+  const A = D.money.accounts, tot = A.reduce((s, a) => s + (+a.bal || 0), 0);
+  const tax = A.filter((a) => a.type === 'tax').reduce((s, a) => s + (+a.bal || 0), 0), need = A.some((a) => a.type === 'tax') ? taxFull(quarterOf(thisWeekId()).key).need : 0;
+  const row = (a) => { const t = accType(a.type), prev = a.log && a.log.length > 1 ? a.log[a.log.length - 2].v : null, d = prev == null ? null : (+a.bal || 0) - prev;
+    return `<button type="button" class="hold acc" data-act="editAcc" data-id="${a.id}"><span class="sym">${ico(t[2])}</span><span class="mid"><b>${esc(a.name)}</b><span>${T(t[1])} · ${a.d ? agoDays(a.d) : T('güncellenmedi')}</span></span><span class="rt"><b class="num">${usd2(+a.bal || 0)}</b>${d != null && Math.abs(d) >= 1 ? `<span class="rd ${d > 0 ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'}${usd(Math.abs(d))}</span>` : ''}</span></button>`; };
+  const stale = A.some((a) => !a.d || daysTo(a.d) < -7);
+  return `<div class="card" id="accCard">${head('wallet', T('Hesaplarım'), `<button type="button" class="btn sm" data-act="newAcc" id="newAccBtn">${ico('plus')}${T('Hesap')}</button>`)}
+    ${A.length ? `<div class="acc-tot"><span>${T('Toplam param')}</span><b id="accTotal">${usd2(tot)}</b></div><div class="list" id="accList">${A.map(row).join('')}</div>
+      ${need > 0 ? `<p class="acc-tax ${tax + 0.005 >= need ? 'ok' : 'short'}" id="accTax">${tax + 0.005 >= need ? T('Vergi birikiminde {a} var; bu çeyrek için gereken {b}. Yeterli.', { a: usd(tax), b: usd(need) }) : T('Vergi birikiminde {a} var; bu çeyrek için {b} gerekiyor. {c} eksik.', { a: usd(tax), b: usd(need), c: usd(need - tax) })}</p>` : ''}
+      <p class="note">${stale ? T('Bakiyeleri haftada bir, banka uygulamasına bakıp güncelle. Uygulama bankana bağlanmaz, sadece senin yazdığını tutar.') : T('Bakiyeler senin girdiğin rakamlar; uygulama bankana bağlanmaz.')}</p>`
+      : `<p class="note" style="margin-top:0">${T('Ana hesabını, birikim hesabını, iş hesabını ve vergi birikim hesabını ekle. Bakiyeleri banka uygulamasına bakıp yazarsın; toplam paran ve vergi için yeterince ayırıp ayırmadığın görünür.')}</p>`}</div>`;
+}
+function accSheet(sh) {
+  const a = sh.id ? D.money.accounts.find((x) => x.id === sh.id) : null;
+  const hist = a && a.log && a.log.length > 1 ? `<div class="chart-wrap">${lineChart(a.log.slice(-12).map((x) => ({ v: x.v, lbl: dShort(x.d) })), { label: T('Bakiye geçmişi'), fmt: (v) => '$' + nf0.format(Math.round(v)), tip: (p) => p.lbl + ': ' + usd2(p.v) })}</div>` : '';
+  return sheetShell(a ? a.name : T('Hesap ekle'), `<form class="stack" id="accForm">
+    <div class="field"><label for="accBal">${T('Güncel bakiye')}</label><div class="money"><span>$</span><input id="accBal" inputmode="decimal" value="${a ? fmtIn(+a.bal || 0) : ''}" placeholder="0,00"></div><span class="hint">${a && a.d ? T('Son güncelleme: {d}', { d: longDate(parseKey(a.d)) }) : T('Banka uygulamandaki bakiyeyi yaz.')}</span></div>
+    ${hist}
+    <div class="fields"><div class="field"><label for="accName">${T('Ad')}</label><input class="txt" id="accName" value="${esc(a ? a.name : sh.name || '')}" placeholder="${T('ör. CommBank Smart Access')}" autocomplete="off"></div>
+    <div class="field"><label for="accType">${T('Tür')}</label><select class="txt" id="accType">${ACC_TYPES.map(([k, l]) => `<option value="${k}" ${(a ? a.type : sh.type || 'main') === k ? 'selected' : ''}>${T(l)}</option>`).join('')}</select></div></div>
+    <p class="err" id="accErr" role="alert" hidden></p><button class="btn" type="submit" id="accSave">${T('Kaydet')}</button>
+    ${a ? `<button type="button" class="btn ghost" data-act="delAcc" data-id="${a.id}">${U.armed === a.id ? T('Silmek için tekrar dokun') : T('Hesabı sil')}</button>` : ''}</form>`, 'a-para');
+}
+function saveAcc() {
+  const bal = parse(val('accBal')), name = val('accName').trim(), type = val('accType');
+  if (!name) return T('Hesaba bir ad ver.'); if (bal === '') return T('Bakiyeyi yaz.');
+  const sh = U.sheet, k = todayKey(); let a = sh.id ? D.money.accounts.find((x) => x.id === sh.id) : null;
+  if (!a) { a = { id: uid(), name, type, bal, d: k, log: [] }; D.money.accounts.push(a); }
+  const changed = +a.bal !== bal || !a.log.length; Object.assign(a, { name, type, bal });
+  if (changed) { a.d = k; a.log = (a.log || []).filter((x) => x.d !== k); a.log.push({ d: k, v: bal }); if (a.log.length > 60) a.log = a.log.slice(-60); }
+  save(); return { msg: T('{x}: {y}', { x: name, y: usd2(bal) }) };
 }
 
 // ===================== RAPOR (Para → Rapor): this week vs last week, spending donut, patterns, 8-week trend =====================
@@ -1797,8 +1902,8 @@ function paraReport() {
   const wk = []; for (let i = 7; i >= 0; i--) wk.push(idOf(addDays(fromId(id), -7 * i)));
   const rs = wk.map((w0) => repWeek(w0)), lbl = (w0) => dShort(w0);
   const trend = rs.filter((r) => r.has).length >= 2 ? `<section class="sec" id="repTrend">${secHead(T('Son 8 hafta'))}
-    <div class="tr-h"><b>${T('Uber net / saat')}</b></div>${lineChart(rs.map((r, i) => ({ v: r.nH == null ? null : r2(r.nH), lbl: lbl(wk[i]) })), { label: T('Uber net / saat'), fmt: (v) => '$' + Math.round(v) })}
-    <div class="tr-h"><b>${T('Harcamalar')}</b></div>${barChart(rs.map((r, i) => ({ v: r.has ? r.spend : 0, lbl: lbl(wk[i]) })), { label: T('Haftalık harcamalar'), color: 'var(--gold-line)', fmt: (v) => '$' + Math.round(v) })}</section>` : '';
+    <div class="tr-h"><b>${T('Uber net / saat')}</b></div>${lineChart(rs.map((r, i) => ({ v: r.nH == null ? null : r2(r.nH), lbl: lbl(wk[i]) })), { label: T('Uber net / saat'), fmt: (v) => '$' + Math.round(v), tip: (p) => T('{d} haftası: {x}', { d: p.lbl, x: T('{x}/sa', { x: usd2(p.v) }) }) })}
+    <div class="tr-h"><b>${T('Harcamalar')}</b></div>${barChart(rs.map((r, i) => ({ v: r.has ? r.spend : 0, lbl: lbl(wk[i]) })), { label: T('Haftalık harcamalar'), color: 'var(--gold-line)', fmt: (v) => '$' + Math.round(v), tip: (p) => T('{d} haftası: {x}', { d: p.lbl, x: usd2(p.v) }) })}</section>` : '';
   return nav + cmp + pie + pat + trend;
 }
 
@@ -2699,7 +2804,7 @@ let uiCh = false;
 }
 function hasContent(a, d) {
   if (!d) return false;
-  if (a === 'money') return Object.keys(d.weeks || {}).length > 0 || (d.pots || []).length > 0 || (d.uberExpenses || []).length > 0 || (d.setAsides || []).length > 0;
+  if (a === 'money') return Object.keys(d.weeks || {}).length > 0 || (d.pots || []).length > 0 || (d.uberExpenses || []).length > 0 || (d.setAsides || []).length > 0 || (d.accounts || []).length > 0;
   if (a === 'growth') return ['habits', 'tasks', 'goals', 'books'].some((k) => (d[k] || []).length) || Object.keys(d.journal || {}).length > 0;
   if (a === 'health') return Object.keys(d.days || {}).length > 0;
   if (a === 'invest') return (d.holdings || []).length > 0 || (d.watchlist || []).length > 0;
@@ -3176,7 +3281,7 @@ function vSettings() {
       <div class="field inline"><span class="lab">${T('Nakit iş vergisi')}</span>${segB('setCashTax', [['false', T('Vergisiz')], ['true', T('Vergili')]], !!S.cashTax, T('Nakit iş vergisi'))}</div>
       <div class="field inline"><span class="lab">${T('Özel hastane sigortası')}</span>${segB('setCover', [['false', T('Yok')], ['true', T('Var')]], !!S.cover, T('Özel hastane sigortası'))}</div></div></div>
     <div class="card">${head('car', T('Uber masrafları'))}<div class="fields">
-      <div class="field"><label for="sFixed">${T('Sabit masraflar (yıllık)')}</label>${mny('sFixed', 'data-set="fixed"', fmtIn(S.fixed))}<span class="hint">${T('Sigorta, servis, rego/CTP, BHSL, telefon. Yakıt hariç, sadece Uber payı.')}</span></div>
+      <div class="field"><label for="sFixed">${T('Sabit masraflar (yıllık)')}</label>${mny('sFixed', 'data-set="fixed"', fmtIn(S.fixed))}<span class="hint">${T('Sigorta, servis, rego/CTP, BHSL, telefon. Yakıt hariç, sadece Uber payı.')}</span>${renewalYear().total > 0 ? `<button type="button" class="link" data-act="useRenFixed" id="useRenFixed">${T('Aracım’daki yenilemelerden al: yıllık {x} (Uber payı {p})', { x: usd(renewalYear().total), p: pct(nf0.format(logbook())) })}</button>` : ''}</div>
       <div class="field"><label for="sWeeks">${T('Yılda kaç hafta Uber')}</label>${mny('sWeeks', 'data-set="weeksPerYear"', fmtIn(S.weeksPerYear), T('hf'), false)}</div>
       <div class="field"><label for="sFuel">${T('Haftalık yakıt tahmini')}</label>${mny('sFuel', 'data-set="fuelDefault"', fmtIn(S.fuelDefault))}<span class="hint">${T('Bir haftada “Yakıt (Uber)” harcaması yoksa bu tahmin kullanılır')}</span></div></div></div>
     <div class="card">${head('repeat', T('Her hafta tekrarlayan giderler'))}<div class="list" id="recList">${rec.length ? rec.map((x, i) => `<div class="row"><input class="txt" id="rcN${i}" data-rc="name" data-i="${i}" value="${esc(x.name)}" aria-label="${T('Gider adı')}"><div class="money"><span>$</span><input id="rcV${i}" data-rc="amount" data-i="${i}" inputmode="decimal" value="${fmtIn(x.amount)}" aria-label="${T('Tutar')}"></div><button type="button" class="del" data-act="delRec" data-i="${i}" aria-label="${T('Sil')}">${ico('x')}</button></div>`).join('') : `<p class="empty-txt">${T('Henüz gider yok.')}</p>`}</div>
@@ -3222,7 +3327,7 @@ function vSheet() {
     const opts = [['fis', 'Fiş tara', 'receipt', 'a-para'], ['harcama', 'Harcama', 'bag', 'a-para'], ['uber', 'Uber vardiyası', 'car', 'a-para'], ['uexp', 'Uber gideri', 'receipt', 'a-para'], ['sigara', 'Sigara +1', 'cig', 'a-sag'], ['alkol', 'Alkol +1', 'glass', 'a-sag'], ['kilo', 'Kilo', 'scale', 'a-sag'], ['aliskanlik', 'Alışkanlık', 'check', 'a-gel']];
     const k = sh.k, w = getWeek(thisWeekId()) || {};
     let form = '';
-    if (k === 'harcama') form = `<form class="card a-para stack" id="qForm" data-k="harcama"><div class="row"><div class="money" style="width:118px"><span>$</span><input id="qAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}" autocomplete="off"></div><input class="txt" id="qName" list="pastNames" placeholder="${T('ör. Dışarıda yemek')}" aria-label="${T('Ne için?')}" autocomplete="off"></div>${namesList()}${catChips(U.dCat, 'dCat')}<div class="row"><button type="button" class="tagbtn" data-act="dOneOff" id="qOneOff" aria-pressed="${!!U.dOneOff}">${T('Tek seferlik')}</button><button class="btn" type="submit" style="margin-left:auto">${T('Bugüne kaydet')}</button></div><p class="note" style="margin:0">${T('Bugünün harcamalarına eklenir ve haftanın giderlerine sayılır.')}</p></form>`;
+    if (k === 'harcama') form = `<form class="card a-para stack" id="qForm" data-k="harcama"><div class="row">${comboInput('qName')}</div><div class="row"><div class="money" style="width:112px;flex:0 0 112px"><span>$</span><input id="qAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}" autocomplete="off"></div><button type="button" class="tagbtn" data-act="dOneOff" id="qOneOff" aria-pressed="${!!U.dOneOff}">${T('Tek seferlik')}</button><button class="btn" type="submit" style="margin-left:auto">${T('Bugüne kaydet')}</button></div><p class="note" style="margin:0">${T('Bugünün harcamalarına eklenir ve haftanın giderlerine sayılır.')}</p></form>`;
     if (k === 'uber') form = `<form class="card a-para stack" id="qForm" data-k="uber"><div class="fields"><div class="field"><label for="qEarn">${T('Kazanç')}</label><div class="money"><span>$</span><input id="qEarn" inputmode="decimal" placeholder="0"></div></div><div class="field"><label for="qHours">${T('Çevrimiçi saat')}</label><div class="money"><input id="qHours" inputmode="decimal" placeholder="0"><span>${T('sa')}</span></div></div></div><button class="btn" type="submit">${T('Vardiyayı haftaya ekle')}</button><p class="note" style="margin:0">${T('Bu hafta şu ana kadar {x} · {h} saat. Yeni vardiya bunların üstüne eklenir.', { x: usd(+w.uberEarn || 0), h: nf1.format(+w.uberHours || 0) })}</p></form>`;
     if (k === 'kilo') form = `<form class="card a-sag stack" id="qForm" data-k="kilo"><div class="field"><label for="qWeight">${T('Bugünkü kilo')}</label><div class="money"><input id="qWeight" inputmode="decimal" placeholder="${latestWeight() ? nf1.format(latestWeight().v) : T('ör. 78,5')}"><span>kg</span></div></div><button class="btn" type="submit">${T('Kaydet')}</button></form>`;
     if (k === 'aliskanlik') form = `<div class="card a-gel">${G().habits.length ? `<div class="htiles">${G().habits.map((h) => `<button type="button" class="htile" data-act="habit" data-id="${h.id}" aria-pressed="${isDone(h.id, todayKey())}"><span class="chk">${ico('check')}</span><span class="n">${esc(h.name)}</span></button>`).join('')}</div>` : `<p class="note" style="margin:0">${T('Henüz alışkanlık yok. Gelişim sekmesinden ekleyebilirsin.')}</p>`}</div>`;
@@ -3240,6 +3345,7 @@ function vSheet() {
   if (sh.kind === 'shift') return shiftSheet(sh);
   if (sh.kind === 'receipt') return receiptSheet(sh);
   if (sh.kind === 'car') return carSheet();
+  if (sh.kind === 'acc') return accSheet(sh);
   if (sh.kind === 'ren') return renSheet(sh);
   if (sh.kind === 'rcview') return rcViewSheet(sh);
   if (sh.kind === 'uexp') return sheetShell(sh.id ? T('Uber giderini düzenle') : T('Uber gideri ekle'), uexpSheet(sh), 'a-para');
@@ -3395,6 +3501,7 @@ document.addEventListener('pointercancel', endSwipe);
 function addSampleHabits() { const k = todayKey(); SAMPLE_HABITS.forEach(([tr, band, en]) => { const name = LANG === 'en' ? en : tr; if (!G().habits.some((h) => h.name === name)) G().habits.push({ id: uid(), name, band, created: k }); }); toast(T('Örnek alışkanlıklar eklendi. İstediğin gibi düzenleyebilirsin.')); }
 
 document.addEventListener('click', (e) => {
+  if (!e.target.closest || !e.target.closest('.combo')) comboClose();
   const tabBtn = e.target.closest('#tabs button[data-tab]'); if (tabBtn) { go(tabBtn.dataset.tab); return; }
   const b = e.target.closest('[data-act]'); if (!b) return;
   const a = b.dataset.act, id = b.dataset.id, k = todayKey();
@@ -3413,6 +3520,8 @@ document.addEventListener('click', (e) => {
     case 'taxDone': { const wid = b.dataset.week; markTaxDone(wid); renderAll(); toast(T('Aktarıldı: {x}', { x: usd2(+(weekSetAside(wid) || {}).amount || 0) })); break; }
     case 'taxUndo': undoTaxDone(b.dataset.week); renderAll(); break;
     case 'hideSwipeHint': D.ui.swipeHintSeen = true; after(); break;
+    case 'comboCats': { const l = $(b.dataset.for + 'List'); if (l && !l.hidden && l.querySelector('.combo-h')) comboClose(); else comboOpen(b.dataset.for, true); break; }
+    case 'comboPick': { const f = b.dataset.for, inp = $(f); if (!b.dataset.only && inp) inp.value = b.dataset.n; comboSetCat(f, b.dataset.c || null); U.catManual = !!b.dataset.only; comboClose(); const a0 = $(f === 'dName' ? 'dAmt' : 'qAmt'); if (a0 && !a0.value) a0.focus(); break; }
     case 'dCat': { const keep = [val('dAmt'), val('dName'), val('qAmt'), val('qName')]; U.dCat = U.dCat === b.dataset.v ? null : b.dataset.v;
       if (U.dCat) { const lbl = dcatName(U.dCat), prev = dcatName(b.dataset.prev || ''); [1, 3].forEach((i) => { if (!keep[i].trim() || DCATS.some((c) => T(c[1]) === keep[i].trim())) keep[i] = lbl; }); } if (U.sheet && U.sheet.kind === 'fab') renderSheet(); else render(); [['dAmt', 0], ['dName', 1], ['qAmt', 2], ['qName', 3]].forEach(([x, i]) => { if ($(x)) $(x).value = keep[i]; }); break; }
     case 'deCat': { Object.assign(U.sheet, { amt: val('deAmt'), name: val('deName'), date: val('deDate'), oneOff: $('deOneOff') ? $('deOneOff').getAttribute('aria-pressed') === 'true' : undefined }); U.sheet.cat = U.sheet.cat === b.dataset.v ? null : b.dataset.v; renderSheet(); break; }
@@ -3446,6 +3555,11 @@ document.addEventListener('click', (e) => {
     case 'openFab': U.dCat = null; U.dOneOff = false; openOverlay('sheet', { kind: 'fab', k: null }); break;
     case 'dismissNotice': D.ui.notice = null; after(); break;
     case 'focusHours': { const el = $('wHours'); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } break; }
+    case 'newAcc': openOverlay('sheet', { kind: 'acc', type: D.money.accounts.length ? 'savings' : 'main' }); setTimeout(() => { const n = $('accName'); if (n) n.focus(); }, 60); break;
+    case 'editAcc': openOverlay('sheet', { kind: 'acc', id }); setTimeout(() => { const n = $('accBal'); if (n) { n.focus(); n.select(); } }, 60); break;
+    case 'delAcc': arm(() => { D.money.accounts = D.money.accounts.filter((x) => x.id !== id); closeOverlay(); after(); }); if (U.sheet) renderSheet(); break;
+    case 'chartTip': chartTip(b); break;
+    case 'useRenFixed': S.fixed = Math.round(renewalYear().total * logbook() / 100); save(); renderPage(); toast(T('Sabit masraflar: yıllık {x}', { x: usd(S.fixed) })); break;
     // car + renewals
     case 'editCar': openOverlay('sheet', { kind: 'car' }); break;
     case 'newRen': openOverlay('sheet', { kind: 'ren' }); break;
@@ -3578,6 +3692,8 @@ document.addEventListener('click', (e) => {
   }
 });
 
+document.addEventListener('focusin', (e) => { const t = e.target; if (t && (t.id === 'dName' || t.id === 'qName')) comboOpen(t.id); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && document.querySelector('.combo-list:not([hidden])')) { comboClose(); e.stopPropagation(); } }, true);
 document.addEventListener('input', (e) => {
   const t = e.target, k = todayKey(), ds = t.dataset;
   if (ds.wk) { const w = weekObj(U.cur); w[ds.wk] = ds.wk === 'note' ? t.value : parse(t.value); save(); paraCalc(); return; }
@@ -3586,7 +3702,7 @@ document.addEventListener('input', (e) => {
   if (ds.tsum) { const v = parse(t.value), sm = D.money.taxSummaries[U.taxQ] = Object.assign({}, D.money.taxSummaries[U.taxQ]); if (v === '' || v <= 0) delete sm[ds.tsum]; else sm[ds.tsum] = v; if (!Object.keys(sm).length) delete D.money.taxSummaries[U.taxQ]; save(); return; }
   if (ds.rc) { const x = S.recurring[+ds.i]; if (!x) return; if (ds.rc === 'name') x.name = t.value; else { const n = parse(t.value); x.amount = n === '' ? 0 : n; } save(); return; }
   if (ds.j) { const j = G().journal[k] = Object.assign({}, G().journal[k], { [ds.j]: t.value }); if (!j.mood && !j.line && !(j.tags || []).length && !j.win && !j.learn && !j.focus) delete G().journal[k]; save(); return; }
-  if (t.id === 'dName' || t.id === 'qName') { const m = pastNames(), v = t.value.trim(); if (m.has(v)) { const c = m.get(v); U.dCat = c; (t.closest('form') || document).querySelectorAll('[data-act="dCat"]').forEach((x) => x.setAttribute('aria-pressed', String(x.dataset.v === c))); } return; }
+  if (t.id === 'dName' || t.id === 'qName') { if (!U.catManual) comboSetCat(t.id, guessCat(t.value)); comboOpen(t.id); return; }
   if (t.hasAttribute('data-idtext')) { G().identity = t.value; save(); return; }
   if (ds.bnote) { const bk = G().books.find((x) => x.id === ds.bnote); if (bk) { bk.note = t.value; save(); } return; }
   if (ds.hedit != null && U.sheet && U.sheet.draft) { U.sheet.draft[+ds.hedit].name = t.value; return; }
@@ -3640,7 +3756,7 @@ document.addEventListener('submit', (e) => {
     case 'watchForm': { const s = val('watchSym').trim().toUpperCase().replace(/\.AX$/, ''); if (!s) return; const m = U.watchMkt || 'US'; if (!IV().watchlist.some((w) => w.symbol === s && w.market === m)) IV().watchlist.push({ symbol: s, market: m }); after(); if (m === 'US') refreshPrices(true); return; }
     case 'qForm': {
       const q = f.dataset.k, tw = thisWeekId();
-      if (q === 'harcama') { const amt = pnum('qAmt'); if (!amt || amt <= 0) { $('qAmt').focus(); return; } addDaily(k, val('qName').trim(), amt, U.dCat, U.dOneOff); U.dOneOff = false; U.dCat = null; save(); closeOverlay(); toast(T('Bugüne eklendi: {x}', { x: money(amt) })); render(); return; }
+      if (q === 'harcama') { const amt = pnum('qAmt'); if (!amt || amt <= 0) { $('qAmt').focus(); return; } addDaily(k, val('qName').trim(), amt, U.dCat || guessCat(val('qName')), U.dOneOff); U.dOneOff = false; U.dCat = null; U.catManual = false; save(); closeOverlay(); toast(T('Bugüne eklendi: {x}', { x: money(amt) })); render(); return; }
       if (q === 'uber') { const er = pnum('qEarn') || 0, hr = dnum('qHours') || 0; if (er <= 0 && hr <= 0) { $('qEarn').focus(); return; } const w = weekObj(tw); w.uberEarn = Math.round(((+w.uberEarn || 0) + er) * 100) / 100; w.uberHours = Math.round(((+w.uberHours || 0) + hr) * 100) / 100; save(); closeOverlay(); toast(T('Uber vardiyası eklendi: {x} · {h} sa', { x: usd(er), h: nf1.format(hr) })); render(); return; }
       if (q === 'kilo') { const v = dnum('qWeight'); if (!v || v < 25 || v > 300) { $('qWeight').focus(); return; } setH(k, { weight: Math.round(v * 10) / 10 }); closeOverlay(); toast(T('Kilo kaydedildi: {x} kg', { x: nf1.format(v) })); render(); return; }
       return;
@@ -3656,6 +3772,10 @@ document.addEventListener('submit', (e) => {
       addDaily(k, p.name, amt, null, true);
       p.done = true; p.doneOn = k; p.spent = amt; p.log.push({ d: k, a: -Math.min(amt, p.saved), note: 'Satın alındı' }); /* note is a TR key, translated on display */ p.saved = Math.max(0, Math.round((p.saved - amt) * 100) / 100);
       save(); closeOverlay(); toast(T('{x}: {y} tek seferlik harcama olarak eklendi.', { x: p.name, y: money(amt) })); render(); return;
+    }
+    case 'accForm': {
+      const r = saveAcc(); if (typeof r === 'string') { const e = $('accErr'); if (e) { e.textContent = r; e.hidden = false; } return; }
+      closeOverlay(); toast(r.msg); renderAll(); return;
     }
     case 'carForm': {
       const eng = num(val('carEngine')); D.money.car = { make: val('carMake').trim(), model: val('carModel').trim(), year: val('carYear').replace(/\D/g, '').slice(0, 4), engine: eng && eng > 0 && eng < 10 ? eng : null, plate: val('carPlate').trim().toUpperCase(), fuel: val('carFuel') };
@@ -3684,7 +3804,7 @@ document.addEventListener('submit', (e) => {
     }
     case 'dailyForm': {
       const amt = pnum('dAmt'), day = f.dataset.d; if (!amt || amt <= 0) { $('dAmt').focus(); return; }
-      addDaily(day, val('dName').trim(), amt, U.dCat, U.dOneOff); U.dOneOff = false; U.dCat = null; save(); render(); toast(T('{d} gününe eklendi: {x}', { d: dShort(day), x: money(amt) })); { const n = $('dAmt'); if (n) n.focus({ preventScroll: true }); } return;
+      addDaily(day, val('dName').trim(), amt, U.dCat || guessCat(val('dName')), U.dOneOff); U.dOneOff = false; U.dCat = null; U.catManual = false; save(); render(); toast(T('{d} gününe eklendi: {x}', { d: dShort(day), x: money(amt) })); { const n = $('dAmt'); if (n) n.focus({ preventScroll: true }); } return;
     }
     case 'dailyEdit': {
       const sh = U.sheet, f0 = findDaily(sh.id); if (!f0) return; const amt = pnum('deAmt'); if (!amt || amt <= 0) { $('deAmt').focus(); return; }
@@ -4189,6 +4309,23 @@ const EN = {
   '{x} {d} tarihinde bitiyor{c}.': '{x} is due on {d}{c}.', 'Mali yıl bitiyor: arabanın gösterge km’sini Momentum’a gir (ATO logbook).': "The financial year is ending: enter your car's odometer in Momentum (ATO logbook).",
   'Araç hatırlatmaları': 'Car reminders', 'Rego, sigorta, BHSL: 30, 7 ve 1 gün önce · 30 Haziran gösterge km': 'Rego, insurance, BHSL: 30, 7 and 1 day before · odometer on 30 June',
   'Araç bilgileri kaydedildi.': 'Car details saved.', 'isteğe bağlı': 'optional', 'Litre': 'Litres', 'Depoyu doldurduğunda gir: tüketim ve km başı maliyet hesaplanır.': 'Fill in when you fill the tank: consumption and cost per km are worked out.',
+  // v1.6 combobox
+  'Ne için? Seç ya da yaz': 'What for? Pick or type', 'Kategori seç': 'Pick a category', '“{x}” ekle': 'Add “{x}”', 'kategori': 'category',
+  // v1.6 accounts + chart tips
+  'Hesaplar': 'Accounts', 'Ana hesap': 'Everyday account', 'Birikim': 'Savings', 'İş hesabı': 'Business account', 'Vergi birikimi': 'Tax saver', 'Nakit': 'Cash',
+  'güncellenmedi': 'not updated', 'Hesaplarım': 'My accounts', 'Hesap': 'Account', 'Toplam param': 'Total money',
+  'Vergi birikiminde {a} var; bu çeyrek için gereken {b}. Yeterli.': 'Tax saver holds {a}; this quarter needs {b}. Enough.',
+  'Vergi birikiminde {a} var; bu çeyrek için {b} gerekiyor. {c} eksik.': 'Tax saver holds {a}; this quarter needs {b}. {c} short.',
+  'Bakiyeleri haftada bir, banka uygulamasına bakıp güncelle. Uygulama bankana bağlanmaz, sadece senin yazdığını tutar.': "Update balances weekly from your banking app. Momentum doesn't connect to your bank; it keeps what you type.",
+  'Bakiyeler senin girdiğin rakamlar; uygulama bankana bağlanmaz.': "Balances are what you typed; Momentum doesn't connect to your bank.",
+  'Ana hesabını, birikim hesabını, iş hesabını ve vergi birikim hesabını ekle. Bakiyeleri banka uygulamasına bakıp yazarsın; toplam paran ve vergi için yeterince ayırıp ayırmadığın görünür.': "Add your everyday, savings, business and tax saver accounts. Type balances from your banking app to see your total money and whether you've set aside enough for tax.",
+  'Bakiye geçmişi': 'Balance history', 'Hesap ekle': 'Add account', 'Güncel bakiye': 'Current balance', 'Son güncelleme: {d}': 'Last updated: {d}', 'Banka uygulamandaki bakiyeyi yaz.': 'Type the balance from your banking app.',
+  'ör. CommBank Smart Access': 'e.g. CommBank Smart Access', 'Tür': 'Type', 'Hesabı sil': 'Delete account', 'Hesaba bir ad ver.': 'Give the account a name.', 'Bakiyeyi yaz.': 'Enter the balance.', '{x}: {y}': '{x}: {y}',
+  '{d} haftası: {x}': 'Week of {d}: {x}',
+  'Araç masrafları için ayır': 'Set aside for car costs',
+  'Sigorta, rego, servis gibi yıllık {x} masrafın haftalık payı ({n} hafta). Bu para bu hafta harcanmadı; o faturalar gelince ödemek için. Vergiyi düşürmez, çünkü vergi sadece gerçekten ödediğin ve girdiğin giderlerle hesaplanır.': "Weekly share of {x} a year in insurance, rego, service and the like ({n} weeks). Not spent this week; it's for when those bills arrive. It doesn't lower tax: tax only counts costs you've actually paid and logged.",
+  'Brütten değil, kârdan: GST, yakıt ve girdiğin Uber giderleri düşüldükten sonra kalan {x} üzerinden': 'On profit, not gross: on the {x} left after GST, fuel and your logged Uber expenses',
+  'Aracım’daki yenilemelerden al: yıllık {x} (Uber payı {p})': 'Use My car renewals: {x} a year (Uber share {p})', 'Sabit masraflar: yıllık {x}': 'Fixed costs: {x} a year',
 };
 
 // ===================== init =====================

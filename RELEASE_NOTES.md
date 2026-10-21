@@ -1,3 +1,10 @@
+## Momentum v1.6.0
+
+- **"Ne için?" açılır menü:** kategori butonları yerine tek bir kutu. Dokununca son harcamaların ve kategoriler açılır, yazdıkça süzülür, istediğin metni yazıp kaydedebilirsin. Kategori yazdığına göre tahmin edilir (Coffee Club → Kahve, Shell → Yakıt…), sağdaki küçük butondan değiştirilebilir.
+- **Hesaplar** sekmesi (eski Kumbara): ana hesap, birikim, iş hesabı, vergi birikimi ve nakit bakiyeleri, toplam paran, son güncellemeden bu yana değişim, bakiye geçmişi grafiği. Vergi birikim hesabı bu çeyreğin vergi ihtiyacıyla karşılaştırılır.
+- **Grafiklerde dokun ve gör:** noktaya ya da çubuğa dokununca tam değer çıkar (örn. "19 Eki haftası: $25,57/sa").
+- Haftalık dökümde "Tahmini sabit masraf payı" → **"Araç masrafları için ayır"** ve vergi satırının açıklaması netleşti. Ayarlar → Para'da sabit masrafları Aracım'daki yenilemelerden tek dokunuşla alabilirsin.
+
 ## Momentum v1.5.0
 
 ### Yeni: Aracım
