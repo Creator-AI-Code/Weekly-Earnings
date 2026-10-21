@@ -1,3 +1,11 @@
+## Momentum v1.7.0
+
+### Yeni: Uber vergi özeti PDF'ini içe aktarma
+- **Para → Vergi → Uber vergi özetleri → PDF yükle.** Uber'in aylık vergi özeti telefonda okunur: yolcu geliri, teslimat, teşvikler, bahşiş, Uber hizmet bedeli, diğer Uber kesintileri, otoyol/havalimanı/şehir ücretleri, yolcuyla km ve yolculuk sayısı.
+- Onay ekranında **G1, 1A ve 1B** rakamları görünür; kaydedince çeyreğin BAS hesabı tahmin yerine bu kesin rakamları kullanır.
+- Otoyol ve havalimanı ücretleri hem gelirde hem giderde olduğu için birbirini götürür. Bahşişin GST'si yok, sadece gelir vergisine girer.
+- Ay başında üç ayın da yüklenip yüklenmediği işaretli görünür. Aynı ayı tekrar yüklersen eskisinin yerine geçer.
+
 ## Momentum v1.6.0
 
 - **"Ne için?" açılır menü:** kategori butonları yerine tek bir kutu. Dokununca son harcamaların ve kategoriler açılır, yazdıkça süzülür, istediğin metni yazıp kaydedebilirsin. Kategori yazdığına göre tahmin edilir (Coffee Club → Kahve, Shell → Yakıt…), sağdaki küçük butondan değiştirilebilir.
