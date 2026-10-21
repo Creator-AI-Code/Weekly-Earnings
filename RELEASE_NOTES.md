@@ -1,3 +1,7 @@
+## Momentum v1.8.1
+
+- **Klavye:** yazdığın kutu artık hep klavyenin üstünde kalır. Alt pencereler (hızlı kayıt, fiş, düzenleme) klavyenin üstüne kalkar; klavye açıkken alttaki sekmeler ve + butonu gizlenir.
+
 ## Momentum v1.8.0
 
 - **Hangi hesaptan ödedin?** Harcama girerken (gün listesi, hızlı kayıt, fiş tarama) hesap seçersin; tutar o hesabın bakiyesinden düşer. Son seçtiğin hesap hatırlanır.

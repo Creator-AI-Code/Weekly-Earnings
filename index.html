@@ -779,6 +779,12 @@ table.rep td:nth-child(3) { font-weight: 700; }
 .acc-pick .i { width: 18px; height: 18px; flex: 0 0 auto; }
 .acc-pick select { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-weight: 600; min-height: 40px; }
 .hold.acc b.neg { color: var(--loss); }
+/* ---------- on-screen keyboard ---------- */
+body { padding-bottom: var(--kb, 0px); }
+.kb-open .tabs, .kb-open .fab { display: none; }
+.scrim { padding-bottom: var(--kb, 0px); }
+.sheet { max-height: calc(88vh - var(--kb, 0px)); }
+.kb-open .sheet { max-height: calc(100vh - var(--kb, 0px) - 24px); }
 
 </style>
 </head>
@@ -4539,6 +4545,23 @@ const dayCheck = () => { if (todayKey() !== lastDay) { lastDay = todayKey(); ren
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { dayCheck(); if (U.tab === 'yatirim') refreshPrices(false); } });
 setInterval(dayCheck, 60000);
 startSyncLoop();
+// on-screen keyboard: keep the field you type in visible above it. If the WebView does not shrink (Android edge-to-edge),
+// --kb lifts sheets and pads the page by the keyboard height; tabs and the + button hide while typing.
+(() => {
+  const root = document.documentElement; let base = window.innerHeight, viaPlugin = false;
+  const isField = (el) => el && /^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName) && !/^(checkbox|radio|button|submit|file)$/.test(el.type || '');
+  const keep = () => { const el = document.activeElement; if (!isField(el)) return; el.scrollIntoView({ block: 'center', behavior: 'smooth' }); };
+  const set = (h) => { h = Math.max(0, Math.round(h)); root.style.setProperty('--kb', h + 'px'); root.classList.toggle('kb-open', h > 80 || (isField(document.activeElement) && window.innerHeight < base - 120)); setTimeout(keep, 80); };
+  window.addEventListener('resize', () => { if (!isField(document.activeElement)) base = Math.max(base, window.innerHeight); if (!viaPlugin) set(window.visualViewport ? window.innerHeight - visualViewport.height - visualViewport.offsetTop : 0); });
+  if (window.visualViewport) visualViewport.addEventListener('resize', () => { if (!viaPlugin) set(window.innerHeight - visualViewport.height - visualViewport.offsetTop); });
+  const K = isNative() && capPlugin('Keyboard');
+  if (K && K.addListener) {
+    K.addListener('keyboardDidShow', (i) => { viaPlugin = true; const h = +(i && i.keyboardHeight) || 0; set(window.innerHeight < base - 80 ? 0 : h); root.classList.add('kb-open'); });
+    K.addListener('keyboardDidHide', () => { viaPlugin = false; set(0); root.classList.remove('kb-open'); });
+  }
+  document.addEventListener('focusin', (e) => { if (isField(e.target)) setTimeout(keep, 320); });
+  document.addEventListener('focusout', () => setTimeout(() => { if (!isField(document.activeElement)) root.classList.remove('kb-open'); }, 120));
+})();
 // sticky segment row sits exactly under the header, whatever its real height (status bar, sync chip, font size)
 (() => { const h = document.querySelector('header.top'); if (!h) return; const set = () => document.documentElement.style.setProperty('--hdr-h', Math.round(h.getBoundingClientRect().height) + 'px'); set(); if (window.ResizeObserver) new ResizeObserver(set).observe(h); window.addEventListener('resize', set); })();
 setTimeout(() => rcFlush(), 4000); window.addEventListener('online', () => rcFlush());

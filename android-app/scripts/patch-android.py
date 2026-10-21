@@ -6,6 +6,9 @@ m = open(main).read()
 for perm in ('android.permission.POST_NOTIFICATIONS', 'android.permission.RECEIVE_BOOT_COMPLETED'):
     if perm not in m:
         m = m.replace('</manifest>', '    <uses-permission android:name="%s" />\n</manifest>' % perm)
+# the WebView shrinks when the keyboard opens, so the focused field can scroll above it
+if 'windowSoftInputMode' not in m:
+    m = m.replace('android:name=".MainActivity"', 'android:name=".MainActivity"\n            android:windowSoftInputMode="adjustResize"', 1)
 open(main, 'w').write(m)
 run = os.environ.get('GITHUB_RUN_NUMBER', '1')
 g = os.path.join(app, 'android', 'app', 'build.gradle'); s = open(g).read()
