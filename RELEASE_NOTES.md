@@ -1,3 +1,7 @@
+## Momentum v1.7.2
+
+- Aşağı kaydırırken üstteki başlık ile Hafta/Rapor/Geçmiş/Hesaplar/Vergi şeridi arasında açılan boşluk kapatıldı. Şerit artık başlığın gerçek yüksekliğine göre yapışıyor.
+
 ## Momentum v1.7.1
 
 - **Hesaplar → "Gerçekten senin olan":** bankadaki toplam paradan son günü gelmemiş BAS'ların GST'si ve bu mali yılın Uber kârının gelir vergisi payı düşülür. Kumbaralara ayırdığın para da ayrıca gösterilir ve "serbest para" kalır.

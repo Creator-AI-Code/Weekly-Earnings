@@ -144,7 +144,9 @@ main { display: grid; gap: 12px; min-width: 0; }
 .seg button[aria-pressed="true"] { background: var(--acc); color: var(--acc-ink); }
 .seg.top-seg { display: flex; }
 .seg.top-seg button { flex: 1 1 auto; min-width: auto; font-size: 0.8rem; padding: 0 6px; overflow: visible; }
-.seg.top-seg { position: sticky; top: calc(56px + env(safe-area-inset-top, 0px)); z-index: 11; box-shadow: 0 6px 12px -10px rgba(0,0,0,.3); }
+.seg.top-seg { position: sticky; top: var(--hdr-h, calc(56px + env(safe-area-inset-top, 0px))); z-index: 11; box-shadow: 0 6px 12px -10px rgba(0,0,0,.3); }
+/* fills the strip between the sticky header and the sticky segment row so content never shows through */
+.seg.top-seg::before { content: ''; position: absolute; left: -17px; right: -17px; top: -9px; height: 9px; background: var(--bg); pointer-events: none; }
 .seg.inline { display: inline-grid; width: auto; }
 
 /* fields */
@@ -4513,6 +4515,8 @@ const dayCheck = () => { if (todayKey() !== lastDay) { lastDay = todayKey(); ren
 document.addEventListener('visibilitychange', () => { if (!document.hidden) { dayCheck(); if (U.tab === 'yatirim') refreshPrices(false); } });
 setInterval(dayCheck, 60000);
 startSyncLoop();
+// sticky segment row sits exactly under the header, whatever its real height (status bar, sync chip, font size)
+(() => { const h = document.querySelector('header.top'); if (!h) return; const set = () => document.documentElement.style.setProperty('--hdr-h', Math.round(h.getBoundingClientRect().height) + 'px'); set(); if (window.ResizeObserver) new ResizeObserver(set).observe(h); window.addEventListener('resize', set); })();
 setTimeout(() => rcFlush(), 4000); window.addEventListener('online', () => rcFlush());
 if (isNative()) scheduleNotifs();
 window.__adim = { get state() { return D; }, parseReceipt, parseUberSummary, importUberText, weekCalc: (w) => weekCalc(w), insights, saveNow, taxFull, taxQuarter, quarterOf, weekTaxParts, ttax, missing: MISSING, parse, num, calc, sync: { get meta() { return SY; }, syncAll, areaData }, setLang: (l) => { D.ui.lang = l; applyLang(); renderAll(); } };
