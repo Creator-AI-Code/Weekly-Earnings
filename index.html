@@ -735,6 +735,12 @@ table.rep td:nth-child(3) { font-weight: 700; }
 .rc-view img { width: 100%; max-height: 72vh; object-fit: contain; border-radius: 12px; background: var(--surface-2); display: block; min-height: 120px; }
 .dn b .i.clip { width: 14px; height: 14px; margin-left: 5px; vertical-align: -2px; color: var(--ink-3); }
 .chip .i { width: 13px; height: 13px; }
+/* ---------- Aracım ---------- */
+.ren-sum { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; padding: 10px 12px; border-radius: 12px; background: var(--gold-soft, var(--surface-2)); font-size: 0.86rem; }
+.ren-sum b { color: var(--ink); }
+#renList .rt { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.due-line { margin-top: 8px; }
+.due-line.hot { background: var(--loss-soft); color: var(--loss); }
 
 </style>
 </head>
@@ -960,7 +966,7 @@ const dShort = (k) => { const d = parseKey(k); return d.getDate() + ' ' + MONTHS
 function blank() {
   return {
     schemaVersion: 1,
-    money: { settings: clone(DEF_SET), weeks: {}, pots: [], uberExpenses: [], taxSummaries: {}, setAsides: [], trips: [], odo: [], lb: null },
+    money: { settings: clone(DEF_SET), weeks: {}, pots: [], uberExpenses: [], taxSummaries: {}, setAsides: [], trips: [], odo: [], lb: null, car: {}, renewals: [] },
     growth: { habits: [], log: {}, tasks: [], goals: [], books: [], bookGoal: 12, readLog: {}, journal: {}, identity: '' },
     health: { days: {}, height: null, goalWeight: null, packPrice: 40, lastImport: null },
     invest: { holdings: [], watchlist: [], prices: {}, fx: null, finnhubKey: '', showOnHome: true, lastRefresh: 0 },
@@ -1004,7 +1010,7 @@ function normalize(o) {
   ['money', 'growth', 'health', 'invest', 'ui'].forEach((k) => { if (isObj(D0[k])) out[k] = Object.assign(b[k], D0[k]); });
   const m = out.money; m.settings = Object.assign(clone(DEF_SET), isObj(m.settings) ? m.settings : {}); if (!Array.isArray(m.settings.recurring)) m.settings.recurring = [];
   if (!isObj(m.weeks)) m.weeks = {}; Object.keys(m.weeks).forEach((id) => { m.weeks[id] = normWeek(m.weeks[id], id); });
-  ['uberExpenses', 'setAsides', 'trips', 'odo'].forEach((k) => { if (!Array.isArray(m[k])) m[k] = []; }); if (!isObj(m.taxSummaries)) m.taxSummaries = {}; if (!isObj(m.lb)) m.lb = null;
+  ['uberExpenses', 'setAsides', 'trips', 'odo', 'renewals'].forEach((k) => { if (!Array.isArray(m[k])) m[k] = []; }); if (!isObj(m.taxSummaries)) m.taxSummaries = {}; if (!isObj(m.lb)) m.lb = null; if (!isObj(m.car)) m.car = {};
   migrateUexpFuel(m);
   if (m.settings.logbookPct == null) m.settings.logbookPct = 100;
   // v1.1: car expenses follow the logbook % (bizAuto). Old car expenses saved at 100 % were the logbook default then.
@@ -1481,7 +1487,7 @@ function vBugun() {
     const c = s.c, sa = weekSetAside(s.id), bas = nextBas(), z = sa ? 0 : r2(c.weekTax);
     if (c.weekTax > 0 || bas && taxFull(bas.q).need > 0.005) html += `<button type="button" class="taxline a-para" data-act="go" data-tab="para" data-seg="vergi" id="bTaxLine">${ico('jar')}<span>${sa ? T('Bu haftanın vergi payı ayrıldı') : T('Vergi için ayır: {x} bu hafta', { x: usd(z) })}${bas ? ' · ' + T("BAS'a {n} gün", { n: bas.days }) : ''}</span>${ico('right')}</button>`;
   }
-  if (showCard('uber')) html += shiftCard();
+  if (showCard('uber')) html += shiftCard() + carLines();
   if (showCard('habits')) html += `<section class="sec a-gel">${habitTodayCard(k, bandNow(h))}</section>`;
   if (showCard('tasks')) {
     const open = G().tasks.filter((t) => !t.done).sort((a, b) => a.prio - b.prio || String(a.created).localeCompare(String(b.created)));
@@ -1994,6 +2000,105 @@ async function importSamsung(files) {
   U.shErr = !parts.length; save(); renderAll();
 }
 
+// ===================== ARACIM (vehicle profile, renewals with costs + reminders, fuel consumption, FY odometer) =====================
+// money.car: { make, model, year, engine, plate, fuel }   money.renewals: [{ id, kind, due, cost, every (months, 0 = once), note }]
+const REN_KINDS = [['rego', 'Rego (CTP dahil)', 'receipt', 'rego'], ['insurance', 'Kasko sigortası', 'receipt', 'insurance'], ['bhsl', 'BHSL', 'receipt', 'rego'], ['da', 'Sürücü izni (DA)', 'receipt', 'rego'], ['inspection', 'Araç muayenesi', 'car', 'service'], ['service', 'Servis', 'car', 'service'], ['tyres', 'Lastik', 'car', 'tyres'], ['other', 'Diğer', 'list', 'other']];
+const renName = (r) => { const k = REN_KINDS.find((x) => x[0] === r.kind); return r.kind === 'other' && r.note ? r.note : T(k ? k[1] : 'Diğer'); };
+const CAR = () => D.money.car || {};
+const carName = () => { const c = CAR(); return [c.make, c.model, c.year].filter(Boolean).join(' '); };
+const addMonths = (k, n) => { const d = parseKey(k), day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + n); d.setDate(Math.min(day, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); return keyOf(d); };
+const daysTo = (k) => Math.round((parseKey(k).setHours(0, 0, 0, 0) - parseKey(todayKey()).setHours(0, 0, 0, 0)) / 864e5);
+// the next 12 months of renewal costs (a 6-monthly rego counts twice)
+function renewalYear() {
+  const end = keyOf(addDays(new Date(), 365)), items = [];
+  D.money.renewals.forEach((r) => { if (!r.due) return; let d = r.due; for (let i = 0; i < 6 && d <= end; i++) { if (d >= todayKey()) items.push({ r, d, cost: +r.cost || 0 }); if (!(+r.every > 0)) break; d = addMonths(d, +r.every); } });
+  items.sort((a, b) => a.d.localeCompare(b.d));
+  const total = items.reduce((s, x) => s + x.cost, 0);
+  return { items, total, weekly: total / 52 };
+}
+const dueSoon = () => D.money.renewals.filter((r) => r.due && daysTo(r.due) <= 30).sort((a, b) => a.due.localeCompare(b.due));
+function dueChip(k) { const n = daysTo(k); return `<span class="chip ${n < 0 ? 'loss' : n <= 14 ? 'loss' : n <= 30 ? 'warn' : ''}">${n < 0 ? T('{n} gün geçti', { n: -n }) : n === 0 ? T('bugün') : T('{n} gün', { n })}</span>`; }
+
+// ---------- fuel consumption from fills that carry an odometer reading and litres ----------
+function fuelStats() {
+  const fills = []; Object.values(D.money.weeks).forEach((w) => (w.daily || []).forEach((x) => { if (x.odo > 0 && x.litres > 0) fills.push(x); }));
+  fills.sort((a, b) => a.odo - b.odo); if (fills.length < 2) return null;
+  const last = fills.slice(-4); let km = 0, l = 0, cost = 0;
+  for (let i = 1; i < last.length; i++) { const d = last[i].odo - last[i - 1].odo; if (d <= 0 || d > 2500) continue; km += d; l += +last[i].litres; cost += +last[i].amount || 0; }
+  return km > 0 ? { lPer100: l / km * 100, perKm: cost / km, km, n: last.length - 1 } : null;
+}
+
+// ---------- Vergi tab: Aracım card ----------
+function carCard() {
+  const c = CAR(), ry = renewalYear(), fs = fuelStats(), list = D.money.renewals.slice().sort((a, b) => String(a.due).localeCompare(String(b.due)));
+  const row = (r) => `<button type="button" class="hold wrap" data-act="editRen" data-id="${r.id}"><span class="sym">${ico(REN_KINDS.find((x) => x[0] === r.kind) ? REN_KINDS.find((x) => x[0] === r.kind)[2] : 'list')}</span><span class="mid"><b>${esc(renName(r))}</b><span>${r.due ? T('Bitiş {d}', { d: longDate(parseKey(r.due)) }) : T('Tarih yok')}${+r.every > 0 ? ' · ' + T('{n} ayda bir', { n: r.every }) : ''}</span></span><span class="rt"><b>${+r.cost > 0 ? usd2(+r.cost) : '–'}</b>${r.due ? dueChip(r.due) : ''}</span></button>`;
+  return `<div class="card" id="carCard">${head('car', carName() ? esc(carName()) : T('Aracım'), `<button type="button" class="btn sm soft" data-act="editCar" id="editCarBtn">${ico('pen')}${c.plate ? esc(c.plate) : T('Bilgiler')}</button>`)}
+    ${carName() ? `<p class="note" style="margin-top:0">${[c.engine ? T('{x} L motor', { x: inNum(c.engine) }) : '', c.fuel ? T(c.fuel === 'diesel' ? 'Dizel' : c.fuel === 'hybrid' ? 'Hibrit' : c.fuel === 'ev' ? 'Elektrik' : 'Benzin') : '', fs ? T('{l} L/100km · km başı {x}', { l: nf1.format(fs.lPer100), x: usd2(fs.perKm) }) : ''].filter(Boolean).join(' · ')}</p>` : `<p class="note" style="margin-top:0">${T('Marka, model, motor hacmi ve plakayı gir. Logbook dosyasına da yazılır.')}</p>`}
+    ${list.length ? `<div class="list" id="renList">${list.map(row).join('')}</div>` : `<p class="note">${T('Rego, sigorta, BHSL ve muayene bitiş tarihlerini ekle; yaklaşınca hatırlatayım ve masrafı önceden biriktir.')}</p>`}
+    <div class="btns" style="margin-top:10px"><button type="button" class="btn sm" data-act="newRen" id="newRenBtn">${ico('plus')}${T('Yenileme ekle')}</button></div>
+    ${ry.total > 0 ? `<div class="ren-sum" id="renSum"><span>${T('Önümüzdeki 12 ay: {x}', { x: usd(ry.total) })}</span><b>${T('Haftada {x} ayır', { x: usd2(r2(ry.weekly)) })}</b></div>` : ''}
+    ${fs ? '' : `<p class="note">${T('Yakıt fişinde gösterge km’sini ve litreyi girersen arabanın gerçek tüketimini (L/100km) ve km başı maliyetini hesaplarım.')}</p>`}</div>`;
+}
+function carSheet() {
+  const c = CAR();
+  return sheetShell(T('Aracım'), `<form class="stack" id="carForm"><div class="fields"><div class="field"><label for="carMake">${T('Marka')}</label><input class="txt" id="carMake" value="${esc(c.make || '')}" placeholder="BMW" autocomplete="off"></div>
+    <div class="field"><label for="carModel">${T('Model')}</label><input class="txt" id="carModel" value="${esc(c.model || '')}" placeholder="X3 xDrive20d" autocomplete="off"></div></div>
+    <div class="fields"><div class="field"><label for="carYear">${T('Yıl')}</label><input class="txt" id="carYear" inputmode="numeric" value="${esc(c.year || '')}" placeholder="2015"></div>
+    <div class="field"><label for="carEngine">${T('Motor hacmi')}</label><div class="money"><input id="carEngine" inputmode="decimal" value="${c.engine ? inNum(c.engine) : ''}" placeholder="2,0"><span>L</span></div></div></div>
+    <div class="fields"><div class="field"><label for="carPlate">${T('Plaka (rego)')}</label><input class="txt" id="carPlate" value="${esc(c.plate || '')}" autocapitalize="characters" autocomplete="off"></div>
+    <div class="field"><label for="carFuel">${T('Yakıt')}</label><select class="txt" id="carFuel">${[['petrol', 'Benzin'], ['diesel', 'Dizel'], ['hybrid', 'Hibrit'], ['ev', 'Elektrik']].map(([k, l]) => `<option value="${k}" ${c.fuel === k ? 'selected' : ''}>${T(l)}</option>`).join('')}</select></div></div>
+    <p class="note" style="margin:0">${T('ATO logbook’ta marka, model, motor hacmi ve plakayı ister.')}</p><button class="btn" type="submit">${T('Kaydet')}</button></form>`, 'a-para');
+}
+function renSheet(sh) {
+  const r = sh.id ? D.money.renewals.find((x) => x.id === sh.id) : null, v = (k, d) => (sh[k] != null ? sh[k] : r ? r[k] : d);
+  return sheetShell(r ? renName(r) : T('Yenileme ekle'), `<form class="stack" id="renForm">
+    <div class="field"><label for="renKind">${T('Ne?')}</label><select class="txt" id="renKind">${REN_KINDS.map(([k, l]) => `<option value="${k}" ${v('kind', 'rego') === k ? 'selected' : ''}>${T(l)}</option>`).join('')}</select></div>
+    <div class="fields"><div class="field"><label for="renDue">${T('Bitiş / son gün')}</label><input class="txt" type="date" id="renDue" value="${esc(v('due', ''))}"></div>
+    <div class="field"><label for="renCost">${T('Tahmini maliyet')}</label><div class="money"><span>$</span><input id="renCost" inputmode="decimal" value="${v('cost', '') !== '' && v('cost', '') != null ? fmtIn(+v('cost', 0)) : ''}" placeholder="0"></div></div></div>
+    <div class="field"><label for="renEvery">${T('Tekrar')}</label><select class="txt" id="renEvery">${[[12, 'Yılda bir'], [6, '6 ayda bir'], [3, '3 ayda bir'], [0, 'Tek sefer']].map(([n, l]) => `<option value="${n}" ${+v('every', 12) === n ? 'selected' : ''}>${T(l)}</option>`).join('')}</select></div>
+    <div class="field"><label for="renNote">${T('Not (isteğe bağlı)')}</label><input class="txt" id="renNote" value="${esc(v('note', ''))}" autocomplete="off" placeholder="${T('ör. Suncorp, poliçe no')}"></div>
+    <p class="err" id="renErr" role="alert" hidden></p><button class="btn" type="submit" id="renSave">${T('Kaydet')}</button>
+    ${r ? `<button type="button" class="btn soft" data-act="renDone" data-id="${r.id}" id="renDone">${ico('check')}${T('Yeniledim')}</button><button type="button" class="btn ghost" data-act="delRen" data-id="${r.id}">${U.armed === r.id ? T('Silmek için tekrar dokun') : T('Sil')}</button>` : ''}</form>`, 'a-para');
+}
+function saveRen() {
+  const due = val('renDue'), cost = parse(val('renCost')), kind = val('renKind');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(due)) return T('Bitiş tarihini seç.');
+  const rec = { kind, due, cost: cost === '' ? 0 : cost, every: +val('renEvery') || 0, note: val('renNote').trim() };
+  const sh = U.sheet, r = sh.id ? D.money.renewals.find((x) => x.id === sh.id) : null;
+  if (r) Object.assign(r, rec); else D.money.renewals.push(Object.assign({ id: uid() }, rec));
+  save(); scheduleNotifs(); return { msg: T('Kaydedildi: {x}', { x: renName(rec) }) };
+}
+// "Yeniledim": log the payment as an Uber expense (GST/logbook rules of its category) and roll the date forward
+function renewDone(id) {
+  const r = D.money.renewals.find((x) => x.id === id); if (!r) return;
+  const k = REN_KINDS.find((x) => x[0] === r.kind), cat = k ? k[3] : 'other', def = catDefaults(cat);
+  if (+r.cost > 0) D.money.uberExpenses.push({ id: uid(), d: todayKey(), cat, amount: +r.cost, gst: def.gst, biz: def.biz, bizAuto: isCarCat(cat) && Math.abs(def.biz - logbook()) < 0.01, note: renName(r) });
+  if (+r.every > 0) { let d = addMonths(r.due, +r.every); while (d <= todayKey()) d = addMonths(d, +r.every); r.due = d; } else D.money.renewals = D.money.renewals.filter((x) => x.id !== id);
+  save(); scheduleNotifs();
+  toast(+r.cost > 0 ? T('{x} Uber giderlerine eklendi. Yeni bitiş: {d}', { x: usd2(+r.cost), d: r.due ? dShort(r.due) : '–' }) : T('Yeni bitiş: {d}', { d: dShort(r.due) }));
+}
+// Bugün: one line per renewal due within 30 days; around 30 June / 1 July: the financial-year odometer reading
+function carLines() {
+  let h = '';
+  dueSoon().slice(0, 2).forEach((r) => { const n = daysTo(r.due); h += `<button type="button" class="taxline a-para due-line${n <= 14 ? ' hot' : ''}" data-act="go" data-tab="para" data-seg="vergi">${ico('car')}<span>${n < 0 ? T('{x} {n} gün önce bitti', { x: renName(r), n: -n }) : T('{x} {d} bitiyor · {n} gün', { x: renName(r), d: dShort(r.due), n })}${+r.cost > 0 ? ' · ' + usd(+r.cost) : ''}</span>${ico('right')}</button>`; });
+  if (fyOdoDue()) h += `<button type="button" class="taxline a-para" data-act="odoRead" id="fyOdoLine">${ico('flag')}<span>${T('Mali yıl sonu: arabanın gösterge km’sini gir (ATO)')}</span>${ico('right')}</button>`;
+  return h;
+}
+function fyOdoDue() {
+  const t = new Date(), y = t.getMonth() >= 6 ? t.getFullYear() : t.getFullYear(), a = new Date(y, 5, 24).getTime(), b = new Date(y, 6, 7, 23, 59).getTime(), now = t.getTime();
+  if (now < a || now > b || (!D.money.trips.length && !D.money.lb)) return false;
+  return !odoReadings().some((x) => x.ts >= a && x.ts <= b);
+}
+// odometer reading nearest to 1 July of a year (for the logbook file / FY summary)
+function fyOdo(y) { const t = new Date(y, 6, 1).getTime(); let best = null; odoReadings().forEach((x) => { if (Math.abs(x.ts - t) <= 10 * 864e5 && (!best || Math.abs(x.ts - t) < Math.abs(best.ts - t))) best = x; }); return best; }
+function renewalNotifs(base, hm) {
+  const out = []; let id = 300; const t = hm(notifCfg().car.time);
+  D.money.renewals.forEach((r) => { if (!r.due) return; const due = parseKey(r.due); [30, 7, 1].forEach((before) => { const at = new Date(due.getFullYear(), due.getMonth(), due.getDate() - before, t.hour, t.minute); if (at > new Date() && id < 380) out.push(Object.assign({ id: id++, title: 'Momentum', body: T('{x} {d} tarihinde bitiyor{c}.', { x: renName(r), d: longDate(due), c: +r.cost > 0 ? ' (' + usd(+r.cost) + ')' : '' }), schedule: { at, allowWhileIdle: true } }, base)); }); });
+  const y = new Date().getMonth() >= 6 ? new Date().getFullYear() + 1 : new Date().getFullYear(), at = new Date(y, 5, 30, 18, 0);
+  if (at > new Date() && (D.money.trips.length || D.money.lb)) out.push(Object.assign({ id: 390, title: 'Momentum', body: T('Mali yıl bitiyor: arabanın gösterge km’sini Momentum’a gir (ATO logbook).'), schedule: { at, allowWhileIdle: true } }, base));
+  return out;
+}
+
 // ===================== YATIRIM =====================
 const FX_FALLBACK = 1.55;
 const IV = () => D.invest;
@@ -2322,7 +2427,7 @@ function shiftSheet(sh) {
   return sheetShell(title, `<form class="stack" id="shiftForm" data-mode="${sh.mode}">
     <div class="field"><label for="odoKm">${T('Gösterge (km)')}</label><div class="money"><input id="odoKm" inputmode="numeric" autocomplete="off" value="${sh.km != null ? esc(sh.km) : ''}" placeholder="${lo ? fmtKm(lo.km) : '0'}"><span>km</span></div><span class="hint" id="odoHint">${hint}</span></div>
     <div class="field"><label for="odoAt">${sh.mode === 'odo' || sh.mode.startsWith('lb') ? T('Tarih ve saat') : sh.mode === 'start' ? T('Online olduğun saat') : T('Offline olduğun saat')}</label><input class="txt" type="datetime-local" id="odoAt" value="${dtLocal(ts)}"></div>
-    ${sh.mode === 'lbStart' ? `<div class="field"><label for="lbVeh">${T('Araç (marka, model, plaka)')}</label><input class="txt" id="lbVeh" value="${esc(sh.veh || '')}" placeholder="${T('ör. BMW X3 2015, 351LZ6')}" autocomplete="off"></div><p class="note" style="margin:0">${T('12 hafta boyunca her Uber vardiyasında başlangıç ve bitiş km\'sini gir. Sonunda Uber payın otomatik hesaplanır.')}</p>` : ''}
+    ${sh.mode === 'lbStart' ? `<div class="field"><label for="lbVeh">${T('Araç (marka, model, plaka)')}</label><input class="txt" id="lbVeh" value="${esc(sh.veh || [carName(), CAR().engine ? CAR().engine + ' L' : '', CAR().plate].filter(Boolean).join(', '))}" placeholder="${T('ör. BMW X3 2015, 351LZ6')}" autocomplete="off"></div><p class="note" style="margin:0">${T('12 hafta boyunca her Uber vardiyasında başlangıç ve bitiş km\'sini gir. Sonunda Uber payın otomatik hesaplanır.')}</p>` : ''}
     ${sh.mode === 'end' && isStale(o) ? `<p class="note" style="margin:0">${T('Vardiyayı bitirmeyi unutmuşsun; saati gerçek bitiş saatine göre düzelt.')}</p>` : ''}
     <p class="err" id="odoErr" role="alert" hidden></p>
     <button class="btn" type="submit" id="odoSave">${sh.mode === 'start' ? T('Başla') : sh.mode === 'end' ? T('Bitir') : T('Kaydet')}</button>
@@ -2365,9 +2470,11 @@ function lbCSV() {
   const st = lbStats(); if (!st) return null; const lb = st.lb;
   const q = (s) => '"' + String(s == null ? '' : s).replace(/"/g, '""') + '"';
   const dt = (ts) => { const d = new Date(ts); return idOf(d) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); };
-  const L = [['Momentum car logbook (rideshare)'], ['Vehicle', lb.vehicle || ''], ['Logbook period', idOf(new Date(st.a)) + ' to ' + idOf(new Date(st.b))],
+  const c0 = CAR(), y1 = new Date(st.a).getMonth() >= 6 ? new Date(st.a).getFullYear() : new Date(st.a).getFullYear() - 1, f1 = fyOdo(y1), f2 = fyOdo(y1 + 1);
+  const L = [['Momentum car logbook (rideshare)'], ['Vehicle', carName() || lb.vehicle || ''], ['Engine capacity', c0.engine ? c0.engine + ' L' : ''], ['Registration', c0.plate || ''], ['Logbook period', idOf(new Date(st.a)) + ' to ' + idOf(new Date(st.b))],
     ['Odometer at start', Math.round(lb.odoStart)], ['Odometer at end', Math.round(st.top)], ['Total km', Math.round(st.total)], ['Business km', Math.round(st.biz)],
-    ['Business use %', st.pct == null ? '' : Math.floor(st.pct)], [],
+    ['Business use %', st.pct == null ? '' : Math.floor(st.pct)],
+    ['Odometer 1 July ' + y1, f1 ? Math.round(f1.km) : ''], ['Odometer 1 July ' + (y1 + 1), f2 ? Math.round(f2.km) : ''], [],
     ['Date', 'Start', 'End', 'Odometer start', 'Odometer end', 'Km', 'Purpose']];
   st.trips.slice().sort((a, b) => a.start - b.start).forEach((t) => L.push([idOf(new Date(t.start)), dt(t.start).slice(11), dt(t.end).slice(11), Math.round(t.kmStart), Math.round(t.kmEnd), Math.round(shiftKm(t)), 'Uber X rideshare: logged on (passenger trips, pickups and repositioning)']));
   return L.map((r) => r.map(q).join(',')).join('\r\n') + '\r\n';
@@ -2500,11 +2607,13 @@ function receiptSheet(sh) {
     <div class="field"><span class="lab">${T('Kimin için?')}</span><div class="seg" role="group" aria-label="${T('Kimin için?')}">${WHO.map(([k, l, ic]) => `<button type="button" data-act="rcWho" data-v="${k}" aria-pressed="${sh.who === k}">${ico(ic)}${T(l)}</button>`).join('')}</div></div>
     ${sh.who === 'uber' ? `<div class="field"><label for="rcUcat">${T('Uber gider türü')}</label><select class="txt" id="rcUcat">${ucats.map(([k, l]) => `<option value="${k}" ${sh.ucat === k ? 'selected' : ''}>${T(l)}</option>`).join('')}</select><span class="hint">${sh.ucat === 'fuel' ? T('Günlük harcamalara “Yakıt (Uber)” olarak eklenir; GST kredisi logbook payıyla hesaplanır.') : T('Vergi → Uber giderlerine eklenir.')}</span></div>`
       : catChips(sh.dcat, 'rcCat')}
+    ${(sh.who === 'uber' && sh.ucat === 'fuel') || sh.dcat === FUEL_CAT || (sh.p && sh.p.isFuel) ? `<div class="fields"><div class="field"><label for="rcOdo">${T('Gösterge (km)')}</label><div class="money"><input id="rcOdo" inputmode="numeric" value="${esc(sh.odo || '')}" placeholder="${lastOdo() ? fmtKm(lastOdo().km) : T('isteğe bağlı')}"><span>km</span></div></div>
+      <div class="field"><label for="rcLit">${T('Litre')}</label><div class="money"><input id="rcLit" inputmode="decimal" value="${esc(sh.lit != null ? sh.lit : sh.p && sh.p.litres ? inNum(sh.p.litres) : '')}"><span>L</span></div></div></div><span class="hint" style="margin-top:-6px">${T('Depoyu doldurduğunda gir: tüketim ve km başı maliyet hesaplanır.')}</span>` : ''}
     ${sh.who === 'is' ? `<p class="note" style="margin:0">${T('Ana işin için yaptığın harcamalar ayrıca listelenir: yıl sonu vergiden düşmek ya da işverenden geri almak için.')}</p>` : ''}
     <p class="err" id="rcErr" role="alert" hidden></p>
     <button class="btn" type="submit" id="rcSave">${T('Kaydet')}</button><button type="button" class="btn ghost" data-act="rcDiscard">${T('Vazgeç')}</button></form>`, 'a-para');
 }
-function rcKeep() { const s = U.sheet; s.amt = val('rcAmt'); s.d = val('rcDate'); s.name = val('rcName'); s.gst = val('rcGst'); if ($('rcUcat')) s.ucat = val('rcUcat'); }
+function rcKeep() { const s = U.sheet; s.amt = val('rcAmt'); s.d = val('rcDate'); s.name = val('rcName'); s.gst = val('rcGst'); if ($('rcOdo')) s.odo = val('rcOdo'); if ($('rcLit')) s.lit = val('rcLit'); if ($('rcUcat')) s.ucat = val('rcUcat'); }
 function saveReceipt() {
   const s = U.sheet; rcKeep();
   const amt = parse(s.amt), g = parse(s.gst), d0 = s.d;
@@ -2517,6 +2626,9 @@ function saveReceipt() {
   } else {
     const cat = s.who === 'uber' ? FUEL_CAT : s.dcat, e = addDaily(d0, name || (cat ? dcatName(cat) : T('Harcama')), amt, cat, false);
     e.rc = s.path; if (s.who === 'is') e.work = true; if (g !== '') e.gstAmt = g;
+    const odo = parseInt(String(s.odo || '').replace(/\D/g, ''), 10), lit = num(s.lit || '');
+    if (odo > 0) { const ts = parseKey(d0).setHours(12, 0, 0, 0), fl = odoFloor(ts); if (fl == null || odo >= fl) { e.odo = odo; D.money.odo.push({ id: uid(), ts, km: odo }); } }
+    if (lit > 0 && lit < 200) e.litres = lit;
   }
   save(); rcFlush();
   return { msg: T('Fiş kaydedildi: {x}', { x: money(amt) }) };
@@ -2780,7 +2892,7 @@ function vConflictSheet(sh) {
 }
 
 // ---------- notifications (Android app via Capacitor LocalNotifications) ----------
-const NOTIF_DEF = { evening: { on: false, time: '21:00' }, habit: { on: false, time: '07:00' }, weekly: { on: false, time: '19:00' }, bas: { on: false, time: '09:00' }, taxweek: { on: false, time: '19:00' } };
+const NOTIF_DEF = { evening: { on: false, time: '21:00' }, habit: { on: false, time: '07:00' }, weekly: { on: false, time: '19:00' }, bas: { on: false, time: '09:00' }, taxweek: { on: false, time: '19:00' }, car: { on: true, time: '09:00' } };
 function notifCfg() { const n = D.ui.notif = Object.assign({}, D.ui.notif); Object.keys(NOTIF_DEF).forEach((k) => { n[k] = Object.assign({}, NOTIF_DEF[k], n[k]); }); return n; }
 function lnPlugin() { const C = window.Capacitor; if (!C) return null; return (C.Plugins && C.Plugins.LocalNotifications) || (C.registerPlugin ? C.registerPlugin('LocalNotifications') : null); }
 let notifTimer = null;
@@ -2802,6 +2914,7 @@ async function doScheduleNotifs() {
         [14, 3].forEach((before) => { const at = new Date(due.getFullYear(), due.getMonth(), due.getDate() - before, t.hour, t.minute); if (at > new Date()) list.push(Object.assign({ id: id++, title: 'Momentum', body: T('{q} BAS son günü {d}. Vergi için ayırdığın tutarı kontrol et.', { q: qName(q), d: longDate(due) }), schedule: { at, allowWhileIdle: true } }, base)); });
       }
     }
+    if (N.car.on) list.push(...renewalNotifs(base, hm));
     if (list.length) await LN.schedule({ notifications: list });
   } catch (e) {}
 }
@@ -2819,7 +2932,7 @@ function vNotifs() {
   const row = (k, label, hint, timeLbl) => `<div class="nrow"><button type="button" class="trow" data-act="notifToggle" data-k="${k}" aria-pressed="${N[k].on}" ${native ? '' : 'disabled'}><span>${label}<small>${hint}</small></span><span class="sw" aria-hidden="true"></span></button>
     ${N[k].on ? `<label class="ntime">${timeLbl}<input class="txt" type="time" data-ntime="${k}" value="${N[k].time}"></label>` : ''}</div>`;
   return `${native ? '' : `<div class="card"><p class="note" style="margin:0" id="notifWebNote">${T('Bildirimler Android uygulamasında çalışır. Uygulamayı GitHub’daki “Sürümler” sayfasından Momentum.apk olarak indirebilirsin.')}</p></div>`}
-    <div class="card">${row('evening', T('Akşam değerlendirmesi'), T('Her gün'), T('Saat'))}${row('habit', T('Alışkanlık hatırlatması'), T('Her gün'), T('Saat'))}${row('weekly', T('Haftalık giriş'), T('Her pazar: Uber kazancı ve harcamalar'), T('Saat'))}${row('bas', T('BAS hatırlatması'), T('BAS son gününden 14 ve 3 gün önce'), T('Saat'))}${row('taxweek', T('Haftalık vergi payı'), T("Her pazar: bu haftanın vergi payını kumbaraya aktardın mı?"), T('Saat'))}</div>`;
+    <div class="card">${row('evening', T('Akşam değerlendirmesi'), T('Her gün'), T('Saat'))}${row('habit', T('Alışkanlık hatırlatması'), T('Her gün'), T('Saat'))}${row('weekly', T('Haftalık giriş'), T('Her pazar: Uber kazancı ve harcamalar'), T('Saat'))}${row('car', T('Araç hatırlatmaları'), T('Rego, sigorta, BHSL: 30, 7 ve 1 gün önce · 30 Haziran gösterge km'), T('Saat'))}${row('bas', T('BAS hatırlatması'), T('BAS son gününden 14 ve 3 gün önce'), T('Saat'))}${row('taxweek', T('Haftalık vergi payı'), T("Her pazar: bu haftanın vergi payını kumbaraya aktardın mı?"), T('Saat'))}</div>`;
 }
 
 // ===================== VERGİ (Uber GST + income tax set-aside, per BAS quarter) =====================
@@ -2942,6 +3055,7 @@ function paraTax() {
   <div class="card">${head('jar', T('Kenara ayırdığın'), '', true)}
     ${f.sa.length ? `<div class="log" style="margin-bottom:10px">${f.sa.slice().sort((a, b) => b.d.localeCompare(a.d)).map((x) => `<div><span>${dShort(x.d)}</span><span style="display:flex;gap:6px;align-items:center"><b>${usd2(+x.amount || 0)}</b><button type="button" class="del" data-act="delSetAside" data-id="${x.id}" aria-label="${T('Sil')}">${U.armed === x.id ? T('Sil?') : ico('x')}</button></span></div>`).join('')}</div>` : `<p class="note" style="margin-top:0">${T('İş birikim hesabına aktardığın tutarları buraya yaz. Kalan tutar otomatik hesaplanır.')}</p>`}
     <form class="row" id="saForm"><input class="txt" type="date" id="saDate" value="${todayKey()}" aria-label="${T('Tarih')}" style="flex:0 0 150px;width:150px"><div class="money" style="flex:1;width:auto"><span>$</span><input id="saAmt" inputmode="decimal" placeholder="${T('Tutar')}" aria-label="${T('Ayrılan tutar')}"></div><button class="btn sm" type="submit" aria-label="${T('Ekle')}">${ico('plus')}</button></form></div>
+  ${carCard()}
   ${logbookCard()}
   <div class="card">${head('car', T('Uber giderleri'), `<span class="btns tight"><button type="button" class="btn sm soft" data-act="scanRc" id="scanRcTax">${ico('receipt')}${T('Fiş tara')}</button><button type="button" class="btn sm" data-act="newUexp">${ico('plus')}${T('Ekle')}</button></span>`)}
     ${f.ex.length ? `<div class="list">${expList}</div><p class="note">${T('Bu çeyrekte toplam {x}. Araç giderlerinde iş payı logbook yüzdesinden gelir ({p}).', { x: usd2(f.exTotal), p: pct(nf0.format(logbook())) })}</p>`
@@ -3125,6 +3239,8 @@ function vSheet() {
   }
   if (sh.kind === 'shift') return shiftSheet(sh);
   if (sh.kind === 'receipt') return receiptSheet(sh);
+  if (sh.kind === 'car') return carSheet();
+  if (sh.kind === 'ren') return renSheet(sh);
   if (sh.kind === 'rcview') return rcViewSheet(sh);
   if (sh.kind === 'uexp') return sheetShell(sh.id ? T('Uber giderini düzenle') : T('Uber gideri ekle'), uexpSheet(sh), 'a-para');
   if (sh.kind === 'habits') {
@@ -3330,6 +3446,12 @@ document.addEventListener('click', (e) => {
     case 'openFab': U.dCat = null; U.dOneOff = false; openOverlay('sheet', { kind: 'fab', k: null }); break;
     case 'dismissNotice': D.ui.notice = null; after(); break;
     case 'focusHours': { const el = $('wHours'); if (el) { el.scrollIntoView({ block: 'center' }); el.focus(); } break; }
+    // car + renewals
+    case 'editCar': openOverlay('sheet', { kind: 'car' }); break;
+    case 'newRen': openOverlay('sheet', { kind: 'ren' }); break;
+    case 'editRen': openOverlay('sheet', { kind: 'ren', id }); break;
+    case 'renDone': closeOverlay(); renewDone(id); renderAll(); break;
+    case 'delRen': arm(() => { D.money.renewals = D.money.renewals.filter((x) => x.id !== id); closeOverlay(); after(); scheduleNotifs(); }); if (U.sheet) renderSheet(); break;
     // receipts
     case 'scanRc': scanReceipt().catch(() => toast(T('Fiş açılamadı.'))); break;
     case 'rcWho': rcKeep(); U.sheet.who = b.dataset.v; if (b.dataset.v === 'uber') { if (!U.sheet.ucat) U.sheet.ucat = 'fuel'; } else if (U.sheet.dcat == null && U.sheet.ucat === 'fuel') U.sheet.dcat = FUEL_CAT; renderSheet(); break;
@@ -3534,6 +3656,14 @@ document.addEventListener('submit', (e) => {
       addDaily(k, p.name, amt, null, true);
       p.done = true; p.doneOn = k; p.spent = amt; p.log.push({ d: k, a: -Math.min(amt, p.saved), note: 'Satın alındı' }); /* note is a TR key, translated on display */ p.saved = Math.max(0, Math.round((p.saved - amt) * 100) / 100);
       save(); closeOverlay(); toast(T('{x}: {y} tek seferlik harcama olarak eklendi.', { x: p.name, y: money(amt) })); render(); return;
+    }
+    case 'carForm': {
+      const eng = num(val('carEngine')); D.money.car = { make: val('carMake').trim(), model: val('carModel').trim(), year: val('carYear').replace(/\D/g, '').slice(0, 4), engine: eng && eng > 0 && eng < 10 ? eng : null, plate: val('carPlate').trim().toUpperCase(), fuel: val('carFuel') };
+      save(); closeOverlay(); renderAll(); toast(T('Araç bilgileri kaydedildi.')); return;
+    }
+    case 'renForm': {
+      const r = saveRen(); if (typeof r === 'string') { const e = $('renErr'); if (e) { e.textContent = r; e.hidden = false; } return; }
+      closeOverlay(); toast(r.msg); renderAll(); return;
     }
     case 'rcForm': {
       const r = saveReceipt();
@@ -4041,6 +4171,24 @@ const EN = {
   'Ana iş giderleri': 'Main job expenses', 'fiş': 'receipt',
   'Bu mali yıl, ana işin için. Yıl sonu vergi beyannamesinde iş gideri olarak düşebilir ya da işverenden geri isteyebilirsin.': 'This financial year, for your main job. Claim them as work expenses in your tax return or ask your employer to reimburse them.',
   'Fişi gör': 'View receipt', 'ana iş': 'main job', 'Fiş açılamadı.': "Couldn't open the receipt.",
+  // v1.5 car
+  'Rego (CTP dahil)': 'Rego (incl. CTP)', 'Kasko sigortası': 'Comprehensive insurance', 'BHSL': 'BHSL', 'Sürücü izni (DA)': 'Driver authorisation (DA)', 'Araç muayenesi': 'Vehicle inspection',
+  'Servis': 'Service', 'Bitiş {d}': 'Due {d}', 'Tarih yok': 'No date', '{n} ayda bir': 'every {n} months',
+  'Aracım': 'My car', 'Bilgiler': 'Details', '{x} L motor': '{x} L engine', 'Dizel': 'Diesel', 'Hibrit': 'Hybrid', 'Elektrik': 'Electric', 'Benzin': 'Petrol',
+  '{l} L/100km · km başı {x}': '{l} L/100km · {x} per km', 'Marka, model, motor hacmi ve plakayı gir. Logbook dosyasına da yazılır.': 'Enter make, model, engine size and rego. They go into the logbook file too.',
+  'Rego, sigorta, BHSL ve muayene bitiş tarihlerini ekle; yaklaşınca hatırlatayım ve masrafı önceden biriktir.': "Add rego, insurance, BHSL and inspection due dates; you'll get reminders and can save up for them.",
+  'Yenileme ekle': 'Add renewal', 'Önümüzdeki 12 ay: {x}': 'Next 12 months: {x}', 'Haftada {x} ayır': 'Set aside {x} a week',
+  'Yakıt fişinde gösterge km’sini ve litreyi girersen arabanın gerçek tüketimini (L/100km) ve km başı maliyetini hesaplarım.': "Add the odometer and litres on fuel receipts to see your car's real consumption (L/100km) and cost per km.",
+  'Marka': 'Make', 'Model': 'Model', 'Yıl': 'Year', 'Motor hacmi': 'Engine size', 'Plaka (rego)': 'Rego plate',
+  'ATO logbook’ta marka, model, motor hacmi ve plakayı ister.': 'The ATO logbook needs make, model, engine size and rego.',
+  'Ne?': 'What?', 'Bitiş / son gün': 'Due date', 'Tahmini maliyet': 'Estimated cost', 'Tekrar': 'Repeats', 'Yılda bir': 'Yearly', '6 ayda bir': 'Every 6 months', '3 ayda bir': 'Every 3 months', 'Tek sefer': 'Once',
+  'ör. Suncorp, poliçe no': 'e.g. Suncorp, policy no.', 'Yeniledim': 'Renewed', 'Bitiş tarihini seç.': 'Pick the due date.', 'Kaydedildi: {x}': 'Saved: {x}',
+  '{x} Uber giderlerine eklendi. Yeni bitiş: {d}': '{x} added to Uber expenses. Next due: {d}', 'Yeni bitiş: {d}': 'Next due: {d}',
+  '{x} {n} gün önce bitti': '{x} expired {n} days ago', '{x} {d} bitiyor · {n} gün': '{x} due {d} · {n} days',
+  'Mali yıl sonu: arabanın gösterge km’sini gir (ATO)': "Financial year end: enter your car's odometer (ATO)",
+  '{x} {d} tarihinde bitiyor{c}.': '{x} is due on {d}{c}.', 'Mali yıl bitiyor: arabanın gösterge km’sini Momentum’a gir (ATO logbook).': "The financial year is ending: enter your car's odometer in Momentum (ATO logbook).",
+  'Araç hatırlatmaları': 'Car reminders', 'Rego, sigorta, BHSL: 30, 7 ve 1 gün önce · 30 Haziran gösterge km': 'Rego, insurance, BHSL: 30, 7 and 1 day before · odometer on 30 June',
+  'Araç bilgileri kaydedildi.': 'Car details saved.', 'isteğe bağlı': 'optional', 'Litre': 'Litres', 'Depoyu doldurduğunda gir: tüketim ve km başı maliyet hesaplanır.': 'Fill in when you fill the tank: consumption and cost per km are worked out.',
 };
 
 // ===================== init =====================

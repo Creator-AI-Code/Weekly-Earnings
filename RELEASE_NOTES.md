@@ -1,3 +1,14 @@
+## Momentum v1.5.0
+
+### Yeni: Aracım
+- **Para → Vergi → Aracım:** marka, model, yıl, motor hacmi, plaka ve yakıt türü. Bu bilgiler logbook dosyasına da yazılır (ATO şartı).
+- **Yenilemeler:** rego (CTP dahil), kasko, BHSL, DA, muayene, servis, lastik. Her birinin bitiş tarihi, maliyeti ve kaç ayda bir tekrarlandığı.
+- **Önümüzdeki 12 ay** toplamı ve **haftada ne kadar ayırman** gerektiği.
+- Bitişe 30 gün kala **Bugün** ekranında uyarı satırı. Telefonda 30, 7 ve 1 gün önce bildirim.
+- **Yeniledim:** ödeme Uber giderlerine eklenir (doğru GST ve logbook payıyla), bitiş tarihi bir sonraki döneme kayar.
+- **Yakıt tüketimi:** yakıt fişinde gösterge km'si ve litreyi girersen gerçek L/100km ve km başı maliyet hesaplanır.
+- **Mali yıl sonu:** 24 Haziran – 7 Temmuz arası "gösterge km'sini gir" hatırlatması. 1 Temmuz okuması logbook dosyasına yazılır.
+
 ## Momentum v1.4.0
 
 ### Yeni: Fiş tara
