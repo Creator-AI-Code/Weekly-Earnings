@@ -771,6 +771,8 @@ table.rep td:nth-child(3) { font-weight: 700; }
 .chart-wrap { margin: -4px 0 4px; }
 .ub-months { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
 .ub-months .chip .i { width: 13px; height: 13px; }
+.receipt.mine { margin-top: 12px; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); }
+.receipt.mine dt small { display: block; font-size: 0.72rem; color: var(--ink-3); font-weight: 500; }
 
 </style>
 </head>
@@ -1794,6 +1796,16 @@ function fitText(root) {
 const ACC_TYPES = [['main', 'Ana hesap', 'wallet'], ['savings', 'Birikim', 'jar'], ['biz', 'İş hesabı', 'brief'], ['tax', 'Vergi birikimi', 'tax'], ['cash', 'Nakit', 'cash'], ['other', 'Diğer', 'list']];
 const accType = (k) => ACC_TYPES.find((x) => x[0] === k) || ACC_TYPES[ACC_TYPES.length - 1];
 const agoDays = (k) => { const n = daysTo(k); return n === 0 ? T('bugün') : n === -1 ? T('dün') : T('{n} gün önce', { n: -n }); };
+// what is really yours: balances − GST still to pay at BAS − this FY's income tax share (paid after the tax return)
+function moneyOwed() {
+  const cur = quarterOf(thisWeekId()).key, fy = +cur.split('-Q')[0], q = +cur.split('-Q')[1], today = todayKey();
+  let gst = 0, tax = 0;
+  for (let i = 1; i <= q; i++) { const k = fy + '-Q' + i, f = taxFull(k); tax += f.tax; if (keyOf(qInfo(k).due) >= today) gst += f.gst; }
+  // previous FY's Q4 BAS falls due in August
+  const pk = (fy - 1) + '-Q4'; if (keyOf(qInfo(pk).due) >= today) gst += taxFull(pk).gst;
+  const pots = D.money.pots.filter((p) => !p.done).reduce((s, p) => s + (+p.saved || 0), 0);
+  return { gst: r2(gst), tax: r2(tax), pots: r2(pots), fy };
+}
 function accountsCard() {
   const A = D.money.accounts, tot = A.reduce((s, a) => s + (+a.bal || 0), 0);
   const tax = A.filter((a) => a.type === 'tax').reduce((s, a) => s + (+a.bal || 0), 0), need = A.some((a) => a.type === 'tax') ? taxFull(quarterOf(thisWeekId()).key).need : 0;
@@ -1802,6 +1814,13 @@ function accountsCard() {
   const stale = A.some((a) => !a.d || daysTo(a.d) < -7);
   return `<div class="card" id="accCard">${head('wallet', T('Hesaplarım'), `<button type="button" class="btn sm" data-act="newAcc" id="newAccBtn">${ico('plus')}${T('Hesap')}</button>`)}
     ${A.length ? `<div class="acc-tot"><span>${T('Toplam param')}</span><b id="accTotal">${usd2(tot)}</b></div><div class="list" id="accList">${A.map(row).join('')}</div>
+      ${(() => { const o = moneyOwed(), mine = tot - o.gst - o.tax, free = mine - o.pots; if (!o.gst && !o.tax && !o.pots) return '';
+        const ln = (id, l, v, x, cls) => `<div class="${cls || ''}" id="${id}"><dt>${l}${x ? `<small>${x}</small>` : ''}</dt><dd>${v}</dd></div>`;
+        return `<dl class="receipt mine" id="accMine">${ln('amTot', T('Bankadaki toplam'), usd2(tot))}
+          ${o.gst ? ln('amGst', o.gst > 0 ? T('− GST (BAS’ta ödenecek)') : T('+ GST iadesi (BAS’tan gelecek)'), (o.gst > 0 ? '−' : '+') + usd2(Math.abs(o.gst)), T('Son günü gelmemiş BAS’lar')) : ''}
+          ${o.tax ? ln('amTax', T('− Gelir vergisi payı'), '−' + usd2(o.tax), T('{fy} Uber kârının vergisi; beyannameden sonra ödenir', { fy: fyName(o.fy) })) : ''}
+          ${o.pots ? ln('amMine', T('= Gerçekten senin olan'), usd2(mine), '', 'sub-tot') + ln('amPots', T('− Kumbaralara ayrılan'), '−' + usd2(o.pots)) + `<div class="tot" id="amFree"><dt>${T('= Serbest para')}</dt><dd>${usd2(free)}</dd></div>`
+            : `<div class="tot" id="amMine"><dt>${T('= Gerçekten senin olan')}</dt><dd>${usd2(mine)}</dd></div>`}</dl>`; })()}
       ${need > 0 ? `<p class="acc-tax ${tax + 0.005 >= need ? 'ok' : 'short'}" id="accTax">${tax + 0.005 >= need ? T('Vergi birikiminde {a} var; bu çeyrek için gereken {b}. Yeterli.', { a: usd(tax), b: usd(need) }) : T('Vergi birikiminde {a} var; bu çeyrek için {b} gerekiyor. {c} eksik.', { a: usd(tax), b: usd(need), c: usd(need - tax) })}</p>` : ''}
       <p class="note">${stale ? T('Bakiyeleri haftada bir, banka uygulamasına bakıp güncelle. Uygulama bankana bağlanmaz, sadece senin yazdığını tutar.') : T('Bakiyeler senin girdiğin rakamlar; uygulama bankana bağlanmaz.')}</p>`
       : `<p class="note" style="margin-top:0">${T('Ana hesabını, birikim hesabını, iş hesabını ve vergi birikim hesabını ekle. Bakiyeleri banka uygulamasına bakıp yazarsın; toplam paran ve vergi için yeterince ayırıp ayırmadığın görünür.')}</p>`}</div>`;
@@ -4472,6 +4491,10 @@ const EN = {
   'Kaydet ve BAS’a uygula': 'Save and apply to BAS', 'Uber vergi özetleri': 'Uber tax summaries', 'PDF yükle': 'Upload PDF',
   'Uber Driver uygulaması → Hesap → Vergi bilgileri’nden (ya da drivers.uber.com) aylık vergi özetini PDF olarak indir ve buraya yükle. BAS’taki G1, 1A ve 1B kesin rakamlarla hesaplanır.': 'Download the monthly tax summary PDF from the Uber Driver app → Account → Tax info (or drivers.uber.com) and upload it here. G1, 1A and 1B on your BAS then use exact figures.',
   'G1 {a} · Uber kesintileri {b}': 'G1 {a} · Uber charges {b}', 'PDF okunamadı.': "Couldn't read the PDF.", 'Uber özeti kaydedildi: G1 {x}': 'Uber summary saved: G1 {x}',
+  // v1.7.1 money that is really yours
+  'Bankadaki toplam': 'Total in the bank', '− GST (BAS’ta ödenecek)': '− GST (due with your BAS)', '+ GST iadesi (BAS’tan gelecek)': '+ GST refund (coming from your BAS)',
+  'Son günü gelmemiş BAS’lar': 'BAS not yet due', '− Gelir vergisi payı': '− Income tax share', '{fy} Uber kârının vergisi; beyannameden sonra ödenir': 'Tax on {fy} Uber profit; paid after your tax return',
+  '= Gerçekten senin olan': '= Really yours', '− Kumbaralara ayrılan': '− Set aside in pots', '= Serbest para': '= Free money',
 };
 
 // ===================== init =====================

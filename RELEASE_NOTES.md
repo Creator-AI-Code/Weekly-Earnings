@@ -1,3 +1,7 @@
+## Momentum v1.7.1
+
+- **Hesaplar → "Gerçekten senin olan":** bankadaki toplam paradan son günü gelmemiş BAS'ların GST'si ve bu mali yılın Uber kârının gelir vergisi payı düşülür. Kumbaralara ayırdığın para da ayrıca gösterilir ve "serbest para" kalır.
+
 ## Momentum v1.7.0
 
 ### Yeni: Uber vergi özeti PDF'ini içe aktarma
