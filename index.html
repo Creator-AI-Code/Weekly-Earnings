@@ -785,6 +785,20 @@ body { padding-bottom: var(--kb, 0px); }
 .scrim { padding-bottom: var(--kb, 0px); }
 .sheet { max-height: calc(88vh - var(--kb, 0px)); }
 .kb-open .sheet { max-height: calc(100vh - var(--kb, 0px) - 24px); }
+/* ---------- plan ---------- */
+.advice { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border-radius: 14px; margin-bottom: 10px; }
+.advice .dot { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; flex: 0 0 auto; }
+.advice .dot .i { width: 18px; height: 18px; }
+.advice b { display: block; font-size: 0.98rem; } .advice small { display: block; color: var(--ink-2); font-size: 0.8rem; line-height: 1.4; margin-top: 2px; }
+.advice.green { background: var(--gain-soft); } .advice.green .dot { background: var(--gain); color: var(--surface); }
+.advice.amber { background: var(--warn-soft); } .advice.amber .dot { background: var(--warn); color: var(--surface); }
+.advice.red { background: var(--loss-soft); } .advice.red .dot { background: var(--loss); color: var(--loss-ink); }
+.plan-l { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; font-size: 0.85rem; }
+.plan-l li { display: flex; gap: 8px; align-items: flex-start; line-height: 1.4; }
+.plan-l li .i { width: 16px; height: 16px; flex: 0 0 auto; margin-top: 2px; color: var(--acc-text); }
+.uplan { display: grid; gap: 6px; }
+.up-row { display: grid; grid-template-columns: minmax(0, 1fr) 120px 84px; gap: 6px; align-items: center; font-size: 0.88rem; }
+.pot-due { font-size: 0.76rem; color: var(--ink-3); margin-top: 2px; }
 
 </style>
 </head>
@@ -925,7 +939,7 @@ const XLSX_URL = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.m
 const JSZIP_URL = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
 
 // ---------- defaults (budget, verbatim) ----------
-const DEF_SET = { salary: 100000, fixed: 10000, weeksPerYear: 48, cover: false, fuelDefault: 180, cashRate: 30, cashTax: false, recurring: [], jobHours: 38 };
+const DEF_SET = { salary: 100000, fixed: 10000, weeksPerYear: 48, cover: false, fuelDefault: 180, cashRate: 30, cashTax: false, recurring: [], jobHours: 38, saveTarget: 0, uberPlan: [] };
 let S = JSON.parse(JSON.stringify(DEF_SET)); // budget settings; always === D.money.settings after load
 
 // ---------- tax engine (2026-27 resident) — copied verbatim from Haftalık Bütçe ----------
@@ -1054,7 +1068,7 @@ function normalize(o) {
   ['money', 'growth', 'health', 'invest', 'ui'].forEach((k) => { if (isObj(D0[k])) out[k] = Object.assign(b[k], D0[k]); });
   const m = out.money; m.settings = Object.assign(clone(DEF_SET), isObj(m.settings) ? m.settings : {}); if (!Array.isArray(m.settings.recurring)) m.settings.recurring = [];
   if (!isObj(m.weeks)) m.weeks = {}; Object.keys(m.weeks).forEach((id) => { m.weeks[id] = normWeek(m.weeks[id], id); });
-  ['uberExpenses', 'setAsides', 'trips', 'odo', 'renewals', 'accounts'].forEach((k) => { if (!Array.isArray(m[k])) m[k] = []; }); if (!isObj(m.taxSummaries)) m.taxSummaries = {}; if (!isObj(m.lb)) m.lb = null; if (!isObj(m.car)) m.car = {}; if (!isObj(m.uberSums)) m.uberSums = {}; m.accounts.forEach((a) => { if (!Array.isArray(a.log)) a.log = []; });
+  ['uberExpenses', 'setAsides', 'trips', 'odo', 'renewals', 'accounts'].forEach((k) => { if (!Array.isArray(m[k])) m[k] = []; }); if (!isObj(m.taxSummaries)) m.taxSummaries = {}; if (!isObj(m.lb)) m.lb = null; if (!isObj(m.car)) m.car = {}; if (!Array.isArray(m.settings.uberPlan)) m.settings.uberPlan = []; if (!isObj(m.uberSums)) m.uberSums = {}; m.accounts.forEach((a) => { if (!Array.isArray(a.log)) a.log = []; });
   migrateUexpFuel(m);
   if (m.settings.logbookPct == null) m.settings.logbookPct = 100;
   // v1.1: car expenses follow the logbook % (bizAuto). Old car expenses saved at 100 % were the logbook default then.
@@ -1543,6 +1557,7 @@ function vBugun() {
     const c = s.c, sa = weekSetAside(s.id), bas = nextBas(), z = sa ? 0 : r2(c.weekTax);
     if (c.weekTax > 0 || bas && taxFull(bas.q).need > 0.005) html += `<button type="button" class="taxline a-para" data-act="go" data-tab="para" data-seg="vergi" id="bTaxLine">${ico('jar')}<span>${sa ? T('Bu haftanın vergi payı ayrıldı') : T('Vergi için ayır: {x} bu hafta', { x: usd(z) })}${bas ? ' · ' + T("BAS'a {n} gün", { n: bas.days }) : ''}</span>${ico('right')}</button>`;
   }
+  if (showCard('money')) html += planCard();
   if (showCard('uber')) html += shiftCard() + carLines();
   if (showCard('habits')) html += `<section class="sec a-gel">${habitTodayCard(k, bandNow(h))}</section>`;
   if (showCard('tasks')) {
@@ -1730,7 +1745,7 @@ function paraPots() {
 }
 function potCard(p) {
   const pc = p.done ? 100 : p.target ? Math.min(100, Math.round(p.saved / p.target * 100)) : 0, [st, cls] = potState(p);
-  return `<article class="card pot" data-pot="${p.id}"><div class="pot-h"><span class="ico">${ico(p.icon || 'jar')}</span><div class="nm"><h3>${esc(p.name)}</h3><div class="amt"><b>${money(p.saved)}</b> / ${money(p.target)}</div></div><span class="${cls}">${st}</span></div>
+  return `<article class="card pot" data-pot="${p.id}"><div class="pot-h"><span class="ico">${ico(p.icon || 'jar')}</span><div class="nm"><h3>${esc(p.name)}</h3><div class="amt"><b>${money(p.saved)}</b> / ${money(p.target)}</div>${p.due && !p.done ? `<div class="pot-due">${T('Son gün {d}', { d: dShort(p.due) })}${(() => { const x = potNeeds().find((q) => q.p.id === p.id); return x ? ' · ' + T('haftada {x}', { x: usd(x.perWeek) }) : ''; })()}</div>` : ''}</div><span class="${cls}">${st}</span></div>
     <div><div class="meter${p.target && p.saved >= p.target ? ' gold' : ''}"><i style="width:${pc}%"></i></div><div class="meter-l"><span>${pct(pc)}</span><span>${p.done ? T('Harcanan: {x}', { x: usd(p.spent || 0) }) + (p.doneOn ? ' · ' + dShort(p.doneOn) : '') : T('kalan {x}', { x: usd(Math.max(0, p.target - p.saved)) })}</span></div></div>
     ${p.done ? '' : `<div class="pot-ctl"><div class="money"><span>$</span><input id="pa-${p.id}" inputmode="decimal" placeholder="${T('Tutar')}" aria-label="${esc(T('{x} için tutar', { x: p.name }))}"></div><button type="button" class="btn sm" data-act="potAdd" data-id="${p.id}">${T('Ekle')}</button><button type="button" class="btn sm ghost" data-act="potTake" data-id="${p.id}">${T('Çek')}</button></div>
     <div class="btns"><button type="button" class="btn sm soft" data-act="potBuy" data-id="${p.id}">${ico('bag')}${T('Satın aldım')}</button><button type="button" class="btn sm soft" data-act="editPot" data-id="${p.id}">${ico('pen')}${T('Düzenle')}</button></div>`}
@@ -2632,6 +2647,105 @@ function lbCSV() {
   return L.map((r) => r.map(q).join(',')).join('\r\n') + '\r\n';
 }
 
+// ===================== PLAN (weekly savings target, pots with due dates, Uber shift plan, "what can I do today", ask Claude) =====================
+// settings.saveTarget: $ to keep each week; settings.uberPlan: [{ wd 0–6 (Sun=0), part 'sabah'|'aksam'|'gun', h }]
+const PARTS = [['sabah', 'Sabah', 12], ['aksam', 'Akşam', 23], ['gun', 'Tüm gün', 21]];
+const WD_ORDER = [1, 2, 3, 4, 5, 6, 0];
+const planOn = () => (+S.saveTarget || 0) > 0;
+// average net Uber $/h (after GST, fuel, car reserve, tax) over the last 6 weeks with hours; fallback 22
+function uberRate() {
+  let n = 0, h = 0;
+  Object.keys(D.money.weeks).sort().reverse().slice(0, 8).forEach((id) => { const c = calc(D.money.weeks[id]); if (c.E > 0 && c.H > 0) { n += c.uberNet + c.fx; h += c.H; } });
+  return h >= 5 ? Math.max(5, n / h) : 22;
+}
+// pots with a due date: what to put in this week so they are full in time
+function potNeeds(now) {
+  now = now || new Date(); const tk = keyOf(now);
+  return D.money.pots.filter((p) => !p.done && p.due && p.target > p.saved).map((p) => {
+    const days = Math.max(0, daysTo(p.due)), weeks = Math.max(1, Math.ceil((days + 1) / 7)), need = p.target - p.saved;
+    const thisWeek = (p.log || []).filter((l) => l.a > 0 && l.d >= idOf(mondayOf(now)) && l.d <= tk).reduce((s, l) => s + l.a, 0);
+    return { p, need, weeks, perWeek: need / weeks, days, left: Math.max(0, need / weeks - 0) , added: thisWeek };
+  });
+}
+function plannedLeft(now) {
+  now = now || new Date(); const wd = now.getDay(), hr = now.getHours(), out = [];
+  const order = (d) => (d + 6) % 7; // Mon=0 … Sun=6
+  (S.uberPlan || []).forEach((s) => {
+    const part = PARTS.find((x) => x[0] === s.part) || PARTS[2];
+    if (order(s.wd) > order(wd) || (s.wd === wd && hr < part[2] - 1)) out.push(s);
+  });
+  return out.sort((a, b) => order(a.wd) - order(b.wd));
+}
+function weekPlan(now) {
+  now = now || new Date(); const s = safeToSpend(now), c = s.c, rate = uberRate();
+  const left = plannedLeft(now), planH = left.reduce((a, x) => a + (+x.h || 0), 0), planNet = planH * rate;
+  const pots = potNeeds(now), potsWeek = pots.reduce((a, x) => a + Math.max(0, x.perWeek - x.added), 0);
+  // pots are paid from money you already have when your accounts cover them; only the uncovered part comes out of this week
+  let cover = 0;
+  if (D.money.accounts.length) { const tot = D.money.accounts.reduce((a, x) => a + (+x.bal || 0), 0), o = moneyOwed(); cover = Math.max(0, tot - o.gst - o.tax - D.money.pots.filter((q) => !q.done).reduce((a, q) => a + (+q.saved || 0), 0)); }
+  const potsFromWeek = Math.max(0, potsWeek - cover);
+  const started = !S.saveFrom || s.id >= idOf(mondayOf(parseKey(S.saveFrom)));
+  const target = started ? +S.saveTarget || 0 : 0, projected = c.left + planNet;
+  const room = projected - target - potsFromWeek, perDay = room / s.daysLeft;
+  const short = room < 0 ? -room : 0, extraH = short > 0 ? Math.ceil(short / rate) : 0;
+  return { s, c, rate, left, planH, planNet, pots, potsWeek, potsFromWeek, covered: potsWeek - potsFromWeek, target, started, projected, room, perDay, short, extraH };
+}
+function todayAdvice(P) {
+  if (P.room < 0) return { cls: 'red', ic: 'x', t: T('Bugün harcama yok'), sub: P.extraH <= 15 ? T('Hedefe {x} eksik: planın dışında ~{h} saat Uber gerekiyor.', { x: usd(P.short), h: P.extraH }) : T('Bu hafta hedefe {x} eksik; plana göre {y} birikir. Harcamayı en aza indir.', { x: usd(P.short), y: usd(Math.max(0, P.projected - P.potsFromWeek)) }) };
+  if (P.perDay >= 25) return { cls: 'green', ic: 'check', t: T('Kahve de dışarıda yemek de olur'), sub: T('Günde {x} harcama alanın var, hedef ve kumbaralar ayrıldıktan sonra.', { x: usd(P.perDay) }) };
+  if (P.perDay >= 7) return { cls: 'amber', ic: 'spark', t: T('Kahve olur, yemeği evde ye'), sub: T('Günde {x} harcama alanın var.', { x: usd(P.perDay) }) };
+  return { cls: 'red', ic: 'x', t: T('Bugün harcama yok'), sub: T('Günde sadece {x} alanın var; hedefi korumak için bugün harcama yapma.', { x: usd(Math.max(0, P.perDay)) }) };
+}
+const dayShort = (wd) => DAYS[wd];
+function planCard() {
+  if (!planOn()) return '';
+  const P = weekPlan(), A = todayAdvice(P), keep = Math.max(0, P.projected - P.potsFromWeek), pc = P.target > 0 ? Math.max(0, Math.min(100, Math.round(keep / P.target * 100))) : 100;
+  return `<section class="sec a-para plan" id="planCard">${secHead(P.started ? T('Bu hafta hedef: {x} birikim', { x: usd(P.target) }) : T('Birikim hedefi {d} haftası başlıyor', { d: dShort(S.saveFrom) }), `<button type="button" class="link" data-act="askClaude" id="askClaude">${ico('spark')}${T('Claude’a sor')}</button>`)}
+    <div class="advice ${A.cls}" id="advice"><span class="dot">${ico(A.ic)}</span><span><b>${A.t}</b><small>${A.sub}</small></span></div>
+    <div class="meter${pc >= 100 ? ' gold' : ''}"><i style="width:${pc}%"></i></div>
+    <div class="meter-l"><span>${T('Plan tutarsa: {x}', { x: usd(keep) })}</span><span>${pct(pc)}</span></div>
+    <ul class="plan-l">
+      ${P.left.length ? `<li>${ico('car')}<span>${T('Kalan Uber planı: {s}', { s: P.left.map((x) => dayShort(x.wd) + ' ' + T((PARTS.find((p) => p[0] === x.part) || PARTS[2])[1]).toLowerCase() + ' ' + x.h + T('sa')).join(' · ') })} <b>≈ ${usd(P.planNet)}</b></span></li>` : `<li>${ico('car')}<span>${T('Bu hafta planlı Uber vardiyası kalmadı.')}</span></li>`}
+      ${P.pots.map((x) => `<li>${ico('jar')}<span>${T('{n}: bu hafta {x} ayır ({d} kaldı)', { n: esc(x.p.name), x: usd(Math.max(0, x.perWeek - x.added)), d: x.days === 0 ? T('bugün') : T('{n} gün', { n: x.days }) })}</span></li>`).join('')}
+      ${P.covered > 0.5 ? `<li>${ico('wallet')}<span>${T('Kumbaralar hesaplarındaki paradan karşılanıyor; bu haftanın gelirinden düşülmedi.')}</span></li>` : ''}
+      <li>${ico('trend')}<span>${T('Uber’den saatte ~{x} net kalıyor (son haftaların ortalaması).', { x: usd(P.rate) })}</span></li>
+    </ul></section>`;
+}
+// a plain-text summary of the week to paste into a chat with Claude
+function weekSummaryText() {
+  const P = weekPlan(), c = P.c, id = P.s.id, w = getWeek(id) || {}, by = {};
+  (w.daily || []).forEach((x) => { const k = x.cat || 'diger'; by[k] = (by[k] || 0) + (+x.amount || 0); });
+  const L = [`Momentum haftalık özet — ${weekLabel(id)}`, `Birikim hedefi: ${usd(P.target)} / hafta`, `Maaş (net): ${usd(c.salaryNet)}`,
+    `Uber: brüt ${usd(c.E)}, ${nf1.format(c.H || 0)} sa, gerçek kâr ${usd(c.E > 0 ? c.uberNet : 0)} (saatte ~${usd(P.rate)})`,
+    `Nakit iş: ${usd(c.cashNet || 0)}`, `Harcamalar: ${Object.entries(by).map(([k, v]) => (dcatName(k) || k) + ' ' + usd(v)).join(', ') || '—'}`,
+    `Tekrarlayan giderler: ${usd(c.rec)}`, `Elinde kalan (şu an): ${usd(c.left)}`,
+    `Kalan Uber planı: ${P.left.map((x) => DAYS[x.wd] + ' ' + x.part + ' ' + x.h + 'sa').join(', ') || 'yok'} ≈ ${usd(P.planNet)}`,
+    `Kumbaralar: ${D.money.pots.filter((p) => !p.done).map((p) => `${p.name} ${usd(p.saved)}/${usd(p.target)}${p.due ? ' (son ' + p.due + ')' : ''}`).join(', ') || 'yok'}`,
+    `Hesaplar: ${D.money.accounts.map((a) => a.name + ' ' + usd(+a.bal || 0)).join(', ') || 'yok'}`,
+    `Plan tutarsa birikim: ${usd(Math.max(0, P.projected - P.potsWeek))}; ${P.room < 0 ? 'hedefe ' + usd(P.short) + ' eksik' : 'günde ' + usd(P.perDay) + ' harcama alanı'}`,
+    '', 'Bu haftaya göre ne önerirsin?'];
+  return L.join('\n');
+}
+async function askClaude() {
+  const t = weekSummaryText();
+  try { await navigator.clipboard.writeText(t); toast(T('Haftanın özeti kopyalandı. Claude sohbetine yapıştır.')); }
+  catch (e) { openOverlay('sheet', { kind: 'summary', text: t }); }
+}
+function summarySheet(sh) { return sheetShell(T('Claude’a sor'), `<p class="note" style="margin:0">${T('Metni seçip kopyala ve Claude sohbetine yapıştır.')}</p><textarea class="txt" rows="14" readonly id="sumText">${esc(sh.text)}</textarea>`, 'a-para'); }
+// settings UI: target + weekly Uber plan
+function planSettings() {
+  const plan = S.uberPlan || [], get = (wd) => plan.find((x) => x.wd === wd);
+  return `<div class="card stack" id="planSet">${head('target', T('Birikim planı'))}
+    <div class="field"><label for="sSave">${T('Haftalık birikim hedefi')}</label><div class="money"><span>$</span><input id="sSave" data-set="saveTarget" inputmode="decimal" value="${fmtIn(+S.saveTarget || 0)}"></div><span class="hint">${T('0 yazarsan plan kapanır.')}</span></div>
+    <div class="field"><label for="sSaveFrom">${T('Hedef başlangıcı (isteğe bağlı)')}</label><input class="txt" type="date" id="sSaveFrom" data-setdate="saveFrom" value="${S.saveFrom || ''}"><span class="hint">${T('Taşınma ve tatil gibi büyük harcamalar bitince başlat.')}</span></div>
+    <div class="field"><span class="lab">${T('Uber planı (her hafta)')}</span><div class="uplan">${WD_ORDER.map((wd) => { const x = get(wd); return `<div class="up-row"><span>${DAYS_LONG[wd]}</span><select class="txt" data-uplan="${wd}" aria-label="${esc(DAYS_LONG[wd])}"><option value="">${T('Yok')}</option>${PARTS.map(([k, l]) => `<option value="${k}" ${x && x.part === k ? 'selected' : ''}>${T(l)}</option>`).join('')}</select><div class="money"><input data-uplanh="${wd}" inputmode="decimal" value="${x ? inNum(x.h) : ''}" placeholder="0" aria-label="${esc(T('{x}: saat', { x: DAYS_LONG[wd] }))}"><span>${T('sa')}</span></div></div>`; }).join('')}</div></div></div>`;
+}
+function setPlan(wd, part, h) {
+  let plan = (S.uberPlan || []).filter((x) => x.wd !== wd);
+  if (part) plan.push({ wd, part, h: h != null ? h : (part === 'gun' ? 6 : 3) });
+  S.uberPlan = plan.sort((a, b) => ((a.wd + 6) % 7) - ((b.wd + 6) % 7));
+}
+
 // ===================== FİŞ TARA (receipt scan → OCR → expense + photo in Supabase Storage) =====================
 // Android app: ML Kit document scanner + on-device text recognition. Web: camera/file photo, amounts typed by hand.
 // Photos are compressed (~1600 px JPEG) and kept in IndexedDB first, then uploaded to the private 'receipts' bucket
@@ -3452,7 +3566,7 @@ function vSettings() {
       <div class="card a-bug">${head('palette', T('Tema'))}<div class="seg" role="group" aria-label="${T('Tema')}">${[['system', 'Sistem'], ['light', 'Açık'], ['dark', 'Koyu']].map(([v, l]) => `<button type="button" data-act="setTheme" data-v="${v}" id="theme-${v}" aria-pressed="${D.ui.theme === v}">${T(l)}</button>`).join('')}</div></div>
       <div class="card a-bug">${head('layout', T('Bugün kartları'))}${BUGUN_CARDS.map(([k, l]) => `<button type="button" class="trow" data-act="toggleCard" data-k="${k}" aria-pressed="${showCard(k)}"><span>${T(l)}</span><span class="sw" aria-hidden="true"></span></button>`).join('')}
         ${hidCount ? `<button type="button" class="link" data-act="restoreInsights" style="margin-top:6px">${T('Gizlenen {n} içgörüyü geri getir', { n: hidCount })}</button>` : ''}</div>`,
-    para: () => `<div class="card">${head('percent', T('Gelir ve vergi'))}<div class="fields">
+    para: () => `${planSettings()}<div class="card">${head('percent', T('Gelir ve vergi'))}<div class="fields">
       <div class="field"><label for="sSalary">${T('Maaş (brüt, yıllık)')}</label>${mny('sSalary', 'data-set="salary"', fmtIn(S.salary))}</div>
       <div class="field"><label for="sJobHours">${T('Maaşlı işte haftalık saat')}</label>${mny('sJobHours', 'data-set="jobHours"', fmtIn(S.jobHours), T('sa'), false)}</div>
       <div class="field"><label for="sCashRate">${T('Nakit iş saat ücreti')}</label>${mny('sCashRate', 'data-set="cashRate"', fmtIn(S.cashRate))}</div>
@@ -3524,6 +3638,7 @@ function vSheet() {
   if (sh.kind === 'receipt') return receiptSheet(sh);
   if (sh.kind === 'car') return carSheet();
   if (sh.kind === 'acc') return accSheet(sh);
+  if (sh.kind === 'summary') return summarySheet(sh);
   if (sh.kind === 'ubersum') return uberSumSheet(sh);
   if (sh.kind === 'ren') return renSheet(sh);
   if (sh.kind === 'rcview') return rcViewSheet(sh);
@@ -3539,6 +3654,7 @@ function vSheet() {
     return sheetShell(p ? T('Kumbarayı düzenle') : T('Yeni kumbara'), `<form class="stack" id="potForm"><div class="field"><label for="potName">${T('Ad')}</label><input class="txt" id="potName" value="${esc(p ? p.name : '')}" placeholder="${T('ör. PS5, Türkiye bileti')}" autocomplete="off"></div>
       <div class="field"><span class="lab">${T('Simge')}</span><div class="iconpick" role="group" aria-label="${T('Simge')}">${POT_ICONS.map(([v, l]) => `<button type="button" data-act="potIcon" data-v="${v}" aria-pressed="${sh.icon === v}" aria-label="${T(l)}" title="${T(l)}">${ico(v)}</button>`).join('')}</div></div>
       <div class="field"><label for="potTarget">${T('Hedef')}</label><div class="money"><span>$</span><input id="potTarget" inputmode="decimal" value="${p ? fmtIn(p.target) : ''}" placeholder="0"></div></div>
+      <div class="field"><label for="potDue">${T('Son gün (isteğe bağlı)')}</label><input class="txt" type="date" id="potDue" value="${p && p.due ? p.due : ''}"><span class="hint">${T('Tarih verirsen her hafta ne kadar ayırman gerektiğini hesaplarım.')}</span></div>
       ${p ? '' : `<div class="field"><label for="potStart">${T('Başlangıç tutarı (isteğe bağlı)')}</label><div class="money"><span>$</span><input id="potStart" inputmode="decimal" placeholder="0"></div></div>`}
       <button class="btn" type="submit">${p ? T('Kaydet') : T('Kumbarayı aç')}</button>${p ? `<button type="button" class="btn ghost" data-act="delPot" data-id="${p.id}">${U.armed === p.id ? T('Silmek için tekrar dokun') : T('Kumbarayı sil')}</button>` : ''}</form>`, 'a-para');
   }
@@ -3738,6 +3854,7 @@ document.addEventListener('click', (e) => {
     case 'editAcc': openOverlay('sheet', { kind: 'acc', id }); setTimeout(() => { const n = $('accBal'); if (n) { n.focus(); n.select(); } }, 60); break;
     case 'delAcc': arm(() => { D.money.accounts = D.money.accounts.filter((x) => x.id !== id); closeOverlay(); after(); }); if (U.sheet) renderSheet(); break;
     case 'chartTip': chartTip(b); break;
+    case 'askClaude': askClaude(); break;
     case 'ubImport': importUberPdf().catch(() => toast(T('PDF okunamadı.'))); break;
     case 'ubSave': { const r = U.sheet && U.sheet.r; if (r) { saveUberSum(r); closeOverlay(); U.taxQ = quarterOf(r.start).key; renderAll(); toast(T('Uber özeti kaydedildi: G1 {x}', { x: usd2(r.g1) })); } break; }
     case 'delUbSum': arm(() => { const x = D.money.uberSums[id]; delete D.money.uberSums[id]; if (x) { const k = quarterOf(x.start).key; delete D.money.taxSummaries[k]; rebuildTaxSummary(k); } after(); }); break;
@@ -3880,6 +3997,8 @@ document.addEventListener('input', (e) => {
   const t = e.target, k = todayKey(), ds = t.dataset;
   if (ds.wk) { const w = weekObj(U.cur); w[ds.wk] = ds.wk === 'note' ? t.value : parse(t.value); save(); paraCalc(); return; }
   if (ds.ex) { const x = weekObj(U.cur).extras[+ds.i]; if (!x) return; if (ds.ex === 'name') x.name = t.value; else { const n = parse(t.value); x.amount = n === '' ? 0 : n; } save(); paraCalc(); return; }
+  if (ds.setdate) { S[ds.setdate] = /^\d{4}-\d{2}-\d{2}$/.test(t.value) ? t.value : ''; save(); return; }
+  if (ds.uplanh != null) { const wd = +ds.uplanh, x = (S.uberPlan || []).find((q) => q.wd === wd), h = num(t.value); if (x && h > 0) { x.h = h; save(); } else if (!x && h > 0) { setPlan(wd, 'gun', h); save(); } return; }
   if (ds.set) { const v = parse(t.value); S[ds.set] = v === '' ? 0 : v; save(); return; }
   if (ds.tsum) { const v = parse(t.value), sm = D.money.taxSummaries[U.taxQ] = Object.assign({}, D.money.taxSummaries[U.taxQ]); if (v === '' || v <= 0) delete sm[ds.tsum]; else sm[ds.tsum] = v; if (!Object.keys(sm).length) delete D.money.taxSummaries[U.taxQ]; save(); return; }
   if (ds.rc) { const x = S.recurring[+ds.i]; if (!x) return; if (ds.rc === 'name') x.name = t.value; else { const n = parse(t.value); x.amount = n === '' ? 0 : n; } save(); return; }
@@ -3900,6 +4019,7 @@ document.addEventListener('focusout', (e) => {
   else if (ds.rc === 'amount') { const x = S.recurring[+ds.i]; if (x) t.value = fmtIn(x.amount); }
 });
 document.addEventListener('change', async (e) => {
+  if (e.target && e.target.dataset && e.target.dataset.uplan != null) { const wd = +e.target.dataset.uplan, h = num(val('') || (document.querySelector(`[data-uplanh="${wd}"]`) || {}).value || ''); setPlan(wd, e.target.value || null, h > 0 ? h : null); save(); renderPage(); return; }
   if (e.target && e.target.id === 'rcUcat' && U.sheet && U.sheet.kind === 'receipt') { rcKeep(); renderSheet(); return; }
   const t = e.target, k = todayKey(), ds = t.dataset;
   if (t.id === 'shFile') { if (t.files && t.files.length) importSamsung([...t.files]); t.value = ''; return; }
@@ -3945,8 +4065,9 @@ document.addEventListener('submit', (e) => {
     }
     case 'potForm': {
       const name = val('potName').trim(), target = pnum('potTarget') || 0; if (!name) { $('potName').focus(); return; }
-      if (U.sheet.id) { const p = D.money.pots.find((x) => x.id === U.sheet.id); if (p) Object.assign(p, { name, target, icon: U.sheet.icon }); }
-      else { const st = pnum('potStart') || 0; D.money.pots.push({ id: uid(), name, icon: U.sheet.icon, target, saved: st, log: st ? [{ d: k, a: st }] : [], created: k }); }
+      const due = /^\d{4}-\d{2}-\d{2}$/.test(val('potDue')) ? val('potDue') : null;
+      if (U.sheet.id) { const p = D.money.pots.find((x) => x.id === U.sheet.id); if (p) { Object.assign(p, { name, target, icon: U.sheet.icon }); if (due) p.due = due; else delete p.due; } }
+      else { const st = pnum('potStart') || 0; const np = { id: uid(), name, icon: U.sheet.icon, target, saved: st, log: st ? [{ d: k, a: st }] : [], created: k }; if (due) np.due = due; D.money.pots.push(np); }
       save(); closeOverlay(); U.paraSeg = 'kumbara'; render(); return;
     }
     case 'potBuyForm': {
@@ -4527,6 +4648,20 @@ const EN = {
   '= Gerçekten senin olan': '= Really yours', '− Kumbaralara ayrılan': '− Set aside in pots', '= Serbest para': '= Free money',
   // v1.8 pay from account
   'Kredi kartı': 'Credit card', 'Hangi hesaptan?': 'Paid from which account?', 'Hesaptan düşme': "Don't take from an account", 'Kredi kartında güncel borcunu yaz; uygulama eksi olarak tutar.': 'For a credit card, enter what you owe; it is kept as a negative balance.',
+  // v1.9 plan
+  'Tüm gün': 'All day', 'Hedefe {x} eksik: planın dışında ~{h} saat Uber gerekiyor.': '{x} short of the target: ~{h} extra Uber hours beyond your plan.',
+  'Kahve de dışarıda yemek de olur': 'Coffee and eating out are fine', 'Günde {x} harcama alanın var, hedef ve kumbaralar ayrıldıktan sonra.': 'You have {x} a day to spend after the target and pots.',
+  'Kahve olur, yemeği evde ye': 'Coffee yes, cook at home', 'Günde {x} harcama alanın var.': 'You have {x} a day to spend.',
+  'Bugün harcama yok': 'No spending today', 'Günde sadece {x} alanın var; hedefi korumak için bugün harcama yapma.': 'Only {x} a day left; skip spending today to keep the target.',
+  'Bu hafta hedef: {x} birikim': "This week's goal: save {x}", 'Claude’a sor': 'Ask Claude', 'Plan tutarsa: {x}': 'If the plan holds: {x}',
+  'Kalan Uber planı: {s}': 'Uber plan left: {s}', 'Bu hafta planlı Uber vardiyası kalmadı.': 'No planned Uber shifts left this week.',
+  '{n}: bu hafta {x} ayır ({d} kaldı)': '{n}: set aside {x} this week ({d} left)', 'Uber’den saatte ~{x} net kalıyor (son haftaların ortalaması).': 'Uber leaves you ~{x} net per hour (recent weeks).',
+  'Haftanın özeti kopyalandı. Claude sohbetine yapıştır.': "The week's summary is copied. Paste it into your Claude chat.", 'Metni seçip kopyala ve Claude sohbetine yapıştır.': 'Select and copy the text, then paste it into your Claude chat.',
+  'Birikim planı': 'Savings plan', 'Haftalık birikim hedefi': 'Weekly savings goal', '0 yazarsan plan kapanır.': 'Enter 0 to turn the plan off.', 'Uber planı (her hafta)': 'Uber plan (every week)', '{x}: saat': '{x}: hours',
+  'Son gün (isteğe bağlı)': 'Due date (optional)', 'Tarih verirsen her hafta ne kadar ayırman gerektiğini hesaplarım.': "With a date, you'll see how much to set aside each week.", 'Son gün {d}': 'Due {d}', 'haftada {x}': '{x} a week',
+  'Bu hafta hedefe {x} eksik; plana göre {y} birikir. Harcamayı en aza indir.': "This week you're {x} short; the plan saves {y}. Keep spending to a minimum.",
+  'Birikim hedefi {d} haftası başlıyor': 'Savings goal starts the week of {d}', 'Kumbaralar hesaplarındaki paradan karşılanıyor; bu haftanın gelirinden düşülmedi.': "Pots are covered by money in your accounts, so they don't come out of this week's income.",
+  'Hedef başlangıcı (isteğe bağlı)': 'Goal starts (optional)', 'Taşınma ve tatil gibi büyük harcamalar bitince başlat.': 'Start it after big one-offs like moving and holidays.',
 };
 
 // ===================== init =====================

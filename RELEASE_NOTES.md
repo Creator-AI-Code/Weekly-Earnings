@@ -1,3 +1,13 @@
+## Momentum v1.9.0
+
+### Yeni: Birikim planı
+- **Ayarlar → Para → Birikim planı:** haftalık birikim hedefi, hedefin başlayacağı hafta ve her haftaki Uber planın (gün + sabah/akşam/tüm gün + saat).
+- **Bugün → "Bu hafta hedef"** kartı:
+  - 🟢 "Kahve de dışarıda yemek de olur" / 🟡 "Kahve olur, yemeği evde ye" / 🔴 "Bugün harcama yok"
+  - Plan tutarsa bu hafta ne kadar biriktireceğin, kalan Uber vardiyaların ve tahmini kazancı, hedefe eksikse kaç saat daha Uber gerektiği.
+- **Son günlü kumbaralar:** bond, tatil gibi kumbaralara tarih ver; her hafta ne kadar ayırman gerektiği görünür. Hesaplarındaki para yetiyorsa bu haftanın gelirinden düşülmez.
+- **Claude'a sor:** haftanın özetini kopyalar, Claude sohbetine yapıştırıp yorum isteyebilirsin.
+
 ## Momentum v1.8.1
 
 - **Klavye:** yazdığın kutu artık hep klavyenin üstünde kalır. Alt pencereler (hızlı kayıt, fiş, düzenleme) klavyenin üstüne kalkar; klavye açıkken alttaki sekmeler ve + butonu gizlenir.
