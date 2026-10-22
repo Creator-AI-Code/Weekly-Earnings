@@ -799,6 +799,7 @@ body { padding-bottom: var(--kb, 0px); }
 .uplan { display: grid; gap: 6px; }
 .up-row { display: grid; grid-template-columns: minmax(0, 1fr) 120px 84px; gap: 6px; align-items: center; font-size: 0.88rem; }
 .pot-due { font-size: 0.76rem; color: var(--ink-3); margin-top: 2px; }
+.plan-acts { display: flex; align-items: center; gap: 4px; }
 
 </style>
 </head>
@@ -2698,9 +2699,12 @@ function todayAdvice(P) {
 }
 const dayShort = (wd) => DAYS[wd];
 function planCard() {
-  if (!planOn()) return '';
+  if (!planOn()) return `<section class="sec a-para plan" id="planSetup">${secHead(T('Haftalık birikim hedefi'))}
+    <p class="note" style="margin:0 0 10px">${T('Her hafta ne kadar biriktirmek istiyorsun? Hedefi koyunca her gün “bugün ne harcayabilirim” ve hedefe kaç saat Uber kaldığını gösteririm.')}</p>
+    <form class="row" id="saveGoalForm"><div class="money" style="flex:1"><span>$</span><input id="goalAmt" inputmode="decimal" placeholder="1.500" aria-label="${T('Haftalık birikim hedefi')}"></div><button class="btn" type="submit" id="goalSave">${T('Hedefi koy')}</button></form></section>`;
   const P = weekPlan(), A = todayAdvice(P), keep = Math.max(0, P.projected - P.potsFromWeek), pc = P.target > 0 ? Math.max(0, Math.min(100, Math.round(keep / P.target * 100))) : 100;
-  return `<section class="sec a-para plan" id="planCard">${secHead(P.started ? T('Bu hafta hedef: {x} birikim', { x: usd(P.target) }) : T('Birikim hedefi {d} haftası başlıyor', { d: dShort(S.saveFrom) }), `<button type="button" class="link" data-act="askClaude" id="askClaude">${ico('spark')}${T('Claude’a sor')}</button>`)}
+  return `<section class="sec a-para plan" id="planCard">${secHead(P.started ? T('Bu hafta hedef: {x} birikim', { x: usd(P.target) }) : T('Birikim hedefi {d} haftası başlıyor', { d: dShort(S.saveFrom) }), `<span class="plan-acts"><button type="button" class="iconbtn flat" data-act="openSettings" data-sec="para" data-focus="sSave" id="editGoal" aria-label="${T('Hedefi ve Uber planını düzenle')}">${ico('pen')}</button><button type="button" class="link" data-act="askClaude" id="askClaude">${ico('spark')}${T('Claude’a sor')}</button></span>`)}
+    ${!(S.uberPlan || []).length ? `<p class="note" style="margin:0 0 8px"><button type="button" class="link" data-act="openSettings" data-sec="para" data-focus="sSave">${T('Uber planını ekle')}</button> ${T('— hangi gün kaç saat çalışacağını girersen haftalık tahmin yaparım.')}</p>` : ''}
     <div class="advice ${A.cls}" id="advice"><span class="dot">${ico(A.ic)}</span><span><b>${A.t}</b><small>${A.sub}</small></span></div>
     <div class="meter${pc >= 100 ? ' gold' : ''}"><i style="width:${pc}%"></i></div>
     <div class="meter-l"><span>${T('Plan tutarsa: {x}', { x: usd(keep) })}</span><span>${pct(pc)}</span></div>
@@ -4080,6 +4084,7 @@ document.addEventListener('submit', (e) => {
       const r = saveAcc(); if (typeof r === 'string') { const e = $('accErr'); if (e) { e.textContent = r; e.hidden = false; } return; }
       closeOverlay(); toast(r.msg); renderAll(); return;
     }
+    case 'saveGoalForm': { const v = pnum('goalAmt'); if (!v || v <= 0) { $('goalAmt').focus(); return; } S.saveTarget = v; save(); render(); toast(T('Haftalık hedef: {x}', { x: usd(v) })); return; }
     case 'carForm': {
       const eng = num(val('carEngine')); D.money.car = { make: val('carMake').trim(), model: val('carModel').trim(), year: val('carYear').replace(/\D/g, '').slice(0, 4), engine: eng && eng > 0 && eng < 10 ? eng : null, plate: val('carPlate').trim().toUpperCase(), fuel: val('carFuel') };
       save(); closeOverlay(); renderAll(); toast(T('Araç bilgileri kaydedildi.')); return;
@@ -4662,6 +4667,8 @@ const EN = {
   'Bu hafta hedefe {x} eksik; plana göre {y} birikir. Harcamayı en aza indir.': "This week you're {x} short; the plan saves {y}. Keep spending to a minimum.",
   'Birikim hedefi {d} haftası başlıyor': 'Savings goal starts the week of {d}', 'Kumbaralar hesaplarındaki paradan karşılanıyor; bu haftanın gelirinden düşülmedi.': "Pots are covered by money in your accounts, so they don't come out of this week's income.",
   'Hedef başlangıcı (isteğe bağlı)': 'Goal starts (optional)', 'Taşınma ve tatil gibi büyük harcamalar bitince başlat.': 'Start it after big one-offs like moving and holidays.',
+  'Haftalık birikim hedefi koy': 'Set a weekly savings goal', 'Her hafta ne kadar biriktirmek istiyorsun? Hedefi koyunca her gün “bugün ne harcayabilirim” ve hedefe kaç saat Uber kaldığını gösteririm.': "How much do you want to save each week? With a goal you'll see what you can spend today and how many Uber hours are left to reach it.",
+  'Hedefi koy': 'Set goal', 'Hedefi ve Uber planını düzenle': 'Edit goal and Uber plan', 'Uber planını ekle': 'Add your Uber plan', '— hangi gün kaç saat çalışacağını girersen haftalık tahmin yaparım.': '— enter which days and how long you drive to get a weekly forecast.', 'Haftalık hedef: {x}': 'Weekly goal: {x}',
 };
 
 // ===================== init =====================

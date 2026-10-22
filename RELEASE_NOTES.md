@@ -1,3 +1,7 @@
+## Momentum v1.9.1
+
+- **Bugün ekranında birikim hedefi:** hedef yoksa "Haftalık birikim hedefi" kartından tutarı yazıp koyarsın. Hedef kartındaki kalem simgesi hedefi ve Uber planını düzenlemeye götürür.
+
 ## Momentum v1.9.0
 
 ### Yeni: Birikim planı
