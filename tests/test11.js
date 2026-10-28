@@ -1,0 +1,38 @@
+// v1.6: "Ne için?" combobox — dropdown of recent names + categories, filter while typing, free text, category guess
+const { chromium } = require('playwright');
+let fails = 0; const check = (ok, m) => { if (!ok) fails++; console.log((ok ? 'PASS ' : 'FAIL ') + m); };
+(async () => {
+  const b = await chromium.launch(); const c = await b.newContext({ viewport: { width: 400, height: 900 }, timezoneId: 'Australia/Brisbane', locale: 'tr-TR', serviceWorkers: 'block' });
+  await c.clock.setFixedTime(new Date('2026-10-21T12:00:00+10:00')); await c.route(/fonts\.|cdnjs|jsdelivr|supabase\.co/, (r) => r.fulfill({ status: 404, body: '' }));
+  await c.addInitScript(() => localStorage.setItem('adim-adim-v2', JSON.stringify({ schemaVersion: 1, money: { settings: { salary: 105000 }, weeks: { '2026-10-19': { start: '2026-10-19', daily: [{ id: 'x', date: '2026-10-20', name: 'Gloria Jeans', cat: 'kahve', amount: 5 }, { id: 'y', date: '2026-10-20', name: 'Kebapçı', cat: 'yemek', amount: 14 }], extras: [] } } } })));
+  const p = await c.newPage(); const errs = []; p.on('pageerror', (e) => errs.push(e.message));
+  await p.goto('http://localhost:8766/'); await p.waitForTimeout(200);
+  await p.click('#tabs [data-tab="para"]'); await p.click('[data-act="paraSeg"][data-v="hafta"]'); await p.waitForTimeout(100);
+  check(!(await p.isVisible('#dailyForm [data-act="dCat"]')), 'U category chip row is gone');
+  await p.click('#dName'); await p.waitForTimeout(80);
+  const items = await p.$$eval('#dNameList .combo-it', (a) => a.map((x) => x.textContent.replace(/\s+/g, ' ').trim()));
+  check(items[0].startsWith('Kebapçı') && items.some((x) => /Gloria Jeans/.test(x)) && items.some((x) => /^Kahve/.test(x)), 'D tapping shows recent names first, then categories: ' + items.slice(0, 4).join(' | '));
+  await p.fill('#dName', 'glo'); await p.waitForTimeout(60);
+  const f = await p.$$eval('#dNameList .combo-it', (a) => a.map((x) => x.textContent.replace(/\s+/g, ' ').trim()));
+  check(/“glo” ekle/.test(f[0]) && f.some((x) => /Gloria Jeans/.test(x)), 'D typing filters + offers the typed text: ' + f.join(' | '));
+  await p.click('#dNameList [data-n="Gloria Jeans"]'); await p.waitForTimeout(60);
+  check(await p.inputValue('#dName') === 'Gloria Jeans' && /Kahve/.test(await p.textContent('#dNameCat')), 'P picking a past name fills it and its category');
+  await p.fill('#dAmt', '5'); await p.click('#dSave'); await p.waitForTimeout(120);
+  await p.fill('#dName', 'Coffee Club Carindale'); await p.waitForTimeout(60);
+  check(/Kahve/.test(await p.textContent('#dNameCat')), 'G "Coffee Club…" guessed as Kahve');
+  await p.fill('#dName', 'Berber'); await p.waitForTimeout(60);
+  check(/Kategori/.test(await p.textContent('#dNameCat')), 'G unknown text leaves the category empty');
+  await p.click('#dNameCat'); await p.click('#dNameList [data-act="comboPick"][data-c="diger"]'); await p.waitForTimeout(60);
+  check(await p.inputValue('#dName') === 'Berber' && /Diğer/.test(await p.textContent('#dNameCat')), 'C category-only pick keeps the custom text');
+  await p.fill('#dAmt', '30'); await p.click('#dSave'); await p.waitForTimeout(120);
+  const m = await p.evaluate(() => window.__adim.state.money.weeks['2026-10-19'].daily.map((x) => x.name + ':' + x.cat));
+  check(m.includes('Gloria Jeans:kahve') && m.includes('Berber:diger'), 'S saved with categories: ' + m.join(', '));
+  await p.click('#dName'); await p.keyboard.press('Escape'); await p.waitForTimeout(60);
+  check(await p.isHidden('#dNameList'), 'K Escape closes the list');
+  await p.click('#tabs [data-tab="bugun"]'); await p.click('#fab'); await p.click('[data-act="fabPick"][data-k="harcama"]'); await p.click('#qName'); await p.waitForTimeout(60);
+  check(await p.isVisible('#qNameList'), 'Q quick-add has the same dropdown');
+  await p.evaluate(() => window.__adim.setLang('en')); await p.click('[data-act="fabPick"][data-k="harcama"]'); await p.click('#qName'); await p.fill('#qName', 'zzz'); await p.waitForTimeout(60);
+  const miss = await p.evaluate(() => [...window.__adim.missing]); check(miss.length === 0, 'I EN ' + miss.join(' | '));
+  check(errs.length === 0, 'no page errors ' + errs.join(' | '));
+  await b.close(); console.log(fails ? fails + ' FAILED' : 'ALL PASS'); process.exit(fails ? 1 : 0);
+})();
