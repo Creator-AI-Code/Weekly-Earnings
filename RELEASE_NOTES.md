@@ -1,3 +1,9 @@
+## Momentum v1.9.2
+
+- **Küçük ekranda kesilmeler düzeldi:** gün listesindeki "Kaydet", Vergi'deki "Kalan" kutusu ve Uber giderlerinin adları artık tam görünüyor.
+- **BAS tarihleri düzeldi:** Ayarlar → Vergi artık kendin verdiğinde geçerli son günleri yazıyor: 11 Kasım, 28 Şubat, 12 Mayıs, 25 Ağustos.
+- **Yazı kutuları daha belirgin:** kutuların çerçevesi koyulaştı, güneşte de seçiliyor.
+
 ## Momentum v1.9.1
 
 - **Bugün ekranında birikim hedefi:** hedef yoksa "Haftalık birikim hedefi" kartından tutarı yazıp koyarsın. Hedef kartındaki kalem simgesi hedefi ve Uber planını düzenlemeye götürür.

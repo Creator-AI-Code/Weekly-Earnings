@@ -255,7 +255,7 @@ const EN = {
   'Araç giderlerinin varsayılan iş payıdır.': 'The default work share for car expenses.', 'Kategori varsayılanları': 'Category defaults', '{x}: GST': '{x}: GST', '{x}: iş payı': '{x}: work share',
   'Yeni Uber giderlerinde bu GST ve iş payı değerleri önceden seçili gelir. Araç kategorileri logbook yüzdesini kullanır, değiştirmediğin sürece.': 'New Uber expenses start with these GST and work-share settings. Car categories use your logbook % unless you change them.',
   'Uber vergisi': 'Uber tax', 'Hastane sigortası': 'Hospital cover',
-  'Vergi sekmesi maaşını ve hastane sigortanı Para ayarlarından alır. BAS çeyreklik verilir: 28 Ekim, 28 Şubat, 28 Nisan ve 28 Temmuz.': 'The Tax tab takes your salary and hospital cover from Money settings. BAS is lodged quarterly: 28 October, 28 February, 28 April and 28 July.',
+  'Vergi sekmesi maaşını ve hastane sigortanı Para ayarlarından alır. BAS çeyreklik verilir. Kendin verirsen son günler: 11 Kasım, 28 Şubat, 12 Mayıs ve 25 Ağustos.': 'The Tax tab takes your salary and hospital cover from Money settings. BAS is lodged quarterly. If you lodge it yourself, the due dates are 11 November, 28 February, 12 May and 25 August.',
   'Para ayarlarını aç': 'Open Money settings', 'Okuma': 'Reading', 'Yıllık kitap hedefi': 'Yearly book goal', 'Bugüne kaydet': 'Save to today',
   'Bugünün günlük harcamalarına eklenir ve haftanın giderlerine sayılır.': "Added to today's daily spending and counted in this week's costs.", 'Harcamayı düzenle': 'Edit expense', 'Gün': 'Day',
   'Harcamayı sil': 'Delete expense', 'Bu sekmenin ayarları': "This tab's settings", 'Silindi: {x} ({y})': 'Deleted: {x} ({y})', 'Geri al': 'Undo', 'Bugüne eklendi: {x}': 'Added to today: {x}',

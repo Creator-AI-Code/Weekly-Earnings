@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "money": {
+    "settings": { "salary": 98000, "fixed": 6800, "weeksPerYear": 46, "cover": false, "fuelDefault": 150, "cashRate": 30, "recurring": [{ "name": "Kira", "amount": 360 }, { "name": "Telefon", "amount": 12 }], "jobHours": 38, "saveTarget": 450, "logbookPct": 70,
+      "uberPlan": [{ "wd": 4, "part": "aksam", "h": 4 }, { "wd": 5, "part": "aksam", "h": 5 }, { "wd": 6, "part": "gun", "h": 7 }] },
+    "weeks": {
+      "2026-10-05": { "start": "2026-10-05", "uberEarn": 402.5, "uberHours": 14, "cashHours": "", "daily": [{ "id": "s1", "date": "2026-10-07", "name": "Ampol", "amount": 61.2, "cat": "yakit" }, { "id": "s2", "date": "2026-10-08", "name": "Market alışverişi", "amount": 74.3, "cat": "market" }] },
+      "2026-10-12": { "start": "2026-10-12", "uberEarn": 288, "uberHours": 10, "cashHours": 4, "daily": [{ "id": "s3", "date": "2026-10-14", "name": "Shell", "amount": 55, "cat": "yakit" }] },
+      "2026-10-19": { "start": "2026-10-19", "uberEarn": 351.75, "uberHours": 12, "cashHours": "", "daily": [{ "id": "s4", "date": "2026-10-21", "name": "Kahve", "amount": 5.5, "cat": "kahve" }] },
+      "2026-10-26": { "start": "2026-10-26", "uberEarn": 296, "uberHours": 11, "cashHours": 6, "daily": [{ "id": "s5", "date": "2026-10-26", "name": "Market alışverişi", "amount": 58.4, "cat": "market" }, { "id": "s6", "date": "2026-10-27", "name": "Ampol", "amount": 62.1, "cat": "yakit" }, { "id": "s7", "date": "2026-10-28", "name": "Öğle yemeği", "amount": 14, "cat": "yemek" }] }
+    },
+    "pots": [{ "id": "p1", "name": "Tatil", "icon": "plane", "target": 900, "saved": 320, "log": [{ "d": "2026-10-10", "a": 320 }], "due": "2026-12-10" }, { "id": "p2", "name": "Lastik", "icon": "car", "target": 600, "saved": 150, "log": [] }],
+    "uberExpenses": [{ "id": "u1", "d": "2026-10-09", "cat": "wash", "amount": 22, "gst": true, "biz": 70, "bizAuto": true, "note": "Oto yıkama" }, { "id": "u2", "d": "2026-10-16", "cat": "phone", "amount": 45, "gst": true, "biz": 50, "note": "" }, { "id": "u3", "d": "2026-10-20", "cat": "parking", "amount": 9.8, "gst": true, "biz": 70, "bizAuto": true, "note": "Havaalanı" }],
+    "setAsides": [{ "id": "t1", "d": "2026-10-12", "amount": 95, "q": "2027-Q2", "week": "2026-10-05" }],
+    "trips": [{ "id": "r1", "start": 1761373200000, "end": 1761388200000, "kmStart": 120100, "kmEnd": 120240 }, { "id": "r2", "start": 1761546000000, "end": 1761559200000, "kmStart": 120310, "kmEnd": 120428 }],
+    "odo": [], "lb": { "startTs": 1759500000000, "odoStart": 118900, "vehicle": "" },
+    "car": { "make": "Toyota", "model": "Camry Hybrid", "year": "2019", "engine": 2.5, "plate": "TEST01", "fuel": "hybrid" },
+    "renewals": [{ "id": "n1", "kind": "bhsl", "due": "2026-11-08", "cost": 65, "every": 12 }, { "id": "n2", "kind": "rego", "due": "2027-01-20", "cost": 410, "every": 12 }],
+    "accounts": [{ "id": "a1", "name": "Ana hesap", "type": "main", "bal": 2140.5, "d": "2026-10-27", "log": [] }, { "id": "a2", "name": "Birikim", "type": "savings", "bal": 3200, "d": "2026-10-27", "log": [] }, { "id": "a3", "name": "Vergi", "type": "tax", "bal": 610, "d": "2026-10-27", "log": [] }],
+    "uberSums": {}
+  },
+  "growth": { "habits": [{ "id": "h1", "name": "Erken kalk", "band": "sabah" }, { "id": "h2", "name": "Kitap oku", "band": "aksam" }], "log": { "2026-10-27": ["h1"] }, "tasks": [{ "id": "k1", "text": "Lastik fiyatı sor", "prio": 1 }], "goals": [], "books": [], "journal": {} },
+  "health": { "days": { "2026-10-27": { "cig": 3, "sleep": 410 } }, "height": 178, "packPrice": 40 },
+  "invest": { "holdings": [{ "id": "i1", "symbol": "VAS", "market": "ASX", "units": 12, "avgCost": 98.5, "currency": "AUD", "manualPrice": 101.2, "manualAt": "2026-10-27" }, { "id": "i2", "symbol": "IVV", "market": "ASX", "units": 5, "avgCost": 61, "currency": "AUD", "manualPrice": 63.4, "manualAt": "2026-10-27" }], "watchlist": [], "prices": {}, "finnhubKey": "", "showOnHome": true, "lastRefresh": 0 },
+  "ui": { "theme": "system", "lang": "tr", "swipeHintSeen": true }
+}
