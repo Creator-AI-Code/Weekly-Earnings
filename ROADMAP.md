@@ -8,6 +8,8 @@ Format: Now / Next / Later. Each item gets a slug, a goal, and acceptance criter
 - **Problem:** the app has too many cards and settings. Daily use between Uber trips is slow, and finding things is hard.
 - **Goal:** each screen answers one question and shows one primary action. Quarterly tools move out of the way.
 - **Decision (28 Oct 2026):** Gelişim and Sağlık are hidden, not deleted. Settings gets a "Modüller" section with these two off by default; their data and sync stay untouched. Yatırım stays.
+- **Shipped:** v1.9.2 (R0 fixes) and v2.0.0 (R1: Modüller, 3 tabs, Grafit/Lacivert/Petrol palettes), 28 Oct 2026. Review: `design/review-r1.md`.
+- **Open from review:** the Bugün kartları switches ignore hidden modules; due-soon renewals show red (should be amber).
 - **Steps:**
   1. `momentum-designer`: screen-by-screen audit, keep/merge/move/remove → `design/audit-sadelik.md`
   2. Emre approves the proposal and mockups (`design/proposal-sadelik.md`)
