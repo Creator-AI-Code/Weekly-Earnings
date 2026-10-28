@@ -247,18 +247,20 @@ async function doScheduleNotifs() {
   try {
     const pend = await LN.getPending(); if (pend && pend.notifications && pend.notifications.length) await LN.cancel({ notifications: pend.notifications.map((n) => ({ id: n.id })) });
     const list = [], base = { smallIcon: 'ic_stat_momentum', iconColor: '#E4B552' };
-    if (N.evening.on) list.push(Object.assign({ id: 101, title: 'Momentum', body: T('Akşam değerlendirmesi: bugün nasıl geçti?'), schedule: { on: hm(N.evening.time), allowWhileIdle: true } }, base));
-    if (N.habit.on) list.push(Object.assign({ id: 102, title: 'Momentum', body: T('Günün alışkanlıklarını işaretlemeyi unutma.'), schedule: { on: hm(N.habit.time), allowWhileIdle: true } }, base));
+    // reminders of a hidden module are not scheduled (Gelişim: evening, habit · Uber araçları: taxweek, bas, car)
+    const gel = modOn('gelisim'), ub = modOn('uber');
+    if (N.evening.on && gel) list.push(Object.assign({ id: 101, title: 'Momentum', body: T('Akşam değerlendirmesi: bugün nasıl geçti?'), schedule: { on: hm(N.evening.time), allowWhileIdle: true } }, base));
+    if (N.habit.on && gel) list.push(Object.assign({ id: 102, title: 'Momentum', body: T('Günün alışkanlıklarını işaretlemeyi unutma.'), schedule: { on: hm(N.habit.time), allowWhileIdle: true } }, base));
     if (N.weekly.on) list.push(Object.assign({ id: 103, title: 'Momentum', body: T('Haftalık kontrol: Uber kazancını ve harcamalarını gir.'), schedule: { on: Object.assign({ weekday: 1 }, hm(N.weekly.time)), allowWhileIdle: true } }, base));
-    if (N.taxweek.on) { const x = r2(weekTaxOf(thisWeekId())); if (x > 0 && !weekSetAside(thisWeekId())) list.push(Object.assign({ id: 104, title: 'Momentum', body: T('Bu haftanın vergi payı: {x}. Aktardın mı?', { x: usd2(x) }), schedule: { on: Object.assign({ weekday: 1 }, hm(N.taxweek.time)), allowWhileIdle: true } }, base)); }
-    if (N.bas.on) {
+    if (N.taxweek.on && ub) { const x = r2(weekTaxOf(thisWeekId())); if (x > 0 && !weekSetAside(thisWeekId())) list.push(Object.assign({ id: 104, title: 'Momentum', body: T('Bu haftanın vergi payı: {x}. Aktardın mı?', { x: usd2(x) }), schedule: { on: Object.assign({ weekday: 1 }, hm(N.taxweek.time)), allowWhileIdle: true } }, base)); }
+    if (N.bas.on && ub) {
       let q = qShift(quarterOf(thisWeekId()).key, -1), id = 200; /* previous quarter BAS falls due during the current one */ const t = hm(N.bas.time);
       for (let i = 0; i < 5; i++, q = qShift(q, 1)) {
         const due = qInfo(q).due;
         [14, 3].forEach((before) => { const at = new Date(due.getFullYear(), due.getMonth(), due.getDate() - before, t.hour, t.minute); if (at > new Date()) list.push(Object.assign({ id: id++, title: 'Momentum', body: T('{q} BAS son günü {d}. Vergi için ayırdığın tutarı kontrol et.', { q: qName(q), d: longDate(due) }), schedule: { at, allowWhileIdle: true } }, base)); });
       }
     }
-    if (N.car.on) list.push(...renewalNotifs(base, hm));
+    if (N.car.on && ub) list.push(...renewalNotifs(base, hm));
     if (list.length) await LN.schedule({ notifications: list });
   } catch (e) {}
 }
@@ -276,5 +278,5 @@ function vNotifs() {
   const row = (k, label, hint, timeLbl) => `<div class="nrow"><button type="button" class="trow" data-act="notifToggle" data-k="${k}" aria-pressed="${N[k].on}" ${native ? '' : 'disabled'}><span>${label}<small>${hint}</small></span><span class="sw" aria-hidden="true"></span></button>
     ${N[k].on ? `<label class="ntime">${timeLbl}<input class="txt" type="time" data-ntime="${k}" value="${N[k].time}"></label>` : ''}</div>`;
   return `${native ? '' : `<div class="card"><p class="note" style="margin:0" id="notifWebNote">${T('Bildirimler Android uygulamasında çalışır. Uygulamayı GitHub’daki “Sürümler” sayfasından Momentum.apk olarak indirebilirsin.')}</p></div>`}
-    <div class="card">${row('evening', T('Akşam değerlendirmesi'), T('Her gün'), T('Saat'))}${row('habit', T('Alışkanlık hatırlatması'), T('Her gün'), T('Saat'))}${row('weekly', T('Haftalık giriş'), T('Her pazar: Uber kazancı ve harcamalar'), T('Saat'))}${row('car', T('Araç hatırlatmaları'), T('Rego, sigorta, BHSL: 30, 7 ve 1 gün önce · 30 Haziran gösterge km'), T('Saat'))}${row('bas', T('BAS hatırlatması'), T('BAS son gününden 14 ve 3 gün önce'), T('Saat'))}${row('taxweek', T('Haftalık vergi payı'), T("Her pazar: bu haftanın vergi payını kumbaraya aktardın mı?"), T('Saat'))}</div>`;
+    <div class="card">${modOn('gelisim') ? row('evening', T('Akşam değerlendirmesi'), T('Her gün'), T('Saat')) + row('habit', T('Alışkanlık hatırlatması'), T('Her gün'), T('Saat')) : ''}${row('weekly', T('Haftalık giriş'), T('Her pazar: Uber kazancı ve harcamalar'), T('Saat'))}${modOn('uber') ? row('car', T('Araç hatırlatmaları'), T('Rego, sigorta, BHSL: 30, 7 ve 1 gün önce · 30 Haziran gösterge km'), T('Saat')) + row('bas', T('BAS hatırlatması'), T('BAS son gününden 14 ve 3 gün önce'), T('Saat')) + row('taxweek', T('Haftalık vergi payı'), T("Her pazar: bu haftanın vergi payını kumbaraya aktardın mı?"), T('Saat')) : ''}</div>`;
 }

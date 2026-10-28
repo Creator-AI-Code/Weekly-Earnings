@@ -15,7 +15,7 @@ html = f'''<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Momentum</title>
 <meta name="description" content="Bütçe, alışkanlık, sağlık ve yatırım: tek telefonda, tek elle.">
-<meta name="theme-color" content="#f4eee6">
+<meta name="theme-color" content="#f6f6f7">
 <meta name="color-scheme" content="light dark">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -46,7 +46,7 @@ open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(html)
 manifest = {
     "name": "Momentum", "short_name": "Momentum", "description": "Bütçe, alışkanlık, sağlık ve yatırım takibi",
     "start_url": "./", "scope": "./", "display": "standalone", "orientation": "portrait",
-    "background_color": "#f4eee6", "theme_color": "#f4eee6", "lang": "tr",
+    "background_color": "#f6f6f7", "theme_color": "#f6f6f7", "lang": "tr",
     "icons": [
         {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
         {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},

@@ -1,3 +1,13 @@
+## Momentum v2.0.0
+
+### Daha sade Momentum
+- **Alt menüde 3 sekme:** Bugün, Para, Yatırım. Gelişim ve Sağlık gizlendi, silinmedi.
+- **Ayarlar → Modüller:** kullandığın bölümleri aç ya da kapat (Uber araçları, Yatırım, Gelişim, Sağlık). Kapattığın modülün verisi silinmez, senkron devam eder. Kapattığında "Geri al" ile hemen geri açabilirsin.
+- Kapalı modülün sekmesi, + menüsündeki seçenekleri, Bugün kartları ve hatırlatmaları görünmez.
+- **Yeni renkler:** varsayılan tema Grafit. Ayarlar → Genel → **Renk teması**'ndan Lacivert ya da Petrol de seçebilirsin. Açık ve koyu modda çalışır, güneşte de okunur.
+- Üst barda artık tek bir ayar düğmesi var.
+- **Kaydırma:** sekmeler arasında kaydırırken gizli sekmeler atlanır. Ekranın kenarından başlayan kaydırmalar telefonun geri hareketine bırakılır.
+
 ## Momentum v1.9.2
 
 - **Küçük ekranda kesilmeler düzeldi:** gün listesindeki "Kaydet", Vergi'deki "Kalan" kutusu ve Uber giderlerinin adları artık tam görünüyor.

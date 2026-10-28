@@ -2,8 +2,11 @@
 function pageShell(title, body) {
   return `<div class="page" role="dialog" aria-modal="true" aria-label="${esc(title)}" id="page"><div class="wrap"><header class="top"><div class="brand"><button type="button" class="iconbtn flat" data-act="closeOverlay" aria-label="${T('Geri')}">${ico('left')}</button><h1>${esc(title)}</h1></div></header><main>${body}</main></div></div>`;
 }
-const SET_SECS = [['genel', 'Genel', 'gear', 'a-bug'], ['hesap', 'Hesap ve senkron', 'cloud', 'a-bug'], ['bildirim', 'Bildirimler', 'bell', 'a-bug'], ['para', 'Para', 'wallet', 'a-para'], ['vergi', 'Vergi', 'jar', 'a-para'], ['gelisim', 'Gelişim', 'sprout', 'a-gel'], ['saglik', 'Sağlık', 'heart', 'a-sag'], ['yatirim', 'Yatırım', 'trend', 'a-yat'], ['yedek', 'Yedek', 'backup', 'a-bug']];
-const TAB_SEC = { bugun: 'genel', para: 'para', gelisim: 'gelisim', saglik: 'saglik', yatirim: 'yatirim' };
+const SET_SECS = [['moduller', 'Modüller', 'layout', 'a-bug'], ['genel', 'Genel', 'gear', 'a-bug'], ['hesap', 'Hesap ve senkron', 'cloud', 'a-bug'], ['bildirim', 'Bildirimler', 'bell', 'a-bug'], ['para', 'Para', 'wallet', 'a-para'], ['vergi', 'Vergi', 'jar', 'a-para'], ['gelisim', 'Gelişim', 'sprout', 'a-gel'], ['saglik', 'Sağlık', 'heart', 'a-sag'], ['yatirim', 'Yatırım', 'trend', 'a-yat'], ['yedek', 'Yedek', 'backup', 'a-bug']];
+// settings sections that belong to a module hide with it
+const SEC_MOD = { vergi: 'uber', gelisim: 'gelisim', saglik: 'saglik', yatirim: 'yatirim' };
+const PALETTES = [['grafit', 'Grafit', '#18181b', '#ececef', '#f6f6f7', '#0c0c0e'], ['lacivert', 'Lacivert', '#1e40af', '#e3eafb', '#f5f7fa', '#0b1020'], ['petrol', 'Petrol', '#0e5c63', '#ddeeef', '#f4f7f7', '#0b1414']];
+const palette = () => PALETTES.find((x) => x[0] === D.ui.palette) || PALETTES[0];
 function setShell(sec, body) {
   const S0 = SET_SECS.find((x) => x[0] === sec);
   const title = sec ? T(S0[1]) : T('Ayarlar');
@@ -12,7 +15,8 @@ function setShell(sec, body) {
     <div class="crumb">${sec ? `<small>${T('Ayarlar')} ›</small>` : ''}<h1 id="setTitle">${esc(title)}</h1></div></div></header><main class="${sec ? S0[3] : ''}">${body}</main></div></div>`;
 }
 function setSummary(sec) {
-  if (sec === 'genel') return (LANG === 'en' ? 'English' : 'Türkçe') + ' · ' + T({ system: 'Sistem', light: 'Açık', dark: 'Koyu' }[D.ui.theme] || 'Sistem');
+  if (sec === 'moduller') { const off = MODULES.filter(([k]) => !modOn(k)).length; return T('{x} açık', { x: MODULES.filter(([k]) => modOn(k)).map(([, l]) => T(l)).join(', ') }) + (off ? ' · ' + T('{n} kapalı', { n: off }) : ''); }
+  if (sec === 'genel') return (LANG === 'en' ? 'English' : 'Türkçe') + ' · ' + T({ system: 'Sistem', light: 'Açık', dark: 'Koyu' }[D.ui.theme] || 'Sistem') + ' · ' + T(palette()[1]);
   if (sec === 'para') return T('Maaş {x}', { x: usd(S.salary) }) + ' · ' + T('{n} tekrarlayan gider', { n: S.recurring.length });
   if (sec === 'vergi') return T('Logbook {p} · BAS çeyreklik', { p: pct(nf0.format(logbook())) });
   if (sec === 'gelisim') return T('{n} alışkanlık', { n: G().habits.length }) + ' · ' + T('{n} kitap hedefi', { n: G().bookGoal });
@@ -25,15 +29,19 @@ function setSummary(sec) {
 }
 function vSettings() {
   const sec = U.setSec;
-  if (!sec) return setShell(null, `<div class="card setlist">${SET_SECS.map(([k, l, ic, a]) => `<button type="button" class="setrow ${a}" data-act="setSec" data-v="${k}"><span class="ico">${ico(ic)}</span><span class="st"><b>${T(l)}</b><small>${esc(setSummary(k))}</small></span>${ico('right')}</button>`).join('')}</div>
+  if (!sec) return setShell(null, `<div class="card setlist">${SET_SECS.filter(([k]) => modOn(SEC_MOD[k])).map(([k, l, ic, a]) => `<button type="button" class="setrow ${a}" data-act="setSec" data-v="${k}"><span class="ico">${ico(ic)}</span><span class="st"><b>${T(l)}</b><small>${esc(setSummary(k))}</small></span>${ico('right')}</button>`).join('')}</div>
     <p class="note" style="text-align:center">${T('Momentum · Veriler sadece bu telefonda, tarayıcı hafızasında tutulur. Düzenli olarak yedek al.')}</p>`);
   const rec = S.recurring, iv = IV(), H = D.health;
   const mny = (id, key, v, unit, pre) => `<div class="money">${pre === false ? '' : '<span>$</span>'}<input id="${id}" ${key} inputmode="decimal" value="${v}">${unit ? `<span>${unit}</span>` : ''}</div>`;
   const segB = (act, opts, curv, lbl) => `<div class="seg inline" role="group" aria-label="${lbl}">${opts.map(([v, l, id]) => `<button type="button" data-act="${act}" data-v="${v}"${id ? ` id="${id}"` : ''} aria-pressed="${String(curv) === String(v)}">${l}</button>`).join('')}</div>`;
   const hidCount = Object.keys(D.ui.hiddenInsights).filter((k) => D.ui.hiddenInsights[k]).length;
   const body = {
+    moduller: () => `<div class="card"><p class="note" style="margin:0 0 6px" id="modIntro">${T('Sadece kullandıklarını aç. Kapattığın modülün verisi silinmez, senkron devam eder. Tekrar açınca her şey yerinde.')}</p>
+      ${MODULES.map(([k, l, ic, sub]) => k === 'para' ? `<div class="trow modrow" id="mod-${k}"><span class="ico">${ico(ic)}</span><span class="mt"><b>${T(l)}</b><small>${T(sub)}</small></span><span class="lock">${T('Her zaman açık')}</span></div>`
+        : `<button type="button" class="trow modrow" role="switch" aria-checked="${modOn(k)}" aria-label="${esc(T(l))}" data-act="modToggle" data-k="${k}" id="mod-${k}"><span class="ico">${ico(ic)}</span><span class="mt"><b>${T(l)}</b><small>${T(sub)}</small></span><span class="sw" aria-hidden="true"></span></button>`).join('')}</div>`,
     genel: () => `<div class="card a-bug">${head('globe', T('Dil'))}<div class="seg" role="group" aria-label="${T('Dil')}"><button type="button" data-act="setLang" data-v="tr" id="lang-tr" aria-pressed="${LANG === 'tr'}" lang="tr">Türkçe</button><button type="button" data-act="setLang" data-v="en" id="lang-en" aria-pressed="${LANG === 'en'}" lang="en">English</button></div></div>
       <div class="card a-bug">${head('palette', T('Tema'))}<div class="seg" role="group" aria-label="${T('Tema')}">${[['system', 'Sistem'], ['light', 'Açık'], ['dark', 'Koyu']].map(([v, l]) => `<button type="button" data-act="setTheme" data-v="${v}" id="theme-${v}" aria-pressed="${D.ui.theme === v}">${T(l)}</button>`).join('')}</div></div>
+      <div class="card a-bug">${head('palette', T('Renk teması'))}<div class="palpick" role="radiogroup" aria-label="${T('Renk teması')}">${PALETTES.map(([v, l, a, b]) => `<button type="button" role="radio" data-act="setPalette" data-v="${v}" id="pal-${v}" aria-checked="${palette()[0] === v}"><span class="swatch" aria-hidden="true" style="background:linear-gradient(135deg, ${a} 50%, ${b} 50%)">${ico('check')}</span><span>${T(l)}</span></button>`).join('')}</div></div>
       <div class="card a-bug">${head('layout', T('Bugün kartları'))}${BUGUN_CARDS.map(([k, l]) => `<button type="button" class="trow" data-act="toggleCard" data-k="${k}" aria-pressed="${showCard(k)}"><span>${T(l)}</span><span class="sw" aria-hidden="true"></span></button>`).join('')}
         ${hidCount ? `<button type="button" class="link" data-act="restoreInsights" style="margin-top:6px">${T('Gizlenen {n} içgörüyü geri getir', { n: hidCount })}</button>` : ''}</div>`,
     para: () => `${planSettings()}<div class="card">${head('percent', T('Gelir ve vergi'))}<div class="fields">
@@ -86,7 +94,7 @@ function sheetShell(title, body, area) { return `<div class="scrim" data-act="sc
 function vSheet() {
   const sh = U.sheet; if (!sh) return '';
   if (sh.kind === 'fab') {
-    const opts = [['fis', 'Fiş tara', 'receipt', 'a-para'], ['harcama', 'Harcama', 'bag', 'a-para'], ['uber', 'Uber vardiyası', 'car', 'a-para'], ['uexp', 'Uber gideri', 'receipt', 'a-para'], ['sigara', 'Sigara +1', 'cig', 'a-sag'], ['alkol', 'Alkol +1', 'glass', 'a-sag'], ['kilo', 'Kilo', 'scale', 'a-sag'], ['aliskanlik', 'Alışkanlık', 'check', 'a-gel']];
+    const opts = [['fis', 'Fiş tara', 'receipt', 'a-para', 'para'], ['harcama', 'Harcama', 'bag', 'a-para', 'para'], ['uber', 'Uber vardiyası', 'car', 'a-para', 'uber'], ['uexp', 'Uber gideri', 'receipt', 'a-para', 'uber'], ['sigara', 'Sigara +1', 'cig', 'a-sag', 'saglik'], ['alkol', 'Alkol +1', 'glass', 'a-sag', 'saglik'], ['kilo', 'Kilo', 'scale', 'a-sag', 'saglik'], ['aliskanlik', 'Alışkanlık', 'check', 'a-gel', 'gelisim']].filter((o) => modOn(o[4]));
     const k = sh.k, w = getWeek(thisWeekId()) || {};
     let form = '';
     if (k === 'harcama') form = `<form class="card a-para stack" id="qForm" data-k="harcama"><div class="row">${comboInput('qName')}</div><div class="row wrap"><div class="money" style="width:112px;flex:0 0 112px"><span>$</span><input id="qAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}" autocomplete="off"></div><button type="button" class="tagbtn" data-act="dOneOff" id="qOneOff" aria-pressed="${!!U.dOneOff}">${T('Tek seferlik')}</button><button class="btn" type="submit" style="margin-left:auto">${T('Bugüne kaydet')}</button></div>${accPick('qAcc')}<p class="note" style="margin:0">${T('Bugünün harcamalarına eklenir ve haftanın giderlerine sayılır.')}</p></form>`;
@@ -150,8 +158,9 @@ function vSheet() {
 function applyTheme() {
   const t = D.ui.theme, html = document.documentElement;
   if (t === 'light' || t === 'dark') html.setAttribute('data-theme', t); else html.removeAttribute('data-theme');
+  const pal = palette(); html.setAttribute('data-palette', pal[0]);
   const dark = t === 'dark' || (t !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
-  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', dark ? '#1b1520' : '#f4eee6');
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', dark ? pal[5] : pal[4]);
 }
 function applyLang() {
   setLocale(D.ui.lang);
@@ -168,14 +177,14 @@ function keepFocus(fn) {
 }
 function render(dir) {
   if (typeof taxCacheReset === 'function') taxCacheReset();
+  if (!tabOn(U.tab)) U.tab = 'bugun';
   keepFocus(() => {
     const v = $('view');
     v.className = AREA[U.tab];
     v.innerHTML = ({ bugun: vBugun, para: vPara, gelisim: vGelisim, saglik: vSaglik, yatirim: vYatirim })[U.tab]();
     $('topTitle').textContent = U.tab === 'bugun' ? 'Momentum' : T(TITLE[U.tab]);
-    document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === U.tab)));
+    document.querySelectorAll('#tabs button').forEach((b) => { b.hidden = !tabOn(b.dataset.tab); b.setAttribute('aria-selected', String(b.dataset.tab === U.tab)); });
     $('fab').hidden = U.tab !== 'bugun';
-    const sg = $('secGear'); if (sg) { sg.dataset.sec = TAB_SEC[U.tab]; sg.setAttribute('aria-label', T('Bu sekmenin ayarları')); sg.title = T('Bu sekmenin ayarları'); }
     if (U.tab === 'para' && U.paraSeg === 'hafta') paraCalc();
     paintSyncChip(); fitText($('view'));
   });

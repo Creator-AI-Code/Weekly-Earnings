@@ -64,7 +64,7 @@ const doc = (uid, d) => (store.docs[uid] || {})[d];
 
 (async () => {
   const browser = await chromium.launch(); const errs = [];
-  const mk = async (name, lib) => { const c = await browser.newContext({ viewport: { width: 400, height: 860 }, timezoneId: 'Australia/Brisbane', locale: 'tr-TR', serviceWorkers: 'block' }); await mockSupabase(c, name, lib); const p = await c.newPage(); watch(p, name, errs); await p.goto(URL0); await p.waitForTimeout(200); return { c, p }; };
+  const mk = async (name, lib) => { const c = await browser.newContext({ viewport: { width: 400, height: 860 }, timezoneId: 'Australia/Brisbane', locale: 'tr-TR', serviceWorkers: 'block' }); await mockSupabase(c, name, lib); /* v2.0: Gelişim is hidden by default; these devices use it */ await c.addInitScript(() => { if (!localStorage.getItem('adim-adim-v2')) localStorage.setItem('adim-adim-v2', JSON.stringify({ schemaVersion: 1, ui: { modules: { gelisim: true } } })); }); const p = await c.newPage(); watch(p, name, errs); await p.goto(URL0); await p.waitForTimeout(200); return { c, p }; };
 
   // ===== 0. sync disabled: app works, no Supabase traffic =====
   const C = await mk('C');

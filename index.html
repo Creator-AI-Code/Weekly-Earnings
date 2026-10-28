@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Momentum</title>
 <meta name="description" content="Bütçe, alışkanlık, sağlık ve yatırım: tek telefonda, tek elle.">
-<meta name="theme-color" content="#f4eee6">
+<meta name="theme-color" content="#f6f6f7">
 <meta name="color-scheme" content="light dark">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,77 +17,100 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap">
 <style>
-/* Momentum: warm light-beige ground, cream cards; bordo is primary (hero, primary buttons, money, Para), dusty purple is the sparing secondary
-   (Gelişim, habits, rewards), Sağlık steel blue and Yatırım navy stay distinct; gold is reserved for milestones.
-   Dark: aubergine ground; bordo fills as deep wine + light text, claret (never pink) for text/lines; purple lifts to a muted lavender-grey. */
+/* Momentum v2.0 palettes (design/proposal-sadelik.md §9a). One accent per palette, no module colours.
+   <html data-palette="grafit|lacivert|petrol"> picks the palette (missing = grafit); data-theme / prefers-color-scheme picks light or dark.
+   green = on track, red = over / overdue / delete, amber = warning; gold only for milestones. */
 :root {
-  --bg: #f4eee6; --surface: #fbf8f3; --surface-2: #efe7dd; --surface-3: #e6dcd0;
-  --ink: #1f1a17; --ink-2: #544a43; --ink-3: #685d55; --line: #e3d9cd; --line-strong: #cbbdad; --border: #857565;
-  --bug: #2b2520; --bug-ink: #fbf8f3; --bug-soft: #e9e1d6; --bug-text: #2b2520; --bug-line: #2b2520;
-  --para: #7b1e3c; --para-ink: #fff8f4; --para-soft: #eee1d8; --para-text: #7b1e3c; --para-line: #7b1e3c;
-  --gel: #6b4e8a; --gel-ink: #ffffff; --gel-soft: #ece5f0; --gel-text: #5d427c; --gel-line: #6b4e8a;
-  --sag: #2f5f7e; --sag-ink: #ffffff; --sag-soft: #e0e9ee; --sag-text: #2a5571; --sag-line: #2f5f7e;
-  --yat: #232a42; --yat-ink: #ffffff; --yat-soft: #e3e4ec; --yat-text: #232a42; --yat-line: #232a42;
+  --bg: #f6f6f7; --surface: #ffffff; --surface-2: #ececef; --surface-3: #e4e4e7;
+  --ink: #111114; --ink-2: #3a3a42; --ink-3: #5a5a64; --line: #e4e4e7; --line-strong: #82828c; --border: #82828c;
+  --primary: #18181b; --on-primary: #ffffff; --primary-soft: #e4e4e7;
+  --hero-fill: #18181b; --hero-fill-tile: #2c2c31; --hero-fill-line: #3a3a40; --hero-ink: #ffffff; --hero-ink-2: #d4d4d8;
+  --tabbar: rgba(255, 255, 255, 0.94);
+  --gain: #166534; --gain-soft: #e7f6ec; --loss: #b42318; --loss-ink: #ffffff; --loss-soft: #fdecea; --warn: #b45309; --warn-soft: #fef3e2;
   --gold: #7f5c14; --gold-soft: #f1e7d3; --gold-line: #c2a15a;
-  --gain: #376a30; --gain-soft: #e3ecda; --loss: #a93d28; --loss-ink: #ffffff; --loss-soft: #f6e3d8;
-  --warn: #8e4e0c; --warn-soft: #f6ead8;
-  --hero-para: #6b1832; --hero-para-tile: #7e2640; --hero-para-line: #8b3149;
-  --hero-yat: #232a42; --hero-yat-tile: #303a5a; --hero-yat-line: #3a4568;
-  --hero-ink: #ffffff; --hero-ink-2: #ece1da; --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
-  --tabbar: rgba(251, 248, 243, 0.94); --scrim: rgba(27, 21, 32, 0.42);
-  --card-shadow: 0 1px 2px rgba(50, 35, 20, 0.05), 0 8px 22px -16px rgba(50, 35, 20, 0.22);
-  --hero-shadow: 0 14px 30px -18px rgba(60, 20, 25, 0.6);
+  --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
+  --scrim: rgba(12, 12, 14, 0.42);
+  --card-shadow: 0 1px 2px rgba(20, 20, 25, 0.05), 0 8px 22px -16px rgba(20, 20, 25, 0.22);
+  --hero-shadow: 0 14px 30px -18px rgba(10, 10, 15, 0.55);
   --f-display: "Bricolage Grotesque", "Segoe UI", Roboto, system-ui, sans-serif;
   --f-body: "Figtree", "Segoe UI", Roboto, system-ui, sans-serif;
 }
+:root[data-palette="lacivert"] {
+  --bg: #f5f7fa; --surface: #ffffff; --surface-2: #eaeef4; --surface-3: #e1e6ee;
+  --ink: #0f172a; --ink-2: #334155; --ink-3: #526075; --line: #dce2ea; --line-strong: #7b8798; --border: #7b8798;
+  --primary: #1e40af; --on-primary: #ffffff; --primary-soft: #e3eafb;
+  --hero-fill: #1e40af; --hero-fill-tile: #2a4dbb; --hero-fill-line: #3858c4; --hero-ink: #ffffff; --hero-ink-2: #dbe4ff;
+  --tabbar: rgba(255, 255, 255, 0.94);
+}
+:root[data-palette="petrol"] {
+  --bg: #f4f7f7; --surface: #ffffff; --surface-2: #e6eeee; --surface-3: #dce6e6;
+  --ink: #0f1f21; --ink-2: #2f4446; --ink-3: #4e6365; --line: #dce6e6; --line-strong: #768a8c; --border: #768a8c;
+  --primary: #0e5c63; --on-primary: #ffffff; --primary-soft: #ddeeef;
+  --hero-fill: #0e5c63; --hero-fill-tile: #0b4a50; --hero-fill-line: #22777f; --hero-ink: #ffffff; --hero-ink-2: #d5ecee;
+  --tabbar: rgba(255, 255, 255, 0.94);
+}
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1b1520; --surface: #251c2b; --surface-2: #2e2435; --surface-3: #3a2e40;
-    --ink: #f3edea; --ink-2: #d0c5cc; --ink-3: #a99da8; --line: #3a2e40; --line-strong: #54465c; --border: #8c7f92;
-    --bug: #ece5dc; --bug-ink: #1b1520; --bug-soft: #342a3a; --bug-text: #ece5dc; --bug-line: #ece5dc;
-    --para: #7b1e3c; --para-ink: #f8ece6; --para-soft: #3b1a27; --para-text: #cd917f; --para-line: #b97f6e;
-    --gel: #b6a3cf; --gel-ink: #1b1520; --gel-soft: #342841; --gel-text: #c5b5db; --gel-line: #b6a3cf;
-    --sag: #8db6d0; --sag-ink: #101a22; --sag-soft: #1e2c37; --sag-text: #a5c6db; --sag-line: #8db6d0;
-    --yat: #a3b1cc; --yat-ink: #12141e; --yat-soft: #262a3a; --yat-text: #bac5da; --yat-line: #a3b1cc;
+    --bg: #0c0c0e; --surface: #17171a; --surface-2: #222226; --surface-3: #2a2a2f;
+    --ink: #f4f4f5; --ink-2: #d4d4d8; --ink-3: #a1a1aa; --line: #2a2a2f; --line-strong: #6e6e78; --border: #6e6e78;
+    --primary: #f4f4f5; --on-primary: #18181b; --primary-soft: #303036;
+    --hero-fill: #26262b; --hero-fill-tile: #323238; --hero-fill-line: #3c3c43; --hero-ink: #f4f4f5; --hero-ink-2: #d4d4d8;
+    --tabbar: rgba(23, 23, 26, 0.95);
+    --gain: #4ade80; --gain-soft: #12301f; --loss: #ff8a80; --loss-ink: #1a0a08; --loss-soft: #3b1a1a; --warn: #fbbf24; --warn-soft: #3a2a0e;
     --gold: #ddb25a; --gold-soft: #3a2e1c; --gold-line: #a07d2c;
-    --gain: #9fcf82; --gain-soft: #22301d; --loss: #ff8a66; --loss-ink: #2a0f08; --loss-soft: #3d2220;
-    --warn: #f2b54a; --warn-soft: #3a2c16;
-    --hero-para: #5a1428; --hero-para-tile: #6e1e35; --hero-para-line: #7b2a42;
-    --hero-yat: #1c2034; --hero-yat-tile: #282e4c; --hero-yat-line: #323a5c;
-    --hero-ink: #ffffff; --hero-ink-2: #e3d6cf; --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
-    --tabbar: rgba(37, 28, 43, 0.95); --scrim: rgba(0, 0, 0, 0.6);
+    --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
+    --scrim: rgba(0, 0, 0, 0.6);
     --card-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 22px -16px rgba(0, 0, 0, 0.7);
     --hero-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.8);
     color-scheme: dark;
   }
+  :root[data-palette="lacivert"]:not([data-theme="light"]) {
+    --bg: #0b1020; --surface: #141b2d; --surface-2: #1e2740; --surface-3: #243050;
+    --ink: #f1f5f9; --ink-2: #cbd5e1; --ink-3: #9aa6b8; --line: #26314b; --line-strong: #6b7a93; --border: #6b7a93;
+    --primary: #8fb0ff; --on-primary: #0b1020; --primary-soft: #1f2c52;
+    --hero-fill: #1f2c52; --hero-fill-tile: #2a3966; --hero-fill-line: #33447a; --hero-ink: #f1f5f9; --hero-ink-2: #c7d2fe;
+    --tabbar: rgba(20, 27, 45, 0.95);
+  }
+  :root[data-palette="petrol"]:not([data-theme="light"]) {
+    --bg: #0b1414; --surface: #132020; --surface-2: #1c2d2e; --surface-3: #223536;
+    --ink: #eef5f5; --ink-2: #c6d6d7; --ink-3: #93a8a9; --line: #223536; --line-strong: #647c7d; --border: #647c7d;
+    --primary: #5fc4cb; --on-primary: #06201f; --primary-soft: #1c3b3d;
+    --hero-fill: #173a3c; --hero-fill-tile: #1f4749; --hero-fill-line: #285355; --hero-ink: #eef5f5; --hero-ink-2: #c6d6d7;
+    --tabbar: rgba(19, 32, 32, 0.95);
+  }
 }
 :root[data-theme="dark"] {
-  --bg: #1b1520; --surface: #251c2b; --surface-2: #2e2435; --surface-3: #3a2e40;
-  --ink: #f3edea; --ink-2: #d0c5cc; --ink-3: #a99da8; --line: #3a2e40; --line-strong: #54465c; --border: #8c7f92;
-  --bug: #ece5dc; --bug-ink: #1b1520; --bug-soft: #342a3a; --bug-text: #ece5dc; --bug-line: #ece5dc;
-  --para: #7b1e3c; --para-ink: #f8ece6; --para-soft: #3b1a27; --para-text: #cd917f; --para-line: #b97f6e;
-  --gel: #b6a3cf; --gel-ink: #1b1520; --gel-soft: #342841; --gel-text: #c5b5db; --gel-line: #b6a3cf;
-  --sag: #8db6d0; --sag-ink: #101a22; --sag-soft: #1e2c37; --sag-text: #a5c6db; --sag-line: #8db6d0;
-  --yat: #a3b1cc; --yat-ink: #12141e; --yat-soft: #262a3a; --yat-text: #bac5da; --yat-line: #a3b1cc;
+  --bg: #0c0c0e; --surface: #17171a; --surface-2: #222226; --surface-3: #2a2a2f;
+  --ink: #f4f4f5; --ink-2: #d4d4d8; --ink-3: #a1a1aa; --line: #2a2a2f; --line-strong: #6e6e78; --border: #6e6e78;
+  --primary: #f4f4f5; --on-primary: #18181b; --primary-soft: #303036;
+  --hero-fill: #26262b; --hero-fill-tile: #323238; --hero-fill-line: #3c3c43; --hero-ink: #f4f4f5; --hero-ink-2: #d4d4d8;
+  --tabbar: rgba(23, 23, 26, 0.95);
+  --gain: #4ade80; --gain-soft: #12301f; --loss: #ff8a80; --loss-ink: #1a0a08; --loss-soft: #3b1a1a; --warn: #fbbf24; --warn-soft: #3a2a0e;
   --gold: #ddb25a; --gold-soft: #3a2e1c; --gold-line: #a07d2c;
-  --gain: #9fcf82; --gain-soft: #22301d; --loss: #ff8a66; --loss-ink: #2a0f08; --loss-soft: #3d2220;
-  --warn: #f2b54a; --warn-soft: #3a2c16;
-  --hero-para: #5a1428; --hero-para-tile: #6e1e35; --hero-para-line: #7b2a42;
-  --hero-yat: #1c2034; --hero-yat-tile: #282e4c; --hero-yat-line: #323a5c;
-  --hero-ink: #ffffff; --hero-ink-2: #e3d6cf; --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
-  --tabbar: rgba(37, 28, 43, 0.95); --scrim: rgba(0, 0, 0, 0.6);
+  --hero-warn: #ffcf8f; --hero-gain: #b4e39c; --hero-loss: #ffbfa3;
+  --scrim: rgba(0, 0, 0, 0.6);
   --card-shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 22px -16px rgba(0, 0, 0, 0.7);
   --hero-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.8);
   color-scheme: dark;
 }
+:root[data-theme="dark"][data-palette="lacivert"] {
+  --bg: #0b1020; --surface: #141b2d; --surface-2: #1e2740; --surface-3: #243050;
+  --ink: #f1f5f9; --ink-2: #cbd5e1; --ink-3: #9aa6b8; --line: #26314b; --line-strong: #6b7a93; --border: #6b7a93;
+  --primary: #8fb0ff; --on-primary: #0b1020; --primary-soft: #1f2c52;
+  --hero-fill: #1f2c52; --hero-fill-tile: #2a3966; --hero-fill-line: #33447a; --hero-ink: #f1f5f9; --hero-ink-2: #c7d2fe;
+  --tabbar: rgba(20, 27, 45, 0.95);
+}
+:root[data-theme="dark"][data-palette="petrol"] {
+  --bg: #0b1414; --surface: #132020; --surface-2: #1c2d2e; --surface-3: #223536;
+  --ink: #eef5f5; --ink-2: #c6d6d7; --ink-3: #93a8a9; --line: #223536; --line-strong: #647c7d; --border: #647c7d;
+  --primary: #5fc4cb; --on-primary: #06201f; --primary-soft: #1c3b3d;
+  --hero-fill: #173a3c; --hero-fill-tile: #1f4749; --hero-fill-line: #285355; --hero-ink: #eef5f5; --hero-ink-2: #c6d6d7;
+  --tabbar: rgba(19, 32, 32, 0.95);
+}
 :root[data-theme="light"] { color-scheme: light; }
 
-/* area accent scopes */
-.a-bug { --acc: var(--bug); --acc-ink: var(--bug-ink); --acc-soft: var(--bug-soft); --acc-text: var(--bug-text); --acc-line: var(--bug-line); }
-.a-para { --acc: var(--para); --acc-ink: var(--para-ink); --acc-soft: var(--para-soft); --acc-text: var(--para-text); --acc-line: var(--para-line); --hero-bg: var(--hero-para); --hero-tile: var(--hero-para-tile); --hero-line: var(--hero-para-line); }
-.a-gel { --acc: var(--gel); --acc-ink: var(--gel-ink); --acc-soft: var(--gel-soft); --acc-text: var(--gel-text); --acc-line: var(--gel-line); }
-.a-sag { --acc: var(--sag); --acc-ink: var(--sag-ink); --acc-soft: var(--sag-soft); --acc-text: var(--sag-text); --acc-line: var(--sag-line); }
-.a-yat { --acc: var(--yat); --acc-ink: var(--yat-ink); --acc-soft: var(--yat-soft); --acc-text: var(--yat-text); --acc-line: var(--yat-line); --hero-bg: var(--hero-yat); --hero-tile: var(--hero-yat-tile); --hero-line: var(--hero-yat-line); }
+/* one accent for every area (the module colours are retired) */
+.a-bug, .a-para, .a-gel, .a-sag, .a-yat { --acc: var(--primary); --acc-ink: var(--on-primary); --acc-soft: var(--primary-soft); --acc-text: var(--primary); --acc-line: var(--primary); --hero-bg: var(--hero-fill); --hero-tile: var(--hero-fill-tile); --hero-line: var(--hero-fill-line); }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; background: var(--bg); }
@@ -226,7 +249,7 @@ select.txt { appearance: auto; }
 .tabs button[aria-selected="true"] .i { stroke-width: 2.1; }
 
 /* FAB */
-.fab { position: fixed; z-index: 19; right: max(16px, calc((100% - 560px) / 2 + 16px)); bottom: calc(86px + env(safe-area-inset-bottom, 0px)); width: 58px; height: 58px; border-radius: 18px; border: 0; background: var(--bug); color: var(--bug-ink); display: grid; place-items: center; box-shadow: 0 10px 24px -10px rgba(0,0,0,.55); }
+.fab { position: fixed; z-index: 19; right: max(16px, calc((100% - 560px) / 2 + 16px)); bottom: calc(86px + env(safe-area-inset-bottom, 0px)); width: 58px; height: 58px; border-radius: 18px; border: 0; background: var(--primary); color: var(--on-primary); display: grid; place-items: center; box-shadow: 0 10px 24px -10px rgba(0,0,0,.55); }
 .fab .i { width: 26px; height: 26px; stroke-width: 2.2; }
 
 /* toast */
@@ -501,6 +524,21 @@ main:not([hidden]) { animation: panel-in 0.2s ease-out; }
 .trow[aria-pressed="true"] .sw { background: var(--acc-line); }
 .trow[aria-pressed="true"] .sw::after { left: 21px; }
 .trow:active { transform: none; }
+.trow[aria-checked="true"] .sw { background: var(--acc-line); }
+.trow[aria-checked="true"] .sw::after { left: 21px; }
+/* Ayarlar → Modüller */
+.modrow { min-height: 56px; justify-content: flex-start; padding: 6px 2px; }
+.modrow .mt { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.modrow .mt b { font-weight: 700; }
+.modrow .mt small { font-size: 0.78rem; color: var(--ink-3); font-weight: 500; }
+.modrow .lock { font-size: 0.8rem; font-weight: 600; color: var(--ink-3); white-space: nowrap; }
+/* Ayarlar → Genel → Renk teması */
+.palpick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.palpick button { display: grid; justify-items: center; gap: 6px; min-height: 88px; padding: 10px 4px; border-radius: 14px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); font-weight: 600; font-size: 0.86rem; }
+.palpick button[aria-checked="true"] { border-color: var(--acc-line); background: var(--acc-soft); color: var(--ink); }
+.palpick .swatch { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: #ffffff; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15); }
+.palpick .swatch .i { width: 20px; height: 20px; stroke-width: 3; opacity: 0; filter: drop-shadow(0 0 1px #000); }
+.palpick button[aria-checked="true"] .swatch .i { opacity: 1; }
 
 /* tax */
 .taxline { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 44px; padding: 0 12px; border: 0; border-top: 1px solid var(--line); background: var(--acc-soft); color: var(--acc-text); font-weight: 600; font-size: 0.86rem; text-align: left; }
@@ -512,11 +550,11 @@ main:not([hidden]) { animation: panel-in 0.2s ease-out; }
 input[type="date"].txt { min-height: 48px; }
 
 .hold.wrap .mid b, .hold.wrap .mid > span { white-space: normal; overflow-wrap: break-word; }
-.hold.wrap .rt { max-width: 50%; }
+.hold .rt { max-width: 50%; }
+.hold .rt .chip { white-space: normal; text-align: right; }
 
 /* round 3: top bar actions, settings sections, daily expenses, swipe, undo toast */
 .top-acts { display: flex; gap: 8px; align-items: center; flex: none; }
-.sec-gear .i { width: 20px; height: 20px; }
 .crumb { display: grid; min-width: 0; }
 .crumb small { font-size: 0.76rem; color: var(--ink-3); font-weight: 600; line-height: 1.1; }
 .crumb h1 { font-weight: 800; font-size: 1.3rem; line-height: 1.1; }
@@ -582,7 +620,7 @@ input[type="date"].txt { min-height: 48px; }
 
 /* ===================== v1.0: simpler layout, waterfall, home hero, swipe ===================== */
 /* design pass: quieter cards (no drop shadow, a hairline instead), one 16px rhythm */
-:root { --card-shadow: 0 0 0 1px rgba(50, 35, 20, 0.05); }
+:root { --card-shadow: 0 0 0 1px rgba(20, 20, 25, 0.06); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04); } }
 :root[data-theme="dark"] { --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04); }
 main { gap: 16px; }
@@ -598,7 +636,7 @@ main { gap: 16px; }
 .weeknav { box-shadow: var(--card-shadow); }
 
 /* Bugün hero: safe-to-spend */
-.home-hero { all: unset; box-sizing: border-box; display: grid; gap: 4px; width: 100%; cursor: pointer; background: var(--hero-para); color: var(--hero-ink); border-radius: 16px; padding: 20px 18px; box-shadow: var(--hero-shadow); }
+.home-hero { all: unset; box-sizing: border-box; display: grid; gap: 4px; width: 100%; cursor: pointer; background: var(--hero-fill); color: var(--hero-ink); border-radius: 16px; padding: 20px 18px; box-shadow: var(--hero-shadow); }
 .home-hero .k { font-size: 0.92rem; color: var(--hero-ink-2); font-weight: 600; }
 .home-hero .v { display: block; white-space: nowrap; overflow: hidden; max-width: 100%; font-family: var(--f-display); font-weight: 800; font-size: clamp(2.6rem, 13vw, 3.4rem); line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
 .home-hero .u { font-size: 0.9rem; color: var(--hero-ink-2); }
@@ -663,12 +701,6 @@ main { gap: 16px; }
 .fuelhint > span { flex: 1; min-width: 0; }
 .fuelhint .btn { flex: none; }
 details.card.fold > summary { min-height: 44px; display: flex; align-items: center; gap: 8px; font-weight: 700; cursor: pointer; }
-/* Sağlık and Yatırım keep their own colour on their icon chips and tab only; buttons, fills and links follow the palette (purple) */
-.a-sag, .a-yat { --acc: var(--gel); --acc-ink: var(--gel-ink); --acc-line: var(--gel-line); --acc-text: var(--gel-text); --acc-soft: var(--gel-soft); }
-.a-sag .ico:not(.gold) { background: var(--sag-soft); color: var(--sag-text); }
-.a-yat .ico:not(.gold) { background: var(--yat-soft); color: var(--yat-text); }
-#tabs .a-sag[aria-selected="true"] .pill { background: var(--sag-soft); color: var(--sag-text); }
-#tabs .a-yat[aria-selected="true"] .pill { background: var(--yat-soft); color: var(--yat-text); }
 /* ---------- Uber shift + logbook ---------- */
 .shift-row { display: flex; align-items: center; gap: 12px; }
 .shift .st { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -866,7 +898,6 @@ body { padding-bottom: var(--kb, 0px); }
   <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5h10.5a4 4 0 0 0 .6-7.95A6 6 0 0 0 6.6 9.1 4.75 4.75 0 0 0 7 18.5z"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0"/></symbol>
   <symbol id="i-swipe" viewBox="0 0 24 24"><path d="M4 8h12M12 4l4 4-4 4M20 16H8M12 12l-4 4 4 4"/></symbol>
-  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h8.5M17.5 7H20M4 17h2.5M11.5 17H20"/><circle cx="15" cy="7" r="2.4"/><circle cx="9" cy="17" r="2.4"/></symbol>
   <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.6 3.5 5.4 3.5 8.5s-1.1 5.9-3.5 8.5c-2.4-2.6-3.5-5.4-3.5-8.5s1.1-5.9 3.5-8.5z"/></symbol>
   <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></symbol>
   <symbol id="i-f1" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.3 17c1.1-1.7 2.3-2.5 3.7-2.5s2.6.8 3.7 2.5"/><circle cx="9" cy="10" r=".9" fill="currentColor" stroke="none"/><circle cx="15" cy="10" r=".9" fill="currentColor" stroke="none"/></symbol>
@@ -884,7 +915,6 @@ body { padding-bottom: var(--kb, 0px); }
     </div>
     <div class="top-acts">
       <button type="button" class="sync-chip st-off" data-act="openSettings" data-sec="hesap" id="syncChip" hidden aria-label="Senkron"><svg class="i" aria-hidden="true"><use href="#i-cloud"/></svg><span></span></button>
-      <button type="button" class="iconbtn flat sec-gear" data-act="openSettings" data-sec="genel" id="secGear" aria-label="Bölüm ayarları"><svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg></button>
       <button type="button" class="iconbtn" data-act="openSettings" id="gearBtn" aria-label="Ayarlar ve yedek"><svg class="i" aria-hidden="true"><use href="#i-gear"/></svg></button>
     </div>
   </header>
@@ -1467,6 +1497,13 @@ const BUGUN_CARDS = [['money', 'Harcayabileceğin ve vergi satırı'], ['uber', 
 // portfolio, health and insight are off by default on Bugün (opt-in), the rest are on unless hidden
 const OPTIN_CARDS = ['portfolio', 'health', 'insight'];
 const showCard = (k) => (OPTIN_CARDS.includes(k) ? !!D.ui.shownCards[k] : !D.ui.hiddenCards[k]);
+// Modüller (ui.modules): a missing key means the defaults; Para is always on. Hiding a module only hides its UI:
+// its data, sync and backups stay untouched.
+const MODULES = [['para', 'Para', 'wallet', 'Bütçe, hesaplar, kumbaralar'], ['uber', 'Uber araçları', 'car', 'Vardiya, logbook, vergi, BAS'], ['yatirim', 'Yatırım', 'trend', 'Portföy ve takip listesi'], ['gelisim', 'Gelişim', 'sprout', 'Alışkanlık, görev, kitap, günlük'], ['saglik', 'Sağlık', 'heart', 'Sigara, alkol, uyku, kilo']];
+const MOD_DEF = { uber: true, yatirim: true, gelisim: false, saglik: false };
+const modOn = (k) => { if (!k || k === 'para') return true; const m = isObj(D.ui.modules) ? D.ui.modules : {}; return m[k] != null ? !!m[k] : MOD_DEF[k]; };
+function setModule(k, on) { D.ui.modules = Object.assign({}, MOD_DEF, isObj(D.ui.modules) ? D.ui.modules : {}, { [k]: !!on }); }
+const tabOn = (t) => t === 'bugun' || modOn(t);
 function toggleCardPref(k) { if (OPTIN_CARDS.includes(k)) { if (D.ui.shownCards[k]) delete D.ui.shownCards[k]; else D.ui.shownCards[k] = true; } else if (D.ui.hiddenCards[k]) delete D.ui.hiddenCards[k]; else D.ui.hiddenCards[k] = true; }
 
 // ===================== shared pieces =====================
@@ -1560,31 +1597,31 @@ function vBugun() {
       <span class="k">${T('Bu hafta harcayabileceğin')}</span><span class="v" id="safeX">${usd(s.x)}</span>
       <span class="u" id="safeDay">${over ? T('Bu hafta bütçeyi aştın') : T('günde {x} · {n} gün kaldı', { x: usd(s.perDay), n: s.daysLeft })}</span></button>`;
     const c = s.c, sa = weekSetAside(s.id), bas = nextBas(), z = sa ? 0 : r2(c.weekTax);
-    if (c.weekTax > 0 || bas && taxFull(bas.q).need > 0.005) html += `<button type="button" class="taxline a-para" data-act="go" data-tab="para" data-seg="vergi" id="bTaxLine">${ico('jar')}<span>${sa ? T('Bu haftanın vergi payı ayrıldı') : T('Vergi için ayır: {x} bu hafta', { x: usd(z) })}${bas ? ' · ' + T("BAS'a {n} gün", { n: bas.days }) : ''}</span>${ico('right')}</button>`;
+    if (modOn('uber') && (c.weekTax > 0 || bas && taxFull(bas.q).need > 0.005)) html += `<button type="button" class="taxline a-para" data-act="go" data-tab="para" data-seg="vergi" id="bTaxLine">${ico('jar')}<span>${sa ? T('Bu haftanın vergi payı ayrıldı') : T('Vergi için ayır: {x} bu hafta', { x: usd(z) })}${bas ? ' · ' + T("BAS'a {n} gün", { n: bas.days }) : ''}</span>${ico('right')}</button>`;
   }
   if (showCard('money')) html += planCard();
-  if (showCard('uber')) html += shiftCard() + carLines();
-  if (showCard('habits')) html += `<section class="sec a-gel">${habitTodayCard(k, bandNow(h))}</section>`;
-  if (showCard('tasks')) {
+  if (showCard('uber') && modOn('uber')) html += shiftCard() + carLines();
+  if (showCard('habits') && modOn('gelisim')) html += `<section class="sec a-gel">${habitTodayCard(k, bandNow(h))}</section>`;
+  if (showCard('tasks') && modOn('gelisim')) {
     const open = G().tasks.filter((t) => !t.done).sort((a, b) => a.prio - b.prio || String(a.created).localeCompare(String(b.created)));
     html += `<section class="sec a-gel">${secHead(T('Yapılacaklar'), `<button type="button" class="link" data-act="go" data-tab="gelisim" data-seg="gorev">${T('Tümü ({n})', { n: open.length })}${ico('right')}</button>`)}
       ${open.length ? `<div class="list">${open.slice(0, 3).map(taskRow).join('')}</div>` : `<p class="note" style="margin:0">${T('Açık görev yok.')} <button type="button" class="link" data-act="go" data-tab="gelisim" data-seg="gorev">${T('Görev ekle')}</button></p>`}</section>`;
   }
-  if (showCard('counters')) html += `<section class="sec a-sag">${secHead(T('Sigara ve alkol'), `<span class="sub">${T('bugün')}</span>`)}${countersHTML(k)}</section>`;
-  if (showCard('portfolio') && D.invest.holdings.length) {
+  if (showCard('counters') && modOn('saglik')) html += `<section class="sec a-sag">${secHead(T('Sigara ve alkol'), `<span class="sub">${T('bugün')}</span>`)}${countersHTML(k)}</section>`;
+  if (showCard('portfolio') && modOn('yatirim') && D.invest.holdings.length) {
     const p = portfolio();
     html += `<button type="button" class="card tight pline a-yat" data-act="go" data-tab="yatirim"><span class="ico">${ico('trend')}</span><span class="t">${T('Portföy bugün')}</span>${p.dayAud != null ? delta(p.dayAud, sgn(p.dayAud, (v) => '$' + nf2.format(v)) + (p.dayPct != null ? ' (' + sgn(p.dayPct, (v) => pct(nf2.format(v))) + ')' : '')) : `<span class="chip">${T('fiyat yok')}</span>`}${ico('right')}</button>`;
   }
-  if (showCard('health')) {
+  if (showCard('health') && modOn('saglik')) {
     const sl = latest('sleep', 1), st = latest('steps', 1), w = latestWeight();
     html += `<section class="sec a-sag">${secHead(T('Sağlık özeti'), `<button type="button" class="link" data-act="go" data-tab="saglik">${T('Sağlık')}${ico('right')}</button>`)}
       <div class="snap">${tile(T('Uyku'), sl ? T('{n} sa', { n: nf1.format(sl.v / 60) }) : '–', sl ? (sl.i ? T('dün gece') : T('bugün')) : T('girilmedi'))}${tile(T('Adım'), st ? nf0.format(st.v) : '–', st ? (st.i ? T('dün') : T('bugün')) : T('girilmedi'))}${tile(T('Kilo'), w ? nf1.format(w.v) + ' kg' : '–', w ? dShort(w.k) : T('girilmedi'))}</div></section>`;
   }
   if (showCard('insight')) {
-    const ins = visibleInsights();
+    const ins = visibleInsights().filter((x) => (x.area === 'gel' ? modOn('gelisim') : x.area === 'sag' ? modOn('saglik') : true));
     if (ins.length) { const one = ins[now.getDate() % ins.length]; html += `<section class="sec a-${one.area}"><div class="insight"><span class="ico gold">${ico('spark')}</span><p id="insightText">${esc(one.text)}</p></div><div class="insight-actions"><button type="button" class="link" data-act="hideInsight" data-id="${one.id}">${T('Gizle')}</button><button type="button" class="link" data-act="openInsights">${T('İçgörüler ({n})', { n: ins.length })}${ico('right')}</button></div></section>`; }
   }
-  if (showCard('evening') && h >= 18) html += eveningCard(k);
+  if (showCard('evening') && modOn('gelisim') && h >= 18) html += eveningCard(k);
   return html;
 }
 function secHead(title, right) { return `<div class="sec-h"><h2>${title}</h2>${right || ''}</div>`; }
@@ -1623,7 +1660,8 @@ function eveningCard(k) {
 // ===================== PARA =====================
 function vPara() {
   if (U.paraSeg === 'takvim') U.paraSeg = 'gecmis';
-  const segs = [['hafta', 'Hafta'], ['rapor', 'Rapor'], ['gecmis', 'Geçmiş'], ['kumbara', 'Hesaplar'], ['vergi', 'Vergi']];
+  if (U.paraSeg === 'vergi' && !modOn('uber')) U.paraSeg = 'hafta';
+  const segs = [['hafta', 'Hafta'], ['rapor', 'Rapor'], ['gecmis', 'Geçmiş'], ['kumbara', 'Hesaplar'], ['vergi', 'Vergi']].filter(([k]) => k !== 'vergi' || modOn('uber'));
   const top = `<div class="seg top-seg" role="group" aria-label="${T('Para bölümleri')}" data-swipe-zone="paraSeg">${segs.map(([k, l]) => `<button type="button" data-act="paraSeg" data-v="${k}" aria-pressed="${U.paraSeg === k}">${T(l)}</button>`).join('')}</div>`;
   return top + ({ hafta: paraWeek, rapor: paraReport, gecmis: paraHist, kumbara: paraPots, vergi: paraTax })[U.paraSeg]();
 }
@@ -3180,18 +3218,20 @@ async function doScheduleNotifs() {
   try {
     const pend = await LN.getPending(); if (pend && pend.notifications && pend.notifications.length) await LN.cancel({ notifications: pend.notifications.map((n) => ({ id: n.id })) });
     const list = [], base = { smallIcon: 'ic_stat_momentum', iconColor: '#E4B552' };
-    if (N.evening.on) list.push(Object.assign({ id: 101, title: 'Momentum', body: T('Akşam değerlendirmesi: bugün nasıl geçti?'), schedule: { on: hm(N.evening.time), allowWhileIdle: true } }, base));
-    if (N.habit.on) list.push(Object.assign({ id: 102, title: 'Momentum', body: T('Günün alışkanlıklarını işaretlemeyi unutma.'), schedule: { on: hm(N.habit.time), allowWhileIdle: true } }, base));
+    // reminders of a hidden module are not scheduled (Gelişim: evening, habit · Uber araçları: taxweek, bas, car)
+    const gel = modOn('gelisim'), ub = modOn('uber');
+    if (N.evening.on && gel) list.push(Object.assign({ id: 101, title: 'Momentum', body: T('Akşam değerlendirmesi: bugün nasıl geçti?'), schedule: { on: hm(N.evening.time), allowWhileIdle: true } }, base));
+    if (N.habit.on && gel) list.push(Object.assign({ id: 102, title: 'Momentum', body: T('Günün alışkanlıklarını işaretlemeyi unutma.'), schedule: { on: hm(N.habit.time), allowWhileIdle: true } }, base));
     if (N.weekly.on) list.push(Object.assign({ id: 103, title: 'Momentum', body: T('Haftalık kontrol: Uber kazancını ve harcamalarını gir.'), schedule: { on: Object.assign({ weekday: 1 }, hm(N.weekly.time)), allowWhileIdle: true } }, base));
-    if (N.taxweek.on) { const x = r2(weekTaxOf(thisWeekId())); if (x > 0 && !weekSetAside(thisWeekId())) list.push(Object.assign({ id: 104, title: 'Momentum', body: T('Bu haftanın vergi payı: {x}. Aktardın mı?', { x: usd2(x) }), schedule: { on: Object.assign({ weekday: 1 }, hm(N.taxweek.time)), allowWhileIdle: true } }, base)); }
-    if (N.bas.on) {
+    if (N.taxweek.on && ub) { const x = r2(weekTaxOf(thisWeekId())); if (x > 0 && !weekSetAside(thisWeekId())) list.push(Object.assign({ id: 104, title: 'Momentum', body: T('Bu haftanın vergi payı: {x}. Aktardın mı?', { x: usd2(x) }), schedule: { on: Object.assign({ weekday: 1 }, hm(N.taxweek.time)), allowWhileIdle: true } }, base)); }
+    if (N.bas.on && ub) {
       let q = qShift(quarterOf(thisWeekId()).key, -1), id = 200; /* previous quarter BAS falls due during the current one */ const t = hm(N.bas.time);
       for (let i = 0; i < 5; i++, q = qShift(q, 1)) {
         const due = qInfo(q).due;
         [14, 3].forEach((before) => { const at = new Date(due.getFullYear(), due.getMonth(), due.getDate() - before, t.hour, t.minute); if (at > new Date()) list.push(Object.assign({ id: id++, title: 'Momentum', body: T('{q} BAS son günü {d}. Vergi için ayırdığın tutarı kontrol et.', { q: qName(q), d: longDate(due) }), schedule: { at, allowWhileIdle: true } }, base)); });
       }
     }
-    if (N.car.on) list.push(...renewalNotifs(base, hm));
+    if (N.car.on && ub) list.push(...renewalNotifs(base, hm));
     if (list.length) await LN.schedule({ notifications: list });
   } catch (e) {}
 }
@@ -3209,7 +3249,7 @@ function vNotifs() {
   const row = (k, label, hint, timeLbl) => `<div class="nrow"><button type="button" class="trow" data-act="notifToggle" data-k="${k}" aria-pressed="${N[k].on}" ${native ? '' : 'disabled'}><span>${label}<small>${hint}</small></span><span class="sw" aria-hidden="true"></span></button>
     ${N[k].on ? `<label class="ntime">${timeLbl}<input class="txt" type="time" data-ntime="${k}" value="${N[k].time}"></label>` : ''}</div>`;
   return `${native ? '' : `<div class="card"><p class="note" style="margin:0" id="notifWebNote">${T('Bildirimler Android uygulamasında çalışır. Uygulamayı GitHub’daki “Sürümler” sayfasından Momentum.apk olarak indirebilirsin.')}</p></div>`}
-    <div class="card">${row('evening', T('Akşam değerlendirmesi'), T('Her gün'), T('Saat'))}${row('habit', T('Alışkanlık hatırlatması'), T('Her gün'), T('Saat'))}${row('weekly', T('Haftalık giriş'), T('Her pazar: Uber kazancı ve harcamalar'), T('Saat'))}${row('car', T('Araç hatırlatmaları'), T('Rego, sigorta, BHSL: 30, 7 ve 1 gün önce · 30 Haziran gösterge km'), T('Saat'))}${row('bas', T('BAS hatırlatması'), T('BAS son gününden 14 ve 3 gün önce'), T('Saat'))}${row('taxweek', T('Haftalık vergi payı'), T("Her pazar: bu haftanın vergi payını kumbaraya aktardın mı?"), T('Saat'))}</div>`;
+    <div class="card">${modOn('gelisim') ? row('evening', T('Akşam değerlendirmesi'), T('Her gün'), T('Saat')) + row('habit', T('Alışkanlık hatırlatması'), T('Her gün'), T('Saat')) : ''}${row('weekly', T('Haftalık giriş'), T('Her pazar: Uber kazancı ve harcamalar'), T('Saat'))}${modOn('uber') ? row('car', T('Araç hatırlatmaları'), T('Rego, sigorta, BHSL: 30, 7 ve 1 gün önce · 30 Haziran gösterge km'), T('Saat')) + row('bas', T('BAS hatırlatması'), T('BAS son gününden 14 ve 3 gün önce'), T('Saat')) + row('taxweek', T('Haftalık vergi payı'), T("Her pazar: bu haftanın vergi payını kumbaraya aktardın mı?"), T('Saat')) : ''}</div>`;
 }
 
 // ===================== VERGİ (Uber GST + income tax set-aside, per BAS quarter) =====================
@@ -3540,8 +3580,11 @@ function uberSumList(key) {
 function pageShell(title, body) {
   return `<div class="page" role="dialog" aria-modal="true" aria-label="${esc(title)}" id="page"><div class="wrap"><header class="top"><div class="brand"><button type="button" class="iconbtn flat" data-act="closeOverlay" aria-label="${T('Geri')}">${ico('left')}</button><h1>${esc(title)}</h1></div></header><main>${body}</main></div></div>`;
 }
-const SET_SECS = [['genel', 'Genel', 'gear', 'a-bug'], ['hesap', 'Hesap ve senkron', 'cloud', 'a-bug'], ['bildirim', 'Bildirimler', 'bell', 'a-bug'], ['para', 'Para', 'wallet', 'a-para'], ['vergi', 'Vergi', 'jar', 'a-para'], ['gelisim', 'Gelişim', 'sprout', 'a-gel'], ['saglik', 'Sağlık', 'heart', 'a-sag'], ['yatirim', 'Yatırım', 'trend', 'a-yat'], ['yedek', 'Yedek', 'backup', 'a-bug']];
-const TAB_SEC = { bugun: 'genel', para: 'para', gelisim: 'gelisim', saglik: 'saglik', yatirim: 'yatirim' };
+const SET_SECS = [['moduller', 'Modüller', 'layout', 'a-bug'], ['genel', 'Genel', 'gear', 'a-bug'], ['hesap', 'Hesap ve senkron', 'cloud', 'a-bug'], ['bildirim', 'Bildirimler', 'bell', 'a-bug'], ['para', 'Para', 'wallet', 'a-para'], ['vergi', 'Vergi', 'jar', 'a-para'], ['gelisim', 'Gelişim', 'sprout', 'a-gel'], ['saglik', 'Sağlık', 'heart', 'a-sag'], ['yatirim', 'Yatırım', 'trend', 'a-yat'], ['yedek', 'Yedek', 'backup', 'a-bug']];
+// settings sections that belong to a module hide with it
+const SEC_MOD = { vergi: 'uber', gelisim: 'gelisim', saglik: 'saglik', yatirim: 'yatirim' };
+const PALETTES = [['grafit', 'Grafit', '#18181b', '#ececef', '#f6f6f7', '#0c0c0e'], ['lacivert', 'Lacivert', '#1e40af', '#e3eafb', '#f5f7fa', '#0b1020'], ['petrol', 'Petrol', '#0e5c63', '#ddeeef', '#f4f7f7', '#0b1414']];
+const palette = () => PALETTES.find((x) => x[0] === D.ui.palette) || PALETTES[0];
 function setShell(sec, body) {
   const S0 = SET_SECS.find((x) => x[0] === sec);
   const title = sec ? T(S0[1]) : T('Ayarlar');
@@ -3550,7 +3593,8 @@ function setShell(sec, body) {
     <div class="crumb">${sec ? `<small>${T('Ayarlar')} ›</small>` : ''}<h1 id="setTitle">${esc(title)}</h1></div></div></header><main class="${sec ? S0[3] : ''}">${body}</main></div></div>`;
 }
 function setSummary(sec) {
-  if (sec === 'genel') return (LANG === 'en' ? 'English' : 'Türkçe') + ' · ' + T({ system: 'Sistem', light: 'Açık', dark: 'Koyu' }[D.ui.theme] || 'Sistem');
+  if (sec === 'moduller') { const off = MODULES.filter(([k]) => !modOn(k)).length; return T('{x} açık', { x: MODULES.filter(([k]) => modOn(k)).map(([, l]) => T(l)).join(', ') }) + (off ? ' · ' + T('{n} kapalı', { n: off }) : ''); }
+  if (sec === 'genel') return (LANG === 'en' ? 'English' : 'Türkçe') + ' · ' + T({ system: 'Sistem', light: 'Açık', dark: 'Koyu' }[D.ui.theme] || 'Sistem') + ' · ' + T(palette()[1]);
   if (sec === 'para') return T('Maaş {x}', { x: usd(S.salary) }) + ' · ' + T('{n} tekrarlayan gider', { n: S.recurring.length });
   if (sec === 'vergi') return T('Logbook {p} · BAS çeyreklik', { p: pct(nf0.format(logbook())) });
   if (sec === 'gelisim') return T('{n} alışkanlık', { n: G().habits.length }) + ' · ' + T('{n} kitap hedefi', { n: G().bookGoal });
@@ -3563,15 +3607,19 @@ function setSummary(sec) {
 }
 function vSettings() {
   const sec = U.setSec;
-  if (!sec) return setShell(null, `<div class="card setlist">${SET_SECS.map(([k, l, ic, a]) => `<button type="button" class="setrow ${a}" data-act="setSec" data-v="${k}"><span class="ico">${ico(ic)}</span><span class="st"><b>${T(l)}</b><small>${esc(setSummary(k))}</small></span>${ico('right')}</button>`).join('')}</div>
+  if (!sec) return setShell(null, `<div class="card setlist">${SET_SECS.filter(([k]) => modOn(SEC_MOD[k])).map(([k, l, ic, a]) => `<button type="button" class="setrow ${a}" data-act="setSec" data-v="${k}"><span class="ico">${ico(ic)}</span><span class="st"><b>${T(l)}</b><small>${esc(setSummary(k))}</small></span>${ico('right')}</button>`).join('')}</div>
     <p class="note" style="text-align:center">${T('Momentum · Veriler sadece bu telefonda, tarayıcı hafızasında tutulur. Düzenli olarak yedek al.')}</p>`);
   const rec = S.recurring, iv = IV(), H = D.health;
   const mny = (id, key, v, unit, pre) => `<div class="money">${pre === false ? '' : '<span>$</span>'}<input id="${id}" ${key} inputmode="decimal" value="${v}">${unit ? `<span>${unit}</span>` : ''}</div>`;
   const segB = (act, opts, curv, lbl) => `<div class="seg inline" role="group" aria-label="${lbl}">${opts.map(([v, l, id]) => `<button type="button" data-act="${act}" data-v="${v}"${id ? ` id="${id}"` : ''} aria-pressed="${String(curv) === String(v)}">${l}</button>`).join('')}</div>`;
   const hidCount = Object.keys(D.ui.hiddenInsights).filter((k) => D.ui.hiddenInsights[k]).length;
   const body = {
+    moduller: () => `<div class="card"><p class="note" style="margin:0 0 6px" id="modIntro">${T('Sadece kullandıklarını aç. Kapattığın modülün verisi silinmez, senkron devam eder. Tekrar açınca her şey yerinde.')}</p>
+      ${MODULES.map(([k, l, ic, sub]) => k === 'para' ? `<div class="trow modrow" id="mod-${k}"><span class="ico">${ico(ic)}</span><span class="mt"><b>${T(l)}</b><small>${T(sub)}</small></span><span class="lock">${T('Her zaman açık')}</span></div>`
+        : `<button type="button" class="trow modrow" role="switch" aria-checked="${modOn(k)}" aria-label="${esc(T(l))}" data-act="modToggle" data-k="${k}" id="mod-${k}"><span class="ico">${ico(ic)}</span><span class="mt"><b>${T(l)}</b><small>${T(sub)}</small></span><span class="sw" aria-hidden="true"></span></button>`).join('')}</div>`,
     genel: () => `<div class="card a-bug">${head('globe', T('Dil'))}<div class="seg" role="group" aria-label="${T('Dil')}"><button type="button" data-act="setLang" data-v="tr" id="lang-tr" aria-pressed="${LANG === 'tr'}" lang="tr">Türkçe</button><button type="button" data-act="setLang" data-v="en" id="lang-en" aria-pressed="${LANG === 'en'}" lang="en">English</button></div></div>
       <div class="card a-bug">${head('palette', T('Tema'))}<div class="seg" role="group" aria-label="${T('Tema')}">${[['system', 'Sistem'], ['light', 'Açık'], ['dark', 'Koyu']].map(([v, l]) => `<button type="button" data-act="setTheme" data-v="${v}" id="theme-${v}" aria-pressed="${D.ui.theme === v}">${T(l)}</button>`).join('')}</div></div>
+      <div class="card a-bug">${head('palette', T('Renk teması'))}<div class="palpick" role="radiogroup" aria-label="${T('Renk teması')}">${PALETTES.map(([v, l, a, b]) => `<button type="button" role="radio" data-act="setPalette" data-v="${v}" id="pal-${v}" aria-checked="${palette()[0] === v}"><span class="swatch" aria-hidden="true" style="background:linear-gradient(135deg, ${a} 50%, ${b} 50%)">${ico('check')}</span><span>${T(l)}</span></button>`).join('')}</div></div>
       <div class="card a-bug">${head('layout', T('Bugün kartları'))}${BUGUN_CARDS.map(([k, l]) => `<button type="button" class="trow" data-act="toggleCard" data-k="${k}" aria-pressed="${showCard(k)}"><span>${T(l)}</span><span class="sw" aria-hidden="true"></span></button>`).join('')}
         ${hidCount ? `<button type="button" class="link" data-act="restoreInsights" style="margin-top:6px">${T('Gizlenen {n} içgörüyü geri getir', { n: hidCount })}</button>` : ''}</div>`,
     para: () => `${planSettings()}<div class="card">${head('percent', T('Gelir ve vergi'))}<div class="fields">
@@ -3624,7 +3672,7 @@ function sheetShell(title, body, area) { return `<div class="scrim" data-act="sc
 function vSheet() {
   const sh = U.sheet; if (!sh) return '';
   if (sh.kind === 'fab') {
-    const opts = [['fis', 'Fiş tara', 'receipt', 'a-para'], ['harcama', 'Harcama', 'bag', 'a-para'], ['uber', 'Uber vardiyası', 'car', 'a-para'], ['uexp', 'Uber gideri', 'receipt', 'a-para'], ['sigara', 'Sigara +1', 'cig', 'a-sag'], ['alkol', 'Alkol +1', 'glass', 'a-sag'], ['kilo', 'Kilo', 'scale', 'a-sag'], ['aliskanlik', 'Alışkanlık', 'check', 'a-gel']];
+    const opts = [['fis', 'Fiş tara', 'receipt', 'a-para', 'para'], ['harcama', 'Harcama', 'bag', 'a-para', 'para'], ['uber', 'Uber vardiyası', 'car', 'a-para', 'uber'], ['uexp', 'Uber gideri', 'receipt', 'a-para', 'uber'], ['sigara', 'Sigara +1', 'cig', 'a-sag', 'saglik'], ['alkol', 'Alkol +1', 'glass', 'a-sag', 'saglik'], ['kilo', 'Kilo', 'scale', 'a-sag', 'saglik'], ['aliskanlik', 'Alışkanlık', 'check', 'a-gel', 'gelisim']].filter((o) => modOn(o[4]));
     const k = sh.k, w = getWeek(thisWeekId()) || {};
     let form = '';
     if (k === 'harcama') form = `<form class="card a-para stack" id="qForm" data-k="harcama"><div class="row">${comboInput('qName')}</div><div class="row wrap"><div class="money" style="width:112px;flex:0 0 112px"><span>$</span><input id="qAmt" inputmode="decimal" placeholder="0,00" aria-label="${T('Tutar')}" autocomplete="off"></div><button type="button" class="tagbtn" data-act="dOneOff" id="qOneOff" aria-pressed="${!!U.dOneOff}">${T('Tek seferlik')}</button><button class="btn" type="submit" style="margin-left:auto">${T('Bugüne kaydet')}</button></div>${accPick('qAcc')}<p class="note" style="margin:0">${T('Bugünün harcamalarına eklenir ve haftanın giderlerine sayılır.')}</p></form>`;
@@ -3688,8 +3736,9 @@ function vSheet() {
 function applyTheme() {
   const t = D.ui.theme, html = document.documentElement;
   if (t === 'light' || t === 'dark') html.setAttribute('data-theme', t); else html.removeAttribute('data-theme');
+  const pal = palette(); html.setAttribute('data-palette', pal[0]);
   const dark = t === 'dark' || (t !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
-  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', dark ? '#1b1520' : '#f4eee6');
+  const m = document.querySelector('meta[name="theme-color"]'); if (m) m.setAttribute('content', dark ? pal[5] : pal[4]);
 }
 function applyLang() {
   setLocale(D.ui.lang);
@@ -3706,14 +3755,14 @@ function keepFocus(fn) {
 }
 function render(dir) {
   if (typeof taxCacheReset === 'function') taxCacheReset();
+  if (!tabOn(U.tab)) U.tab = 'bugun';
   keepFocus(() => {
     const v = $('view');
     v.className = AREA[U.tab];
     v.innerHTML = ({ bugun: vBugun, para: vPara, gelisim: vGelisim, saglik: vSaglik, yatirim: vYatirim })[U.tab]();
     $('topTitle').textContent = U.tab === 'bugun' ? 'Momentum' : T(TITLE[U.tab]);
-    document.querySelectorAll('#tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === U.tab)));
+    document.querySelectorAll('#tabs button').forEach((b) => { b.hidden = !tabOn(b.dataset.tab); b.setAttribute('aria-selected', String(b.dataset.tab === U.tab)); });
     $('fab').hidden = U.tab !== 'bugun';
-    const sg = $('secGear'); if (sg) { sg.dataset.sec = TAB_SEC[U.tab]; sg.setAttribute('aria-label', T('Bu sekmenin ayarları')); sg.title = T('Bu sekmenin ayarları'); }
     if (U.tab === 'para' && U.paraSeg === 'hafta') paraCalc();
     paintSyncChip(); fitText($('view'));
   });
@@ -3756,7 +3805,7 @@ function findDaily(id) {
   for (const [week, w] of Object.entries(D.money.weeks)) { const i = (w.daily || []).findIndex((x) => x.id === id); if (i >= 0) return { week, w, i, x: w.daily[i] }; }
   return null;
 }
-let lastDeleted = null, undoTimer = null;
+let lastDeleted = null, undoTimer = null, lastModule = null;
 function deleteDaily(id) {
   const f = findDaily(id); if (!f) return;
   f.w.daily.splice(f.i, 1); lastDeleted = { week: f.week, i: f.i, x: f.x }; if (f.x.acc) accAdjust(f.x.acc, +f.x.amount || 0);
@@ -3768,17 +3817,19 @@ function undoDelete() {
   w.daily.splice(Math.min(lastDeleted.i, w.daily.length), 0, lastDeleted.x); if (lastDeleted.x.acc) accAdjust(lastDeleted.x.acc, -(+lastDeleted.x.amount || 0)); lastDeleted = null;
   const t = $('toast'); if (t) t.hidden = true; clearTimeout(undoTimer); save(); render();
 }
-function toastAction(msg, label) {
+function toastAction(msg, label, act) {
   const t = $('toast'); if (!t) return;
-  t.innerHTML = `<span>${esc(msg)}</span><button type="button" class="toast-act" data-act="undo" id="undoBtn">${esc(label)}</button>`;
+  t.innerHTML = `<span>${esc(msg)}</span><button type="button" class="toast-act" data-act="${act || 'undo'}" id="undoBtn">${esc(label)}</button>`;
   t.hidden = false; clearTimeout(toastT); clearTimeout(undoTimer);
   undoTimer = setTimeout(() => { t.hidden = true; lastDeleted = null; }, 5000);
 }
 
 // ---------- swipe left to delete (pointer events, ~80px threshold) ----------
 let swipe = null, swipeSuppress = false;
+// no horizontal gesture may start in the 32 px Android back-gesture zone at either screen edge
+const edgeZone = (x) => x < 32 || x > window.innerWidth - 32;
 document.addEventListener('pointerdown', (e) => {
-  const fg = e.target.closest('.swipe-fg'); if (!fg || e.button > 0) return;
+  const fg = e.target.closest('.swipe-fg'); if (!fg || e.button > 0 || edgeZone(e.clientX)) return;
   swipe = { fg, row: fg.parentElement, x: e.clientX, y: e.clientY, dx: 0, on: false, pid: e.pointerId };
 });
 document.addEventListener('pointermove', (e) => {
@@ -3974,6 +4025,13 @@ document.addEventListener('click', (e) => {
     case 'toggleCard': toggleCardPref(b.dataset.k); after(); break;
     case 'toggleHome': IV().showOnHome = !IV().showOnHome; after(); break;
     case 'setTheme': D.ui.theme = b.dataset.v; applyTheme(); after(); break;
+    case 'setPalette': D.ui.palette = b.dataset.v; applyTheme(); after(); break;
+    case 'modToggle': {
+      const mk = b.dataset.k, was = modOn(mk), nm = T((MODULES.find((x) => x[0] === mk) || [])[1] || ''); setModule(mk, !was); lastModule = { k: mk, v: was }; after();
+      if (was) toastAction(T('{x} gizlendi. Verilerin duruyor.', { x: nm }), T('Geri al'), 'undoModule'); else toast(T(TAB_ORDER.includes(mk) ? '{x} açıldı. Sekmesi altta.' : '{x} açıldı.', { x: nm }));
+      break;
+    }
+    case 'undoModule': if (lastModule) { setModule(lastModule.k, lastModule.v); lastModule = null; const t0 = $('toast'); if (t0) t0.hidden = true; clearTimeout(undoTimer); after(); } break;
     case 'export': {
       exportBackup().then((r) => {
         U.bkMsg = !r ? T('Yedek indirilemedi.') : r.how === 'download' ? T('Yedek indirildi: {x} (İndirilenler klasörü)', { x: r.name })
@@ -4159,7 +4217,7 @@ function hScrollable(el) {
 }
 document.addEventListener('pointerdown', (e) => {
   nav = null;
-  if (e.button > 0 || U.sheet || U.page) return;
+  if (e.button > 0 || U.sheet || U.page || edgeZone(e.clientX)) return;
   const t = e.target;
   if (!t.closest || !t.closest('#view') || t.closest('input, textarea, select, [contenteditable], .swipe, .tbl-wrap, .months-scroll') || hScrollable(t)) return;
   nav = { x: e.clientX, y: e.clientY, zone: (t.closest('[data-swipe-zone]') || {}).dataset ? t.closest('[data-swipe-zone]').dataset.swipeZone : 'tab', pid: e.pointerId };
@@ -4173,9 +4231,9 @@ document.addEventListener('pointerup', (e) => {
   if (!D.ui.swipeHintSeen) { D.ui.swipeHintSeen = true; save(); }
   if (n.zone === 'week' && U.tab === 'para' && (U.paraSeg === 'hafta' || U.paraSeg === 'rapor')) { const d = fromId(U.cur); d.setDate(d.getDate() + 7 * dir); U.cur = idOf(d); render(dir); return; }
   if (n.zone === 'quarter' && U.tab === 'para' && U.paraSeg === 'vergi') { U.taxQ = qShift(U.taxQ, dir); render(dir); return; }
-  if (n.zone === 'paraSeg' || n.zone === 'gelSeg') { const list = SEGS[n.zone], cur = U[n.zone], i = list.indexOf(cur) + dir; if (i >= 0 && i < list.length) { U[n.zone] = list[i]; render(dir); } return; }
-  const i = TAB_ORDER.indexOf(U.tab) + dir; if (i < 0 || i >= TAB_ORDER.length) return;
-  U.tab = TAB_ORDER[i]; U.armed = null; try { localStorage.setItem(TAB_KEY, U.tab); } catch (err) {}
+  if (n.zone === 'paraSeg' || n.zone === 'gelSeg') { const list = SEGS[n.zone].filter((s) => s !== 'vergi' || modOn('uber')), cur = U[n.zone], i = list.indexOf(cur) + dir; if (i >= 0 && i < list.length) { U[n.zone] = list[i]; render(dir); } return; }
+  const order = TAB_ORDER.filter(tabOn), i = order.indexOf(U.tab) + dir; if (i < 0 || i >= order.length) return; // hidden module tabs are skipped
+  U.tab = order[i]; U.armed = null; try { localStorage.setItem(TAB_KEY, U.tab); } catch (err) {}
   render(dir); window.scrollTo({ top: 0 }); if (U.tab === 'yatirim') refreshPrices(false);
 });
 document.addEventListener('pointercancel', () => { nav = null; });
@@ -4449,7 +4507,7 @@ const EN = {
   'Vergi sekmesi maaşını ve hastane sigortanı Para ayarlarından alır. BAS çeyreklik verilir. Kendin verirsen son günler: 11 Kasım, 28 Şubat, 12 Mayıs ve 25 Ağustos.': 'The Tax tab takes your salary and hospital cover from Money settings. BAS is lodged quarterly. If you lodge it yourself, the due dates are 11 November, 28 February, 12 May and 25 August.',
   'Para ayarlarını aç': 'Open Money settings', 'Okuma': 'Reading', 'Yıllık kitap hedefi': 'Yearly book goal', 'Bugüne kaydet': 'Save to today',
   'Bugünün günlük harcamalarına eklenir ve haftanın giderlerine sayılır.': "Added to today's daily spending and counted in this week's costs.", 'Harcamayı düzenle': 'Edit expense', 'Gün': 'Day',
-  'Harcamayı sil': 'Delete expense', 'Bu sekmenin ayarları': "This tab's settings", 'Silindi: {x} ({y})': 'Deleted: {x} ({y})', 'Geri al': 'Undo', 'Bugüne eklendi: {x}': 'Added to today: {x}',
+  'Harcamayı sil': 'Delete expense', 'Silindi: {x} ({y})': 'Deleted: {x} ({y})', 'Geri al': 'Undo', 'Bugüne eklendi: {x}': 'Added to today: {x}',
   '{d} gününe eklendi: {x}': 'Added to {d}: {x}', 'Yemek': 'Food', 'Market': 'Groceries', 'Kahve': 'Coffee', 'Ulaşım': 'Transport', 'Eğlence': 'Fun', 'Fatura': 'Bills', 'Genel': 'General',
   // round 4: sync & notifications
   'Senkron açık': 'Synced', 'Eşitleniyor': 'Syncing', 'Çevrimdışı': 'Offline', 'Hata': 'Error', 'Seçim bekleniyor': 'Choose data',
@@ -4673,6 +4731,12 @@ const EN = {
   'Hedef başlangıcı (isteğe bağlı)': 'Goal starts (optional)', 'Taşınma ve tatil gibi büyük harcamalar bitince başlat.': 'Start it after big one-offs like moving and holidays.',
   'Haftalık birikim hedefi koy': 'Set a weekly savings goal', 'Her hafta ne kadar biriktirmek istiyorsun? Hedefi koyunca her gün “bugün ne harcayabilirim” ve hedefe kaç saat Uber kaldığını gösteririm.': "How much do you want to save each week? With a goal you'll see what you can spend today and how many Uber hours are left to reach it.",
   'Hedefi koy': 'Set goal', 'Hedefi ve Uber planını düzenle': 'Edit goal and Uber plan', 'Uber planını ekle': 'Add your Uber plan', '— hangi gün kaç saat çalışacağını girersen haftalık tahmin yaparım.': '— enter which days and how long you drive to get a weekly forecast.', 'Haftalık hedef: {x}': 'Weekly goal: {x}',
+  'Modüller': 'Modules', 'Uber araçları': 'Uber tools', 'Bütçe, hesaplar, kumbaralar': 'Budget, accounts, pots', 'Vardiya, logbook, vergi, BAS': 'Shifts, logbook, tax, BAS',
+  'Portföy ve takip listesi': 'Portfolio and watchlist', 'Alışkanlık, görev, kitap, günlük': 'Habits, tasks, books, journal', 'Sigara, alkol, uyku, kilo': 'Smoking, alcohol, sleep, weight',
+  'Sadece kullandıklarını aç. Kapattığın modülün verisi silinmez, senkron devam eder. Tekrar açınca her şey yerinde.': "Turn on only what you use. A module you turn off keeps its data and keeps syncing. Turn it back on and everything is where you left it.",
+  'Her zaman açık': 'Always on', '{x} açık': '{x} on', '{n} kapalı': '{n} off', '{x} gizlendi. Verilerin duruyor.': '{x} hidden. Your data is kept.',
+  '{x} açıldı. Sekmesi altta.': '{x} is on. Its tab is at the bottom.', '{x} açıldı.': '{x} is on.',
+  'Renk teması': 'Colour theme', 'Grafit': 'Graphite', 'Lacivert': 'Navy', 'Petrol': 'Teal',
 };
 
 // ===================== init =====================

@@ -5,6 +5,7 @@ let fails = 0; const check = (ok, m) => { if (!ok) fails++; console.log((ok ? 'P
   const b = await chromium.launch(); const c = await b.newContext({ viewport: { width: 400, height: 860 }, timezoneId: 'Australia/Brisbane' });
   await c.route(/fonts\.|cdnjs|jsdelivr|supabase\.co/, (r) => r.fulfill({ status: 404, body: '' }));
   await c.addInitScript(() => {
+    if (!localStorage.getItem('adim-adim-v2')) localStorage.setItem('adim-adim-v2', JSON.stringify({ schemaVersion: 1, ui: { modules: { gelisim: true } } })); // v2.0: Gelişim reminders need the module on
     window.__sched = []; window.__swReg = 0;
     const orig = navigator.serviceWorker && navigator.serviceWorker.register; if (orig) navigator.serviceWorker.register = function () { window.__swReg++; return Promise.resolve(); };
     window.Capacitor = { isNativePlatform: () => true, registerPlugin: (n) => n === 'LocalNotifications' ? {

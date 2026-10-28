@@ -258,7 +258,7 @@ const EN = {
   'Vergi sekmesi maaşını ve hastane sigortanı Para ayarlarından alır. BAS çeyreklik verilir. Kendin verirsen son günler: 11 Kasım, 28 Şubat, 12 Mayıs ve 25 Ağustos.': 'The Tax tab takes your salary and hospital cover from Money settings. BAS is lodged quarterly. If you lodge it yourself, the due dates are 11 November, 28 February, 12 May and 25 August.',
   'Para ayarlarını aç': 'Open Money settings', 'Okuma': 'Reading', 'Yıllık kitap hedefi': 'Yearly book goal', 'Bugüne kaydet': 'Save to today',
   'Bugünün günlük harcamalarına eklenir ve haftanın giderlerine sayılır.': "Added to today's daily spending and counted in this week's costs.", 'Harcamayı düzenle': 'Edit expense', 'Gün': 'Day',
-  'Harcamayı sil': 'Delete expense', 'Bu sekmenin ayarları': "This tab's settings", 'Silindi: {x} ({y})': 'Deleted: {x} ({y})', 'Geri al': 'Undo', 'Bugüne eklendi: {x}': 'Added to today: {x}',
+  'Harcamayı sil': 'Delete expense', 'Silindi: {x} ({y})': 'Deleted: {x} ({y})', 'Geri al': 'Undo', 'Bugüne eklendi: {x}': 'Added to today: {x}',
   '{d} gününe eklendi: {x}': 'Added to {d}: {x}', 'Yemek': 'Food', 'Market': 'Groceries', 'Kahve': 'Coffee', 'Ulaşım': 'Transport', 'Eğlence': 'Fun', 'Fatura': 'Bills', 'Genel': 'General',
   // round 4: sync & notifications
   'Senkron açık': 'Synced', 'Eşitleniyor': 'Syncing', 'Çevrimdışı': 'Offline', 'Hata': 'Error', 'Seçim bekleniyor': 'Choose data',
@@ -482,4 +482,10 @@ const EN = {
   'Hedef başlangıcı (isteğe bağlı)': 'Goal starts (optional)', 'Taşınma ve tatil gibi büyük harcamalar bitince başlat.': 'Start it after big one-offs like moving and holidays.',
   'Haftalık birikim hedefi koy': 'Set a weekly savings goal', 'Her hafta ne kadar biriktirmek istiyorsun? Hedefi koyunca her gün “bugün ne harcayabilirim” ve hedefe kaç saat Uber kaldığını gösteririm.': "How much do you want to save each week? With a goal you'll see what you can spend today and how many Uber hours are left to reach it.",
   'Hedefi koy': 'Set goal', 'Hedefi ve Uber planını düzenle': 'Edit goal and Uber plan', 'Uber planını ekle': 'Add your Uber plan', '— hangi gün kaç saat çalışacağını girersen haftalık tahmin yaparım.': '— enter which days and how long you drive to get a weekly forecast.', 'Haftalık hedef: {x}': 'Weekly goal: {x}',
+  'Modüller': 'Modules', 'Uber araçları': 'Uber tools', 'Bütçe, hesaplar, kumbaralar': 'Budget, accounts, pots', 'Vardiya, logbook, vergi, BAS': 'Shifts, logbook, tax, BAS',
+  'Portföy ve takip listesi': 'Portfolio and watchlist', 'Alışkanlık, görev, kitap, günlük': 'Habits, tasks, books, journal', 'Sigara, alkol, uyku, kilo': 'Smoking, alcohol, sleep, weight',
+  'Sadece kullandıklarını aç. Kapattığın modülün verisi silinmez, senkron devam eder. Tekrar açınca her şey yerinde.': "Turn on only what you use. A module you turn off keeps its data and keeps syncing. Turn it back on and everything is where you left it.",
+  'Her zaman açık': 'Always on', '{x} açık': '{x} on', '{n} kapalı': '{n} off', '{x} gizlendi. Verilerin duruyor.': '{x} hidden. Your data is kept.',
+  '{x} açıldı. Sekmesi altta.': '{x} is on. Its tab is at the bottom.', '{x} açıldı.': '{x} is on.',
+  'Renk teması': 'Colour theme', 'Grafit': 'Graphite', 'Lacivert': 'Navy', 'Petrol': 'Teal',
 };

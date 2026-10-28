@@ -14,7 +14,7 @@ function findDaily(id) {
   for (const [week, w] of Object.entries(D.money.weeks)) { const i = (w.daily || []).findIndex((x) => x.id === id); if (i >= 0) return { week, w, i, x: w.daily[i] }; }
   return null;
 }
-let lastDeleted = null, undoTimer = null;
+let lastDeleted = null, undoTimer = null, lastModule = null;
 function deleteDaily(id) {
   const f = findDaily(id); if (!f) return;
   f.w.daily.splice(f.i, 1); lastDeleted = { week: f.week, i: f.i, x: f.x }; if (f.x.acc) accAdjust(f.x.acc, +f.x.amount || 0);
@@ -26,17 +26,19 @@ function undoDelete() {
   w.daily.splice(Math.min(lastDeleted.i, w.daily.length), 0, lastDeleted.x); if (lastDeleted.x.acc) accAdjust(lastDeleted.x.acc, -(+lastDeleted.x.amount || 0)); lastDeleted = null;
   const t = $('toast'); if (t) t.hidden = true; clearTimeout(undoTimer); save(); render();
 }
-function toastAction(msg, label) {
+function toastAction(msg, label, act) {
   const t = $('toast'); if (!t) return;
-  t.innerHTML = `<span>${esc(msg)}</span><button type="button" class="toast-act" data-act="undo" id="undoBtn">${esc(label)}</button>`;
+  t.innerHTML = `<span>${esc(msg)}</span><button type="button" class="toast-act" data-act="${act || 'undo'}" id="undoBtn">${esc(label)}</button>`;
   t.hidden = false; clearTimeout(toastT); clearTimeout(undoTimer);
   undoTimer = setTimeout(() => { t.hidden = true; lastDeleted = null; }, 5000);
 }
 
 // ---------- swipe left to delete (pointer events, ~80px threshold) ----------
 let swipe = null, swipeSuppress = false;
+// no horizontal gesture may start in the 32 px Android back-gesture zone at either screen edge
+const edgeZone = (x) => x < 32 || x > window.innerWidth - 32;
 document.addEventListener('pointerdown', (e) => {
-  const fg = e.target.closest('.swipe-fg'); if (!fg || e.button > 0) return;
+  const fg = e.target.closest('.swipe-fg'); if (!fg || e.button > 0 || edgeZone(e.clientX)) return;
   swipe = { fg, row: fg.parentElement, x: e.clientX, y: e.clientY, dx: 0, on: false, pid: e.pointerId };
 });
 document.addEventListener('pointermove', (e) => {
@@ -232,6 +234,13 @@ document.addEventListener('click', (e) => {
     case 'toggleCard': toggleCardPref(b.dataset.k); after(); break;
     case 'toggleHome': IV().showOnHome = !IV().showOnHome; after(); break;
     case 'setTheme': D.ui.theme = b.dataset.v; applyTheme(); after(); break;
+    case 'setPalette': D.ui.palette = b.dataset.v; applyTheme(); after(); break;
+    case 'modToggle': {
+      const mk = b.dataset.k, was = modOn(mk), nm = T((MODULES.find((x) => x[0] === mk) || [])[1] || ''); setModule(mk, !was); lastModule = { k: mk, v: was }; after();
+      if (was) toastAction(T('{x} gizlendi. Verilerin duruyor.', { x: nm }), T('Geri al'), 'undoModule'); else toast(T(TAB_ORDER.includes(mk) ? '{x} açıldı. Sekmesi altta.' : '{x} açıldı.', { x: nm }));
+      break;
+    }
+    case 'undoModule': if (lastModule) { setModule(lastModule.k, lastModule.v); lastModule = null; const t0 = $('toast'); if (t0) t0.hidden = true; clearTimeout(undoTimer); after(); } break;
     case 'export': {
       exportBackup().then((r) => {
         U.bkMsg = !r ? T('Yedek indirilemedi.') : r.how === 'download' ? T('Yedek indirildi: {x} (İndirilenler klasörü)', { x: r.name })
@@ -417,7 +426,7 @@ function hScrollable(el) {
 }
 document.addEventListener('pointerdown', (e) => {
   nav = null;
-  if (e.button > 0 || U.sheet || U.page) return;
+  if (e.button > 0 || U.sheet || U.page || edgeZone(e.clientX)) return;
   const t = e.target;
   if (!t.closest || !t.closest('#view') || t.closest('input, textarea, select, [contenteditable], .swipe, .tbl-wrap, .months-scroll') || hScrollable(t)) return;
   nav = { x: e.clientX, y: e.clientY, zone: (t.closest('[data-swipe-zone]') || {}).dataset ? t.closest('[data-swipe-zone]').dataset.swipeZone : 'tab', pid: e.pointerId };
@@ -431,9 +440,9 @@ document.addEventListener('pointerup', (e) => {
   if (!D.ui.swipeHintSeen) { D.ui.swipeHintSeen = true; save(); }
   if (n.zone === 'week' && U.tab === 'para' && (U.paraSeg === 'hafta' || U.paraSeg === 'rapor')) { const d = fromId(U.cur); d.setDate(d.getDate() + 7 * dir); U.cur = idOf(d); render(dir); return; }
   if (n.zone === 'quarter' && U.tab === 'para' && U.paraSeg === 'vergi') { U.taxQ = qShift(U.taxQ, dir); render(dir); return; }
-  if (n.zone === 'paraSeg' || n.zone === 'gelSeg') { const list = SEGS[n.zone], cur = U[n.zone], i = list.indexOf(cur) + dir; if (i >= 0 && i < list.length) { U[n.zone] = list[i]; render(dir); } return; }
-  const i = TAB_ORDER.indexOf(U.tab) + dir; if (i < 0 || i >= TAB_ORDER.length) return;
-  U.tab = TAB_ORDER[i]; U.armed = null; try { localStorage.setItem(TAB_KEY, U.tab); } catch (err) {}
+  if (n.zone === 'paraSeg' || n.zone === 'gelSeg') { const list = SEGS[n.zone].filter((s) => s !== 'vergi' || modOn('uber')), cur = U[n.zone], i = list.indexOf(cur) + dir; if (i >= 0 && i < list.length) { U[n.zone] = list[i]; render(dir); } return; }
+  const order = TAB_ORDER.filter(tabOn), i = order.indexOf(U.tab) + dir; if (i < 0 || i >= order.length) return; // hidden module tabs are skipped
+  U.tab = order[i]; U.armed = null; try { localStorage.setItem(TAB_KEY, U.tab); } catch (err) {}
   render(dir); window.scrollTo({ top: 0 }); if (U.tab === 'yatirim') refreshPrices(false);
 });
 document.addEventListener('pointercancel', () => { nav = null; });

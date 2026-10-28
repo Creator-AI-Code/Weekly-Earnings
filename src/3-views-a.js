@@ -17,6 +17,13 @@ const BUGUN_CARDS = [['money', 'Harcayabileceğin ve vergi satırı'], ['uber', 
 // portfolio, health and insight are off by default on Bugün (opt-in), the rest are on unless hidden
 const OPTIN_CARDS = ['portfolio', 'health', 'insight'];
 const showCard = (k) => (OPTIN_CARDS.includes(k) ? !!D.ui.shownCards[k] : !D.ui.hiddenCards[k]);
+// Modüller (ui.modules): a missing key means the defaults; Para is always on. Hiding a module only hides its UI:
+// its data, sync and backups stay untouched.
+const MODULES = [['para', 'Para', 'wallet', 'Bütçe, hesaplar, kumbaralar'], ['uber', 'Uber araçları', 'car', 'Vardiya, logbook, vergi, BAS'], ['yatirim', 'Yatırım', 'trend', 'Portföy ve takip listesi'], ['gelisim', 'Gelişim', 'sprout', 'Alışkanlık, görev, kitap, günlük'], ['saglik', 'Sağlık', 'heart', 'Sigara, alkol, uyku, kilo']];
+const MOD_DEF = { uber: true, yatirim: true, gelisim: false, saglik: false };
+const modOn = (k) => { if (!k || k === 'para') return true; const m = isObj(D.ui.modules) ? D.ui.modules : {}; return m[k] != null ? !!m[k] : MOD_DEF[k]; };
+function setModule(k, on) { D.ui.modules = Object.assign({}, MOD_DEF, isObj(D.ui.modules) ? D.ui.modules : {}, { [k]: !!on }); }
+const tabOn = (t) => t === 'bugun' || modOn(t);
 function toggleCardPref(k) { if (OPTIN_CARDS.includes(k)) { if (D.ui.shownCards[k]) delete D.ui.shownCards[k]; else D.ui.shownCards[k] = true; } else if (D.ui.hiddenCards[k]) delete D.ui.hiddenCards[k]; else D.ui.hiddenCards[k] = true; }
 
 // ===================== shared pieces =====================
@@ -110,31 +117,31 @@ function vBugun() {
       <span class="k">${T('Bu hafta harcayabileceğin')}</span><span class="v" id="safeX">${usd(s.x)}</span>
       <span class="u" id="safeDay">${over ? T('Bu hafta bütçeyi aştın') : T('günde {x} · {n} gün kaldı', { x: usd(s.perDay), n: s.daysLeft })}</span></button>`;
     const c = s.c, sa = weekSetAside(s.id), bas = nextBas(), z = sa ? 0 : r2(c.weekTax);
-    if (c.weekTax > 0 || bas && taxFull(bas.q).need > 0.005) html += `<button type="button" class="taxline a-para" data-act="go" data-tab="para" data-seg="vergi" id="bTaxLine">${ico('jar')}<span>${sa ? T('Bu haftanın vergi payı ayrıldı') : T('Vergi için ayır: {x} bu hafta', { x: usd(z) })}${bas ? ' · ' + T("BAS'a {n} gün", { n: bas.days }) : ''}</span>${ico('right')}</button>`;
+    if (modOn('uber') && (c.weekTax > 0 || bas && taxFull(bas.q).need > 0.005)) html += `<button type="button" class="taxline a-para" data-act="go" data-tab="para" data-seg="vergi" id="bTaxLine">${ico('jar')}<span>${sa ? T('Bu haftanın vergi payı ayrıldı') : T('Vergi için ayır: {x} bu hafta', { x: usd(z) })}${bas ? ' · ' + T("BAS'a {n} gün", { n: bas.days }) : ''}</span>${ico('right')}</button>`;
   }
   if (showCard('money')) html += planCard();
-  if (showCard('uber')) html += shiftCard() + carLines();
-  if (showCard('habits')) html += `<section class="sec a-gel">${habitTodayCard(k, bandNow(h))}</section>`;
-  if (showCard('tasks')) {
+  if (showCard('uber') && modOn('uber')) html += shiftCard() + carLines();
+  if (showCard('habits') && modOn('gelisim')) html += `<section class="sec a-gel">${habitTodayCard(k, bandNow(h))}</section>`;
+  if (showCard('tasks') && modOn('gelisim')) {
     const open = G().tasks.filter((t) => !t.done).sort((a, b) => a.prio - b.prio || String(a.created).localeCompare(String(b.created)));
     html += `<section class="sec a-gel">${secHead(T('Yapılacaklar'), `<button type="button" class="link" data-act="go" data-tab="gelisim" data-seg="gorev">${T('Tümü ({n})', { n: open.length })}${ico('right')}</button>`)}
       ${open.length ? `<div class="list">${open.slice(0, 3).map(taskRow).join('')}</div>` : `<p class="note" style="margin:0">${T('Açık görev yok.')} <button type="button" class="link" data-act="go" data-tab="gelisim" data-seg="gorev">${T('Görev ekle')}</button></p>`}</section>`;
   }
-  if (showCard('counters')) html += `<section class="sec a-sag">${secHead(T('Sigara ve alkol'), `<span class="sub">${T('bugün')}</span>`)}${countersHTML(k)}</section>`;
-  if (showCard('portfolio') && D.invest.holdings.length) {
+  if (showCard('counters') && modOn('saglik')) html += `<section class="sec a-sag">${secHead(T('Sigara ve alkol'), `<span class="sub">${T('bugün')}</span>`)}${countersHTML(k)}</section>`;
+  if (showCard('portfolio') && modOn('yatirim') && D.invest.holdings.length) {
     const p = portfolio();
     html += `<button type="button" class="card tight pline a-yat" data-act="go" data-tab="yatirim"><span class="ico">${ico('trend')}</span><span class="t">${T('Portföy bugün')}</span>${p.dayAud != null ? delta(p.dayAud, sgn(p.dayAud, (v) => '$' + nf2.format(v)) + (p.dayPct != null ? ' (' + sgn(p.dayPct, (v) => pct(nf2.format(v))) + ')' : '')) : `<span class="chip">${T('fiyat yok')}</span>`}${ico('right')}</button>`;
   }
-  if (showCard('health')) {
+  if (showCard('health') && modOn('saglik')) {
     const sl = latest('sleep', 1), st = latest('steps', 1), w = latestWeight();
     html += `<section class="sec a-sag">${secHead(T('Sağlık özeti'), `<button type="button" class="link" data-act="go" data-tab="saglik">${T('Sağlık')}${ico('right')}</button>`)}
       <div class="snap">${tile(T('Uyku'), sl ? T('{n} sa', { n: nf1.format(sl.v / 60) }) : '–', sl ? (sl.i ? T('dün gece') : T('bugün')) : T('girilmedi'))}${tile(T('Adım'), st ? nf0.format(st.v) : '–', st ? (st.i ? T('dün') : T('bugün')) : T('girilmedi'))}${tile(T('Kilo'), w ? nf1.format(w.v) + ' kg' : '–', w ? dShort(w.k) : T('girilmedi'))}</div></section>`;
   }
   if (showCard('insight')) {
-    const ins = visibleInsights();
+    const ins = visibleInsights().filter((x) => (x.area === 'gel' ? modOn('gelisim') : x.area === 'sag' ? modOn('saglik') : true));
     if (ins.length) { const one = ins[now.getDate() % ins.length]; html += `<section class="sec a-${one.area}"><div class="insight"><span class="ico gold">${ico('spark')}</span><p id="insightText">${esc(one.text)}</p></div><div class="insight-actions"><button type="button" class="link" data-act="hideInsight" data-id="${one.id}">${T('Gizle')}</button><button type="button" class="link" data-act="openInsights">${T('İçgörüler ({n})', { n: ins.length })}${ico('right')}</button></div></section>`; }
   }
-  if (showCard('evening') && h >= 18) html += eveningCard(k);
+  if (showCard('evening') && modOn('gelisim') && h >= 18) html += eveningCard(k);
   return html;
 }
 function secHead(title, right) { return `<div class="sec-h"><h2>${title}</h2>${right || ''}</div>`; }
@@ -173,7 +180,8 @@ function eveningCard(k) {
 // ===================== PARA =====================
 function vPara() {
   if (U.paraSeg === 'takvim') U.paraSeg = 'gecmis';
-  const segs = [['hafta', 'Hafta'], ['rapor', 'Rapor'], ['gecmis', 'Geçmiş'], ['kumbara', 'Hesaplar'], ['vergi', 'Vergi']];
+  if (U.paraSeg === 'vergi' && !modOn('uber')) U.paraSeg = 'hafta';
+  const segs = [['hafta', 'Hafta'], ['rapor', 'Rapor'], ['gecmis', 'Geçmiş'], ['kumbara', 'Hesaplar'], ['vergi', 'Vergi']].filter(([k]) => k !== 'vergi' || modOn('uber'));
   const top = `<div class="seg top-seg" role="group" aria-label="${T('Para bölümleri')}" data-swipe-zone="paraSeg">${segs.map(([k, l]) => `<button type="button" data-act="paraSeg" data-v="${k}" aria-pressed="${U.paraSeg === k}">${T(l)}</button>`).join('')}</div>`;
   return top + ({ hafta: paraWeek, rapor: paraReport, gecmis: paraHist, kumbara: paraPots, vergi: paraTax })[U.paraSeg]();
 }
