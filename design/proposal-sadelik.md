@@ -724,7 +724,7 @@ All at 360×780 and 412×915, light + dark, TR + EN, clock fixed, with the inven
 | # | Version | Scope | Acceptance criteria | Why this order |
 |---|---|---|---|---|
 | R0 | 1.x hotfix | Fix the 360 px clipping (Kaydet, Vergi hero tile, Uber expense name wrap), the BAS dates copy, and the input border contrast | 17, 18 (borders) | Bugs; no design debate needed |
-| R1 | **2.0.0** | **Modüller + 3-tab nav** (`ui.modules`, hidden tabs, FAB and Bugün lines filtered by module, notifications paused, single gear) **+ palette A tokens** (CSS variables only, module colours retired). G1 updated with the edge guard and hidden-tab skip. | 1–5, 24–27, 29, 30 | The approved decision. A new look is best shipped as one visible "v2.0" moment. The palette is a token swap, so it adds no layout risk. |
+| R1 | **2.0.0** | **Modüller + 3-tab nav** (`ui.modules`, hidden tabs, FAB and Bugün lines filtered by module, notifications paused, single gear) **+ palette C (Grafit) tokens** (CSS variables only, module colours retired). G1 updated with the edge guard and hidden-tab skip. | 1–5, 24–27, 29, 30 | The approved decision. A new look is best shipped as one visible "v2.0" moment. The palette is a token swap, so it adds no layout risk. |
 | R2 | 2.1.0 | **Bugün**: the one-number hero + "Nasıl hesaplandı" sheet, the Uber card up, the "Bu hafta yapılacaklar" card (+ G8), the end-of-day card, removal of the "Bugün kartları" setting | 6–8, 10, 31 (G8) | The daily screen |
 | R3 | 2.2.0 | **Gider ekle** sheet (keypad, chips, Uber için, Fiş inside), the FAB opening it directly, **G6 drag-down for all sheets**, G9 | 11, 12, 33 | The most frequent input |
 | R4 | 2.3.0 | **Uber mode** + start-km sheet + 1-tap end + "Sonra gir" + celebration | 9, 13, 14 | Needs R2's card. Data check on `kmEnd: null` after `end`. |
@@ -752,6 +752,6 @@ Each release ships with a fresh run of all suites + screenshots, reviewed by an 
 
 **New questions:**
 
-6. Palette: approve **A · Lacivert**, or prefer B (teal) or C (graphite)? See `design/shots/palette-options.png`.
+6. ~~Palette~~ **Decided 28 Oct: C · Grafit** (Emre's choice). Keep accent discipline: key numbers use size/weight, semantic colours only for meaning.
 7. "Sonra gir" for the end km: keep it (faster, but the logbook % reads low until filled), or make the end km required?
 8. Swipe right on a row = "Bugüne kopyala": useful (repeat coffee or fuel), or is long-press enough?
