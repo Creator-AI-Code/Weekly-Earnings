@@ -65,6 +65,11 @@ Flow for any feature or redesign. The product-management skills drive it:
 6. **Release**: `changelog-generator` produces the Turkish release notes, then bump VERSION.
 7. **Update** `ROADMAP.md` (`product-management:roadmap-update`).
 
+Security: `.claude/skills/security-audit` (Cloudflare, MIT).
+- Use it in guidance mode for any change to auth, sync, storage or receipts.
+- Run a full audit before major releases, together with `momentum-database` for RLS.
+- Never probe the live Supabase project with attack traffic. Use only source and local fixtures.
+
 Rules for every agent:
 
 - Coding: think before coding, keep it simple, make surgical changes, use goal-driven checks (karpathy-guidelines).
