@@ -835,3 +835,10 @@ body { padding-bottom: var(--kb, 0px); }
 .up-row { display: grid; grid-template-columns: minmax(0, 1fr) 120px 84px; gap: 6px; align-items: center; font-size: 0.88rem; }
 .pot-due { font-size: 0.76rem; color: var(--ink-3); margin-top: 2px; }
 .plan-acts { display: flex; align-items: center; gap: 4px; }
+
+/* tax brackets as short notes */
+.brks { display: grid; gap: 4px; }
+.brk { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 4px 10px; border-radius: 10px; font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+.brk > span:first-child { flex: 1; min-width: 0; color: var(--ink-2); }
+.brk.on { background: var(--gold-soft); } .brk.on > span:first-child { color: var(--ink); font-weight: 600; }
+.brk-n { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 0.82rem; line-height: 1.4; color: var(--ink-2); }

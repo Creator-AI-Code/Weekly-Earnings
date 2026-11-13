@@ -490,5 +490,12 @@ const EN = {
   'Plan tutarsa bu hafta': 'If the plan holds this week', 'Bu tempoyla yılda {x}': 'At this pace, {x} a year', 'Hedef tamam! Harika iş.': 'Goal reached! Great work.',
   'Son düzlük: {x} kaldı.': 'Home stretch: {x} to go.', 'İyi gidiyorsun: hedefe {x} kaldı.': "You're doing well: {x} to the goal.",
   'Yol alıyorsun: hedefe {x} kaldı.': "You're on your way: {x} to the goal.", 'Her dolar sayılır: hedefe {x} kaldı.': 'Every dollar counts: {x} to the goal.',
+  '{a} üstü': 'Over {a}', 'maaşın burada': 'your salary', 'Vergi dilimleri 2026–27': 'Tax brackets 2026–27',
+  'Uber kârının her $1’i en üstteki dilimden vergilenir: {r} gelir vergisi + %2 Medicare = {t}.': 'Every $1 of Uber profit is taxed at your top bracket: {r} income tax + 2% Medicare = {t}.',
+  'GST: Uber kazancının 1/11’i (bahşiş hariç). İş giderlerindeki GST geri düşülür.': 'GST: 1/11 of Uber earnings (not tips). GST in business expenses is credited back.',
+  'Özel hastane sigortan var: MLS yok.': 'You have private hospital cover: no MLS.',
+  'Hastane sigortası yok ve gelirin $105.000 üstünde: tüm gelirine {r} MLS eklenir.': 'No hospital cover and income over $105,000: {r} MLS is added on all your income.',
+  'Hastane sigortası yok: maaş + Uber kârı $105.000’ı geçerse tüm gelirine %1 MLS eklenir.': 'No hospital cover: if salary + Uber profit passes $105,000, 1% MLS is added on all your income.',
+  'Düşük gelir indirimi (LITO) $66.667 üstünde biter.': 'The low income tax offset (LITO) ends above $66,667.',
   'Renk teması': 'Colour theme', 'Grafit': 'Graphite', 'Lacivert': 'Navy', 'Petrol': 'Teal',
 };

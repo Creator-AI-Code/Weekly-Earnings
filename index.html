@@ -855,6 +855,13 @@ body { padding-bottom: var(--kb, 0px); }
 .pot-due { font-size: 0.76rem; color: var(--ink-3); margin-top: 2px; }
 .plan-acts { display: flex; align-items: center; gap: 4px; }
 
+/* tax brackets as short notes */
+.brks { display: grid; gap: 4px; }
+.brk { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 4px 10px; border-radius: 10px; font-size: 0.88rem; font-variant-numeric: tabular-nums; }
+.brk > span:first-child { flex: 1; min-width: 0; color: var(--ink-2); }
+.brk.on { background: var(--gold-soft); } .brk.on > span:first-child { color: var(--ink); font-weight: 600; }
+.brk-n { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 0.82rem; line-height: 1.4; color: var(--ink-2); }
+
 </style>
 </head>
 <body>
@@ -1817,6 +1824,9 @@ function potCard(p) {
 // "Yakıt (Uber)" entries are the week's fuel (shown in the waterfall and in Vergi), not personal spending.
 const DCATS = [['yemek', 'Yemek'], ['market', 'Market'], ['kahve', 'Kahve'], ['yakit', 'Yakıt (Uber)'], ['ulasim', 'Ulaşım'], ['eglence', 'Eğlence'], ['fatura', 'Fatura'], ['diger', 'Diğer']];
 const dcatName = (k) => { const c = DCATS.find((x) => x[0] === k); return c ? T(c[1]) : ''; };
+// an expense saved under a category label ("Yemek" in Turkish, "Food" in English) follows the app language, not the language it was typed in
+function catOfLabel(n) { const f = fold0(n).trim(); if (!f) return null; const c = DCATS.find((x) => fold0(x[1]) === f || fold0(EN[x[1]] || '') === f); return c ? c[0] : null; }
+function dName(x) { const n = (x && x.name || '').trim(), k = catOfLabel(n); return k ? dcatName(k) : !n || fold0(n) === fold0('Harcama') || fold0(n) === fold0(EN['Harcama'] || '') ? T('Harcama') : n; }
 function catChips(cur, act) { return `<div class="chips" role="group" aria-label="${T('Kategori')}">${DCATS.map(([k, l]) => `<button type="button" class="chipbtn${k === FUEL_CAT ? ' fuel' : ''}" data-act="${act}" data-v="${k}" aria-pressed="${cur === k}">${T(l)}</button>`).join('')}</div>`; }
 // ---------- "Ne için?" combobox: tap for categories + recent names, type to filter, or keep your own text ----------
 const fold0 = (s) => String(s || '').toLocaleLowerCase('tr').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i');
@@ -1848,15 +1858,15 @@ function comboSetCat(id, c) { U.dCat = c || null; const b = $(id + 'Cat'); if (b
 // past names → last used category (for autocomplete)
 function pastNames() {
   const m = new Map();
-  Object.keys(D.money.weeks).sort().forEach((id) => (D.money.weeks[id].daily || []).forEach((x) => { const n = (x.name || '').trim(); if (n) { m.delete(n); m.set(n, x.cat || null); } }));
+  Object.keys(D.money.weeks).sort().forEach((id) => (D.money.weeks[id].daily || []).forEach((x) => { const n = (x.name || '').trim() && dName(x); if (n) { m.delete(n); m.set(n, x.cat || null); } }));
   return m;
 }
 const namesList = () => `<datalist id="pastNames">${[...pastNames().keys()].reverse().slice(0, 60).map((n) => `<option value="${esc(n)}"></option>`).join('')}</datalist>`;
 function dailyRow(x) {
   const fuel = x.cat === FUEL_CAT, meta = [x.cat ? dcatName(x.cat) : '', x.work ? T('ana iş') : '', x.acc ? accName(x.acc) : '', x.oneOff ? T('tek seferlik') : '', fuel ? T('Uber yakıtı, harcamaya sayılmaz') : ''].filter(Boolean).join(' · ');
   return `<div class="swipe${fuel ? ' is-fuel' : ''}" data-swipe="${x.id}"><div class="swipe-bg"><button type="button" class="swipe-del" data-act="delDaily" data-id="${x.id}" tabindex="-1" aria-hidden="true">${ico('trash')}<span>${T('Sil')}</span></button></div><div class="swipe-fg">
-    <button type="button" class="dent" data-act="editDaily" data-id="${x.id}"><span class="dn"><b>${esc(x.name || T('Harcama'))}${x.rc ? ico('receipt', 'clip') : ''}</b>${meta ? `<small>${esc(meta)}</small>` : ''}</span><span class="da">${money(+x.amount || 0)}</span></button>
-    <button type="button" class="del" data-act="delDaily" data-id="${x.id}" aria-label="${esc(T('Sil: {x}', { x: x.name || T('Harcama') }))}">${ico('x')}</button></div></div>`;
+    <button type="button" class="dent" data-act="editDaily" data-id="${x.id}"><span class="dn"><b>${esc(dName(x))}${x.rc ? ico('receipt', 'clip') : ''}</b>${meta ? `<small>${esc(meta)}</small>` : ''}</span><span class="da">${money(+x.amount || 0)}</span></button>
+    <button type="button" class="del" data-act="delDaily" data-id="${x.id}" aria-label="${esc(T('Sil: {x}', { x: dName(x) }))}">${ico('x')}</button></div></div>`;
 }
 function dailyCard(w) {
   const mon = fromId(U.cur), tk = todayKey(), days = [...Array(7)].map((_, i) => idOf(addDays(mon, i)));
@@ -3501,6 +3511,20 @@ function nextBas() {
   return null;
 }
 
+// settings → Para: the resident tax brackets as short notes, with the user's own bracket marked and what each extra Uber dollar costs
+function taxBracketCard() {
+  const sal = +S.salary || 0, m = mlsRate(sal, S.cover); let lo = 0, mine = 0;
+  const rows = BR.map(([cap, r]) => { const here = sal > lo && sal <= cap; if (here) mine = r; const h = `<div class="brk${here ? ' on' : ''}"><span>${cap === Infinity ? T('{a} üstü', { a: usd(lo) }) : usd(lo ? lo + 1 : 0) + ' – ' + usd(cap)}</span><b>${pct(nf0.format(r * 100))}</b>${here ? `<span class="chip gold">${T('maaşın burada')}</span>` : ''}</div>`; lo = cap; return h; }).join('');
+  return `<div class="card stack" id="brkCard">${head('receipt', T('Vergi dilimleri 2026–27'))}<div class="brks">${rows}</div>
+    <ul class="brk-n">
+      <li>${T('Uber kârının her $1’i en üstteki dilimden vergilenir: {r} gelir vergisi + %2 Medicare = {t}.', { r: pct(nf0.format(mine * 100)), t: pct(nf0.format(mine * 100 + 2)) })}</li>
+      <li>${T('GST: Uber kazancının 1/11’i (bahşiş hariç). İş giderlerindeki GST geri düşülür.')}</li>
+      <li>${S.cover ? T('Özel hastane sigortan var: MLS yok.') : m > 0 ? T('Hastane sigortası yok ve gelirin $105.000 üstünde: tüm gelirine {r} MLS eklenir.', { r: pct(String(m * 100).replace('.', ',')) }) : T('Hastane sigortası yok: maaş + Uber kârı $105.000’ı geçerse tüm gelirine %1 MLS eklenir.')}</li>
+      <li>${T('Düşük gelir indirimi (LITO) $66.667 üstünde biter.')}</li>
+    </ul></div>`;
+}
+const mlsRate = (ti, c) => (ti > 0 ? Math.round(mls(ti, c) / ti * 10000) / 10000 : 0);
+
 // ===================== UBER TAX SUMMARY IMPORT (monthly PDF from drivers.uber.com → exact BAS figures) =====================
 // The PDF's text is read on the device with pdf.js (no upload). money.uberSums[<start date>] keeps one parsed period;
 // the quarter's taxSummaries entry is rebuilt from the periods that start inside it.
@@ -3686,6 +3710,7 @@ function vSettings() {
       <div class="field"><label for="sFuel">${T('Haftalık yakıt tahmini')}</label>${mny('sFuel', 'data-set="fuelDefault"', fmtIn(S.fuelDefault))}<span class="hint">${T('Bir haftada “Yakıt (Uber)” harcaması yoksa bu tahmin kullanılır')}</span></div></div></div>
     <div class="card">${head('repeat', T('Her hafta tekrarlayan giderler'))}<div class="list" id="recList">${rec.length ? rec.map((x, i) => `<div class="row"><input class="txt" id="rcN${i}" data-rc="name" data-i="${i}" value="${esc(x.name)}" aria-label="${T('Gider adı')}"><div class="money"><span>$</span><input id="rcV${i}" data-rc="amount" data-i="${i}" inputmode="decimal" value="${fmtIn(x.amount)}" aria-label="${T('Tutar')}"></div><button type="button" class="del" data-act="delRec" data-i="${i}" aria-label="${T('Sil')}">${ico('x')}</button></div>`).join('') : `<p class="empty-txt">${T('Henüz gider yok.')}</p>`}</div>
       <button type="button" class="add" id="recAdd" data-act="addRec">${ico('plus')}${T('Gider ekle')}</button><p class="note">${T("Aylık bir gideri haftalığa çevirmek için 4,33'e böl.")}</p></div>
+    ${taxBracketCard()}
     <div class="card"><p class="note" style="margin:0">${T("Hesap 2026–27 vergi oranlarına ve %2 Medicare'e göre yapılır. Uber kârı ve vergili nakit iş maaşının üstüne eklenir. MLS eşikleri $105k / $123k / $164k. GST kazancın 1/11'idir; yakıtın ve sabit masrafların %80'i için GST kredisi düşülür. Bu bir tahmindir, vergi danışmanlığı değildir.")}</p></div>`,
     vergi: () => `<div class="card stack">${head('car', T('Logbook'))}<div class="field"><label for="sLogbook">${T('Logbook iş kullanım yüzdesi')}</label>${mny('sLogbook', 'data-set="logbookPct"', fmtIn(logbook()), '%', false)}<span class="hint">${T('Araç giderlerinin iş payı. Logbook bitince otomatik güncellenir (Para → Vergi → Araç logbook).')}</span></div></div>
       <div class="card">${head('receipt', T('Kategori varsayılanları'))}<div class="list">${UEXP_CATS.map(([k, l]) => { const d = catDefaults(k); return `<div class="catrow"><span class="cn">${T(l)}</span><div class="seg inline" role="group" aria-label="${esc(T('{x}: GST', { x: T(l) }))}"><button type="button" data-act="catGst" data-k="${k}" data-v="true" aria-pressed="${d.gst}">GST</button><button type="button" data-act="catGst" data-k="${k}" data-v="false" aria-pressed="${!d.gst}">${T('Yok')}</button></div><div class="money" style="width:84px;min-height:44px"><input data-catbiz="${k}" inputmode="decimal" value="${fmtIn(d.biz)}" aria-label="${esc(T('{x}: iş payı', { x: T(l) }))}"><span>%</span></div></div>`; }).join('')}</div>
@@ -3863,7 +3888,7 @@ function deleteDaily(id) {
   const f = findDaily(id); if (!f) return;
   f.w.daily.splice(f.i, 1); lastDeleted = { week: f.week, i: f.i, x: f.x }; if (f.x.acc) accAdjust(f.x.acc, +f.x.amount || 0);
   save(); render();
-  toastAction(T('Silindi: {x} ({y})', { x: f.x.name || T('Harcama'), y: money(+f.x.amount || 0) }), T('Geri al'));
+  toastAction(T('Silindi: {x} ({y})', { x: dName(f.x), y: money(+f.x.amount || 0) }), T('Geri al'));
 }
 function undoDelete() {
   if (!lastDeleted) return; const w = weekObj(lastDeleted.week);
@@ -4792,6 +4817,13 @@ const EN = {
   'Plan tutarsa bu hafta': 'If the plan holds this week', 'Bu tempoyla yılda {x}': 'At this pace, {x} a year', 'Hedef tamam! Harika iş.': 'Goal reached! Great work.',
   'Son düzlük: {x} kaldı.': 'Home stretch: {x} to go.', 'İyi gidiyorsun: hedefe {x} kaldı.': "You're doing well: {x} to the goal.",
   'Yol alıyorsun: hedefe {x} kaldı.': "You're on your way: {x} to the goal.", 'Her dolar sayılır: hedefe {x} kaldı.': 'Every dollar counts: {x} to the goal.',
+  '{a} üstü': 'Over {a}', 'maaşın burada': 'your salary', 'Vergi dilimleri 2026–27': 'Tax brackets 2026–27',
+  'Uber kârının her $1’i en üstteki dilimden vergilenir: {r} gelir vergisi + %2 Medicare = {t}.': 'Every $1 of Uber profit is taxed at your top bracket: {r} income tax + 2% Medicare = {t}.',
+  'GST: Uber kazancının 1/11’i (bahşiş hariç). İş giderlerindeki GST geri düşülür.': 'GST: 1/11 of Uber earnings (not tips). GST in business expenses is credited back.',
+  'Özel hastane sigortan var: MLS yok.': 'You have private hospital cover: no MLS.',
+  'Hastane sigortası yok ve gelirin $105.000 üstünde: tüm gelirine {r} MLS eklenir.': 'No hospital cover and income over $105,000: {r} MLS is added on all your income.',
+  'Hastane sigortası yok: maaş + Uber kârı $105.000’ı geçerse tüm gelirine %1 MLS eklenir.': 'No hospital cover: if salary + Uber profit passes $105,000, 1% MLS is added on all your income.',
+  'Düşük gelir indirimi (LITO) $66.667 üstünde biter.': 'The low income tax offset (LITO) ends above $66,667.',
   'Renk teması': 'Colour theme', 'Grafit': 'Graphite', 'Lacivert': 'Navy', 'Petrol': 'Teal',
 };
 

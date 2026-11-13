@@ -319,6 +319,9 @@ function potCard(p) {
 // "Yakıt (Uber)" entries are the week's fuel (shown in the waterfall and in Vergi), not personal spending.
 const DCATS = [['yemek', 'Yemek'], ['market', 'Market'], ['kahve', 'Kahve'], ['yakit', 'Yakıt (Uber)'], ['ulasim', 'Ulaşım'], ['eglence', 'Eğlence'], ['fatura', 'Fatura'], ['diger', 'Diğer']];
 const dcatName = (k) => { const c = DCATS.find((x) => x[0] === k); return c ? T(c[1]) : ''; };
+// an expense saved under a category label ("Yemek" in Turkish, "Food" in English) follows the app language, not the language it was typed in
+function catOfLabel(n) { const f = fold0(n).trim(); if (!f) return null; const c = DCATS.find((x) => fold0(x[1]) === f || fold0(EN[x[1]] || '') === f); return c ? c[0] : null; }
+function dName(x) { const n = (x && x.name || '').trim(), k = catOfLabel(n); return k ? dcatName(k) : !n || fold0(n) === fold0('Harcama') || fold0(n) === fold0(EN['Harcama'] || '') ? T('Harcama') : n; }
 function catChips(cur, act) { return `<div class="chips" role="group" aria-label="${T('Kategori')}">${DCATS.map(([k, l]) => `<button type="button" class="chipbtn${k === FUEL_CAT ? ' fuel' : ''}" data-act="${act}" data-v="${k}" aria-pressed="${cur === k}">${T(l)}</button>`).join('')}</div>`; }
 // ---------- "Ne için?" combobox: tap for categories + recent names, type to filter, or keep your own text ----------
 const fold0 = (s) => String(s || '').toLocaleLowerCase('tr').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i');
@@ -350,15 +353,15 @@ function comboSetCat(id, c) { U.dCat = c || null; const b = $(id + 'Cat'); if (b
 // past names → last used category (for autocomplete)
 function pastNames() {
   const m = new Map();
-  Object.keys(D.money.weeks).sort().forEach((id) => (D.money.weeks[id].daily || []).forEach((x) => { const n = (x.name || '').trim(); if (n) { m.delete(n); m.set(n, x.cat || null); } }));
+  Object.keys(D.money.weeks).sort().forEach((id) => (D.money.weeks[id].daily || []).forEach((x) => { const n = (x.name || '').trim() && dName(x); if (n) { m.delete(n); m.set(n, x.cat || null); } }));
   return m;
 }
 const namesList = () => `<datalist id="pastNames">${[...pastNames().keys()].reverse().slice(0, 60).map((n) => `<option value="${esc(n)}"></option>`).join('')}</datalist>`;
 function dailyRow(x) {
   const fuel = x.cat === FUEL_CAT, meta = [x.cat ? dcatName(x.cat) : '', x.work ? T('ana iş') : '', x.acc ? accName(x.acc) : '', x.oneOff ? T('tek seferlik') : '', fuel ? T('Uber yakıtı, harcamaya sayılmaz') : ''].filter(Boolean).join(' · ');
   return `<div class="swipe${fuel ? ' is-fuel' : ''}" data-swipe="${x.id}"><div class="swipe-bg"><button type="button" class="swipe-del" data-act="delDaily" data-id="${x.id}" tabindex="-1" aria-hidden="true">${ico('trash')}<span>${T('Sil')}</span></button></div><div class="swipe-fg">
-    <button type="button" class="dent" data-act="editDaily" data-id="${x.id}"><span class="dn"><b>${esc(x.name || T('Harcama'))}${x.rc ? ico('receipt', 'clip') : ''}</b>${meta ? `<small>${esc(meta)}</small>` : ''}</span><span class="da">${money(+x.amount || 0)}</span></button>
-    <button type="button" class="del" data-act="delDaily" data-id="${x.id}" aria-label="${esc(T('Sil: {x}', { x: x.name || T('Harcama') }))}">${ico('x')}</button></div></div>`;
+    <button type="button" class="dent" data-act="editDaily" data-id="${x.id}"><span class="dn"><b>${esc(dName(x))}${x.rc ? ico('receipt', 'clip') : ''}</b>${meta ? `<small>${esc(meta)}</small>` : ''}</span><span class="da">${money(+x.amount || 0)}</span></button>
+    <button type="button" class="del" data-act="delDaily" data-id="${x.id}" aria-label="${esc(T('Sil: {x}', { x: dName(x) }))}">${ico('x')}</button></div></div>`;
 }
 function dailyCard(w) {
   const mon = fromId(U.cur), tk = todayKey(), days = [...Array(7)].map((_, i) => idOf(addDays(mon, i)));

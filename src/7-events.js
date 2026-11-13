@@ -19,7 +19,7 @@ function deleteDaily(id) {
   const f = findDaily(id); if (!f) return;
   f.w.daily.splice(f.i, 1); lastDeleted = { week: f.week, i: f.i, x: f.x }; if (f.x.acc) accAdjust(f.x.acc, +f.x.amount || 0);
   save(); render();
-  toastAction(T('Silindi: {x} ({y})', { x: f.x.name || T('Harcama'), y: money(+f.x.amount || 0) }), T('Geri al'));
+  toastAction(T('Silindi: {x} ({y})', { x: dName(f.x), y: money(+f.x.amount || 0) }), T('Geri al'));
 }
 function undoDelete() {
   if (!lastDeleted) return; const w = weekObj(lastDeleted.week);

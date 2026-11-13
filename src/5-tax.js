@@ -194,3 +194,17 @@ function nextBas() {
   for (let i = 0; i < 3; i++, q = qShift(q, 1)) { const d = daysUntil(qInfo(q).due); if (d >= 0) return { q, days: d, due: qInfo(q).due }; }
   return null;
 }
+
+// settings → Para: the resident tax brackets as short notes, with the user's own bracket marked and what each extra Uber dollar costs
+function taxBracketCard() {
+  const sal = +S.salary || 0, m = mlsRate(sal, S.cover); let lo = 0, mine = 0;
+  const rows = BR.map(([cap, r]) => { const here = sal > lo && sal <= cap; if (here) mine = r; const h = `<div class="brk${here ? ' on' : ''}"><span>${cap === Infinity ? T('{a} üstü', { a: usd(lo) }) : usd(lo ? lo + 1 : 0) + ' – ' + usd(cap)}</span><b>${pct(nf0.format(r * 100))}</b>${here ? `<span class="chip gold">${T('maaşın burada')}</span>` : ''}</div>`; lo = cap; return h; }).join('');
+  return `<div class="card stack" id="brkCard">${head('receipt', T('Vergi dilimleri 2026–27'))}<div class="brks">${rows}</div>
+    <ul class="brk-n">
+      <li>${T('Uber kârının her $1’i en üstteki dilimden vergilenir: {r} gelir vergisi + %2 Medicare = {t}.', { r: pct(nf0.format(mine * 100)), t: pct(nf0.format(mine * 100 + 2)) })}</li>
+      <li>${T('GST: Uber kazancının 1/11’i (bahşiş hariç). İş giderlerindeki GST geri düşülür.')}</li>
+      <li>${S.cover ? T('Özel hastane sigortan var: MLS yok.') : m > 0 ? T('Hastane sigortası yok ve gelirin $105.000 üstünde: tüm gelirine {r} MLS eklenir.', { r: pct(String(m * 100).replace('.', ',')) }) : T('Hastane sigortası yok: maaş + Uber kârı $105.000’ı geçerse tüm gelirine %1 MLS eklenir.')}</li>
+      <li>${T('Düşük gelir indirimi (LITO) $66.667 üstünde biter.')}</li>
+    </ul></div>`;
+}
+const mlsRate = (ti, c) => (ti > 0 ? Math.round(mls(ti, c) / ti * 10000) / 10000 : 0);

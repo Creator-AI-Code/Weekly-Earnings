@@ -6,6 +6,10 @@
 - Hedefe ulaşınca halka altın olur ve konfeti patlar (haftada bir kez, her açılışta değil).
 - Rakamlar değişmedikçe animasyon tekrar oynamaz. Telefonda "hareketi azalt" açıksa animasyon olmaz.
 
+### Düzeltmeler ve notlar
+- **Karışık dil düzeldi:** "Yemek / Food", "Kahve / Coffee" gibi kategori adıyla kaydedilmiş giderler artık uygulamanın diline göre görünür. Kendi yazdığın adlara (ör. mağaza adı) dokunulmaz.
+- **Ayarlar → Para → Vergi dilimleri 2026–27:** dilimler kısa notlar halinde, maaşının düştüğü dilim işaretli; Uber kârının her dolarından ne kadar vergi çıktığı, GST ve MLS notu.
+
 ## Momentum v2.0.0
 
 ### Daha sade Momentum
