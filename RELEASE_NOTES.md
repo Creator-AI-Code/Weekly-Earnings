@@ -1,3 +1,11 @@
+## Momentum v2.1.0
+
+### Hedef halkası
+- **Bugün → "Bu hafta hedef"** kartında düz çubuk yerine dolan bir halka var: yüzde ve "plan tutarsa" tutarı sayarak yükselir.
+- Altında haftaya göre değişen kısa bir cümle: hedefe ne kadar kaldığı ve bu tempoyla yılda ne kadar biriktireceğin.
+- Hedefe ulaşınca halka altın olur ve konfeti patlar (haftada bir kez, her açılışta değil).
+- Rakamlar değişmedikçe animasyon tekrar oynamaz. Telefonda "hareketi azalt" açıksa animasyon olmaz.
+
 ## Momentum v2.0.0
 
 ### Daha sade Momentum

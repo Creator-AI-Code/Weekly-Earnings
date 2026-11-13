@@ -48,6 +48,39 @@ function todayAdvice(P) {
   return { cls: 'red', ic: 'x', t: T('Bugün harcama yok'), sub: T('Günde sadece {x} alanın var; hedefi korumak için bugün harcama yapma.', { x: usd(Math.max(0, P.perDay)) }) };
 }
 const dayShort = (wd) => DAYS[wd];
+// one short, encouraging line for the goal ring; x = $ still missing
+function goalMsg(pc, x) {
+  if (pc >= 100) return T('Hedef tamam! Harika iş.');
+  if (pc >= 85) return T('Son düzlük: {x} kaldı.', { x: usd(x) });
+  if (pc >= 60) return T('İyi gidiyorsun: hedefe {x} kaldı.', { x: usd(x) });
+  if (pc >= 30) return T('Yol alıyorsun: hedefe {x} kaldı.', { x: usd(x) });
+  return T('Her dolar sayılır: hedefe {x} kaldı.', { x: usd(x) });
+}
+// goal ring animation: fills and counts up from the last shown value, so re-renders only move when the numbers change;
+// a confetti burst once per week per app launch when the goal is reached
+let planSeen = null, planParty = '';
+function planAnim() {
+  const el = $('goalRing'); if (!el) return;
+  const pc = +el.dataset.pc, keep = +el.dataset.keep, from = planSeen || { pc: 0, keep: 0 };
+  planSeen = { pc, keep };
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (pc >= 100 && planParty !== el.dataset.week) {
+    planParty = el.dataset.week; el.classList.add('party');
+    const cols = ['var(--gold-line)', 'var(--gain)', 'var(--acc-line)'];
+    el.insertAdjacentHTML('beforeend', `<span class="confetti" aria-hidden="true">${Array.from({ length: 18 }, (_, i) => { const a = (i / 18) * 2 * Math.PI, d = 60 + (i % 3) * 26; return `<i style="--x:${Math.round(Math.cos(a) * d)}px;--y:${Math.round(Math.sin(a) * d - 20)}px;--r:${(i % 2 ? 1 : -1) * (200 + i * 20)}deg;--c:${cols[i % 3]};--d:${1.0 + (i % 4) * 0.04}s"></i>`; }).join('')}</span>`);
+  }
+  if (from.pc === pc && from.keep === keep) return;
+  const arc = el.querySelector('.gr-arc'), num = $('goalPc'), amt = $('goalKeep'), t0 = performance.now(), dur = 1100;
+  arc.style.transition = 'none'; arc.style.opacity = ''; arc.style.strokeDashoffset = 100 - from.pc; void arc.getBoundingClientRect();
+  arc.style.transition = ''; arc.style.strokeDashoffset = 100 - pc;
+  const step = (now) => {
+    if (!el.isConnected) return;
+    const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+    num.textContent = pct(Math.round(from.pc + (pc - from.pc) * e)); amt.textContent = usd(from.keep + (keep - from.keep) * e);
+    if (k < 1) requestAnimationFrame(step); else if (!pc) arc.style.opacity = 0;
+  };
+  requestAnimationFrame(step);
+}
 function planCard() {
   if (!planOn()) return `<section class="sec a-para plan" id="planSetup">${secHead(T('Haftalık birikim hedefi'))}
     <p class="note" style="margin:0 0 10px">${T('Her hafta ne kadar biriktirmek istiyorsun? Hedefi koyunca her gün “bugün ne harcayabilirim” ve hedefe kaç saat Uber kaldığını gösteririm.')}</p>
@@ -56,8 +89,9 @@ function planCard() {
   return `<section class="sec a-para plan" id="planCard">${secHead(P.started ? T('Bu hafta hedef: {x} birikim', { x: usd(P.target) }) : T('Birikim hedefi {d} haftası başlıyor', { d: dShort(S.saveFrom) }), `<span class="plan-acts"><button type="button" class="iconbtn flat" data-act="openSettings" data-sec="para" data-focus="sSave" id="editGoal" aria-label="${T('Hedefi ve Uber planını düzenle')}">${ico('pen')}</button><button type="button" class="link" data-act="askClaude" id="askClaude">${ico('spark')}${T('Claude’a sor')}</button></span>`)}
     ${!(S.uberPlan || []).length ? `<p class="note" style="margin:0 0 8px"><button type="button" class="link" data-act="openSettings" data-sec="para" data-focus="sSave">${T('Uber planını ekle')}</button> ${T('— hangi gün kaç saat çalışacağını girersen haftalık tahmin yaparım.')}</p>` : ''}
     <div class="advice ${A.cls}" id="advice"><span class="dot">${ico(A.ic)}</span><span><b>${A.t}</b><small>${A.sub}</small></span></div>
-    <div class="meter${pc >= 100 ? ' gold' : ''}"><i style="width:${pc}%"></i></div>
-    <div class="meter-l"><span>${T('Plan tutarsa: {x}', { x: usd(keep) })}</span><span>${pct(pc)}</span></div>
+    ${P.started ? `<div class="goal${pc >= 100 ? ' gold' : ''}" id="goalRing" data-pc="${pc}" data-keep="${Math.round(keep)}" data-week="${P.s.id}">
+      <div class="goal-ring"><svg viewBox="0 0 84 84" aria-hidden="true"><circle class="gr-track" cx="42" cy="42" r="36"/><circle class="gr-arc" cx="42" cy="42" r="36" pathLength="100" style="stroke-dashoffset:${100 - pc}${pc ? '' : ';opacity:0'}"/></svg><b id="goalPc">${pct(pc)}</b></div>
+      <div class="goal-t"><span class="k">${T('Plan tutarsa bu hafta')}</span><span class="v" id="goalKeep">${usd(keep)}</span><span class="m" id="goalMsg">${goalMsg(pc, P.target - keep)}</span>${keep > 0 ? `<span class="y">${T('Bu tempoyla yılda {x}', { x: usd(keep * 52) })}</span>` : ''}</div></div>` : ''}
     <ul class="plan-l">
       ${P.left.length ? `<li>${ico('car')}<span>${T('Kalan Uber planı: {s}', { s: P.left.map((x) => dayShort(x.wd) + ' ' + T((PARTS.find((p) => p[0] === x.part) || PARTS[2])[1]).toLowerCase() + ' ' + x.h + T('sa')).join(' · ') })} <b>≈ ${usd(P.planNet)}</b></span></li>` : `<li>${ico('car')}<span>${T('Bu hafta planlı Uber vardiyası kalmadı.')}</span></li>`}
       ${P.pots.map((x) => `<li>${ico('jar')}<span>${T('{n}: bu hafta {x} ayır ({d} kaldı)', { n: esc(x.p.name), x: usd(Math.max(0, x.perWeek - x.added)), d: x.days === 0 ? T('bugün') : T('{n} gün', { n: x.days }) })}</span></li>`).join('')}

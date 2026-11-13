@@ -487,5 +487,8 @@ const EN = {
   'Sadece kullandıklarını aç. Kapattığın modülün verisi silinmez, senkron devam eder. Tekrar açınca her şey yerinde.': "Turn on only what you use. A module you turn off keeps its data and keeps syncing. Turn it back on and everything is where you left it.",
   'Her zaman açık': 'Always on', '{x} açık': '{x} on', '{n} kapalı': '{n} off', '{x} gizlendi. Verilerin duruyor.': '{x} hidden. Your data is kept.',
   '{x} açıldı. Sekmesi altta.': '{x} is on. Its tab is at the bottom.', '{x} açıldı.': '{x} is on.',
+  'Plan tutarsa bu hafta': 'If the plan holds this week', 'Bu tempoyla yılda {x}': 'At this pace, {x} a year', 'Hedef tamam! Harika iş.': 'Goal reached! Great work.',
+  'Son düzlük: {x} kaldı.': 'Home stretch: {x} to go.', 'İyi gidiyorsun: hedefe {x} kaldı.': "You're doing well: {x} to the goal.",
+  'Yol alıyorsun: hedefe {x} kaldı.': "You're on your way: {x} to the goal.", 'Her dolar sayılır: hedefe {x} kaldı.': 'Every dollar counts: {x} to the goal.',
   'Renk teması': 'Colour theme', 'Grafit': 'Graphite', 'Lacivert': 'Navy', 'Petrol': 'Teal',
 };

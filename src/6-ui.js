@@ -188,6 +188,7 @@ function render(dir) {
     if (U.tab === 'para' && U.paraSeg === 'hafta') paraCalc();
     paintSyncChip(); fitText($('view'));
   });
+  if (U.tab === 'bugun') planAnim();
   if (dir) { const v = $('view'); v.classList.remove('slide-l', 'slide-r'); void v.offsetWidth; v.classList.add(dir < 0 ? 'slide-r' : 'slide-l'); }
 }
 function renderSheet() { keepFocus(() => { $('sheetRoot').innerHTML = vSheet(); }); rcHydrate(); }
