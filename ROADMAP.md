@@ -21,6 +21,13 @@ Format: Now / Next / Later. Each item gets a slug, a goal, and acceptance criter
   - Starting and ending a shift takes 1 tap each.
   - All suites pass, with 0 contrast issues in light and dark.
 
+### `native`: Momentum 3 in Kotlin (decided 14 Nov 2026)
+- **Decision:** Emre chose a full native rewrite (Kotlin + Jetpack Compose) for personal use, sideloaded, no Play Store.
+- **Where:** `native/`, built by `.github/workflows/native.yml` into the `native-latest` pre-release. App id `app.momentum.next`, so it installs next to the Capacitor app.
+- **M1 (this branch):** Bugün (goal ring, count-up, one-tap expenses, keypad sheet, undo, confetti) and Para (animated money flow). Offline, own local file.
+- **M2:** sign in to Supabase and read/write the existing `money` document, so current data appears.
+- **M3+:** Uber shifts and tax engine (port `weekCalc`, GST/BAS), accounts and pots, weather, home-screen widget, receipts. The web app stays the source of truth until parity.
+
 ## Next
 
 - Year-end tax summary and an accountant export (CSV + PDF)

@@ -1,0 +1,55 @@
+name: Native APK
+
+# The Kotlin / Jetpack Compose app in native/. Separate from the Capacitor build (android.yml) and its `latest` tag.
+on:
+  push:
+    branches: ['claude/native-**', 'native/**']
+    paths: ['native/**', '.github/workflows/native.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: native-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Gradle assembleDebug
+        run: |
+          gradle -p native :app:assembleDebug --no-daemon --stacktrace
+          cp native/app/build/outputs/apk/debug/app-debug.apk Momentum-Native.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Momentum-Native-apk
+          path: Momentum-Native.apk
+
+      - name: Move the native-latest tag to this commit
+        run: |
+          git tag -f native-latest
+          git push -f origin refs/tags/native-latest
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: native-latest
+          name: Momentum 3 (Kotlin) — test build
+          prerelease: true
+          make_latest: false
+          files: Momentum-Native.apk
+          body: |
+            Kotlin ile yazılan yeni Momentum'un deneme sürümü. Eski uygulamanın yanına ayrı bir uygulama olarak kurulur, verilerine dokunmaz.
