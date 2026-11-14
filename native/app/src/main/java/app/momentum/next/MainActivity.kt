@@ -91,6 +91,14 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -129,6 +137,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val store = Store(applicationContext)
+        // while the app is on screen: sync on open and then every minute, so changes from the web app show up
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                while (true) {
+                    store.syncNow()
+                    delay(60_000)
+                }
+            }
+        }
         setContent {
             MaterialTheme(colorScheme = if (isSystemInDarkTheme()) DarkColors else LightColors) {
                 App(store)
@@ -162,7 +179,7 @@ fun App(store: Store) {
         snackbarHost = { SnackbarHost(snack) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = { sheetFor = CATS[0] },
+                onClick = { sheetFor = CATS[0].key },
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text("Gider ekle", fontWeight = FontWeight.Bold) },
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -178,7 +195,7 @@ fun App(store: Store) {
     ) { pad ->
         Box(Modifier.fillMaxSize().padding(pad)) {
             if (tab == 0) {
-                Today(store, onQuick = { q -> if (q.amount != null) log(q.name, catOf(q.name), q.amount) else sheetFor = catOf(q.name) }, onSettings = { settings = true })
+                Today(store, onQuick = { q -> if (q.amount != null) log(q.name, q.cat, q.amount) else sheetFor = q.cat }, onSettings = { settings = true })
             } else {
                 Para(store)
             }
@@ -188,24 +205,24 @@ fun App(store: Store) {
     val open = sheetFor
     if (open != null) {
         ModalBottomSheet(onDismissRequest = { sheetFor = null }, containerColor = MaterialTheme.colorScheme.surface) {
-            AddSheet(startCat = open, onSave = { cat, amount -> sheetFor = null; log(cat, cat, amount) })
+            AddSheet(startCat = open, onSave = { cat, amount -> sheetFor = null; log(catOf(cat).name, cat, amount) })
         }
     }
     if (settings) {
-        PlanDialog(store.weeklyIncome, store.target, onDismiss = { settings = false }, onSave = { inc, goal -> store.setPlan(inc, goal); settings = false })
+        ModalBottomSheet(onDismissRequest = { settings = false }, containerColor = MaterialTheme.colorScheme.surface) {
+            SettingsSheet(store, onClose = { settings = false })
+        }
     }
 }
-
-private fun catOf(name: String): String = if (name in CATS) name else "Diğer"
 
 // ---------------------------------------------------------------- Today
 
 @Composable
 fun Today(store: Store, onQuick: (Quick) -> Unit, onSettings: () -> Unit) {
-    val target = store.target
-    val kept = store.kept
-    val pc = if (target > 0) (kept / target).toFloat().coerceIn(0f, 1f) else 0f
-    val reached = target > 0 && kept >= target
+    val P = store.plan
+    val target = P.target
+    val pc = if (target > 0) P.pc / 100f else 0f
+    val reached = target > 0 && P.keep >= target
     val recent = store.expenses.take(6)
     val today = LocalDate.now()
 
@@ -215,6 +232,7 @@ fun Today(store: Store, onQuick: (Quick) -> Unit, onSettings: () -> Unit) {
                 Column(Modifier.weight(1f)) {
                     Text("Bugün", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onBackground)
                     Text(today.format(DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale("tr", "TR"))), fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (store.email != null) SyncLine(store.syncState)
                 }
                 IconButton(onClick = onSettings) { Icon(Icons.Filled.Settings, contentDescription = "Hedef ve gelir", tint = MaterialTheme.colorScheme.onBackground) }
             }
@@ -227,21 +245,51 @@ fun Today(store: Store, onQuick: (Quick) -> Unit, onSettings: () -> Unit) {
                 ) {
                     GoalRing(pc, reached)
                     Column {
-                        Text(if (target > 0) "Bu hafta birikim · hedef ${money(target)}" else "Bu hafta elinde kalan", fontSize = 13.sp, color = HeroInk2)
-                        CountMoney(kept, fontSize = 38, color = Color.White)
+                        // the same numbers as the web app's plan card: "Plan tutarsa" = what is left now + the Uber shifts still planned
+                        Text(if (target > 0) "Plan tutarsa birikim · hedef ${usd(target)}" else "Bu hafta harcayabileceğin", fontSize = 13.sp, color = HeroInk2)
+                        CountMoney(if (target > 0) P.keep else P.c.left, fontSize = 38, color = Color.White)
                         Text(
                             when {
                                 target <= 0 -> "Hedef koymak için ayarlara dokun."
                                 reached -> "Hedef tamam! Harika iş."
-                                pc >= 0.85f -> "Son düzlük: ${money(target - kept)} kaldı."
-                                pc >= 0.6f -> "İyi gidiyorsun: ${money(target - kept)} kaldı."
-                                else -> "Her dolar sayılır: ${money(target - kept)} kaldı."
+                                pc >= 0.85f -> "Son düzlük: ${usd(target - P.keep)} kaldı."
+                                pc >= 0.6f -> "İyi gidiyorsun: ${usd(target - P.keep)} kaldı."
+                                else -> "Her dolar sayılır: ${usd(target - P.keep)} kaldı."
                             },
                             fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = if (reached) Gold else Color(0xFFB4E39C),
                         )
                     }
                 }
                 Confetti(reached, Modifier.matchParentSize())
+            }
+        }
+        item(key = "safe") {
+            val over = P.c.left < 0
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surface).padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Bu hafta harcayabileceğin", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(if (over) "Bu hafta bütçeyi aştın" else "günde ${usd(P.perDaySafe)} · ${P.daysLeft} gün kaldı", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    Text(usd(P.c.left), fontSize = 24.sp, fontWeight = FontWeight.ExtraBold, color = if (over) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
+                }
+                if (target > 0) {
+                    val dot = when (P.advice.level) { 0 -> Gain; 1 -> Color(0xFFFCD34D); else -> Color(0xFFFF8A80) }
+                    Row(verticalAlignment = Alignment.Top) {
+                        Box(Modifier.padding(top = 5.dp).size(10.dp).clip(CircleShape).background(dot))
+                        Spacer(Modifier.width(8.dp))
+                        Column {
+                            Text(P.advice.title, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                            Text(P.advice.sub, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                }
+                if (P.showTaxLine) {
+                    Text(
+                        (if (P.taxSetAside) "Bu haftanın vergi payı ayrıldı" else "Vergi için ayır: ${usd(P.c.weekTax)} bu hafta") + (P.basDays?.let { " · BAS'a $it gün" } ?: ""),
+                        fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
         item(key = "quickTitle") { SectionTitle("Tek dokunuşla ekle", "sık girdiklerin") }
@@ -268,11 +316,38 @@ fun Today(store: Store, onQuick: (Quick) -> Unit, onSettings: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(e.name, Modifier.weight(1f), fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
-                Text(if (e.date == today.toString()) "Bugün" else LocalDate.parse(e.date).format(DateTimeFormatter.ofPattern("EEE", Locale("tr", "TR"))), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(dayLabel(e.date, today, store.weekId), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.width(12.dp))
                 Text(money(e.amount), fontWeight = FontWeight.Bold, fontSize = 15.sp, color = MaterialTheme.colorScheme.onSurface)
             }
         }
+    }
+}
+
+private val TRL = Locale("tr", "TR")
+
+private fun dayLabel(date: String, today: LocalDate, weekId: String): String {
+    val d = try { LocalDate.parse(date) } catch (e: Exception) { return date }
+    return when {
+        d == today -> "Bugün"
+        date >= weekId -> d.format(DateTimeFormatter.ofPattern("EEE", TRL))
+        else -> d.format(DateTimeFormatter.ofPattern("d MMM", TRL))
+    }
+}
+
+@Composable
+fun SyncLine(st: SyncState) {
+    val (dot, text) = when (st) {
+        is SyncState.Ok -> Gain to "Senkron açık · " + java.time.Instant.ofEpochMilli(st.at).atZone(java.time.ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("HH:mm"))
+        SyncState.Syncing -> Color(0xFF93C5FD) to "Eşitleniyor…"
+        SyncState.Offline -> Color(0xFFFCD34D) to "Çevrimdışı · değişiklikler bekliyor"
+        is SyncState.Error -> Color(0xFFFF8A80) to st.msg
+        SyncState.Off -> MaterialTheme.colorScheme.outline to "Senkron kapalı"
+    }
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
+        Box(Modifier.size(8.dp).clip(CircleShape).background(dot))
+        Spacer(Modifier.width(6.dp))
+        Text(text, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2)
     }
 }
 
@@ -290,7 +365,7 @@ fun CountMoney(value: Double, fontSize: Int, color: Color) {
     var shown by remember { mutableStateOf(0f) }
     LaunchedEffect(value) { shown = value.toFloat() }
     val v by animateFloatAsState(shown, tween(700, easing = FastOutSlowInEasing), label = "money")
-    Text(money(v.toDouble()), fontSize = fontSize.sp, fontWeight = FontWeight.ExtraBold, color = color)
+    Text(usd(v.toDouble()), fontSize = fontSize.sp, fontWeight = FontWeight.ExtraBold, color = color)
 }
 
 @Composable
@@ -362,9 +437,10 @@ fun AddSheet(startCat: String, onSave: (String, Double) -> Unit) {
 
     Column(Modifier.fillMaxWidth().navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = 16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text("$" + amt.ifEmpty { "0" }, Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = 52.sp, fontWeight = FontWeight.ExtraBold, color = if (ready) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.outline)
-        CATS.chunked(3).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                row.forEach { c ->
+        CATS.chunked(4).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                row.forEach { cc ->
+                    val c = cc.key
                     val on = c == cat
                     Surface(
                         onClick = { cat = c }, modifier = Modifier.weight(1f).height(44.dp), shape = RoundedCornerShape(12.dp),
@@ -372,7 +448,7 @@ fun AddSheet(startCat: String, onSave: (String, Double) -> Unit) {
                         contentColor = if (on) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                         border = androidx.compose.foundation.BorderStroke(1.5.dp, if (on) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline),
                     ) {
-                        Box(contentAlignment = Alignment.Center) { Text(c, fontWeight = FontWeight.Bold, fontSize = 14.sp) }
+                        Box(contentAlignment = Alignment.Center) { Text(cc.label, fontWeight = FontWeight.Bold, fontSize = 13.sp, maxLines = 1) }
                     }
                 }
             }
@@ -388,39 +464,89 @@ fun AddSheet(startCat: String, onSave: (String, Double) -> Unit) {
             }
         }
         Button(onClick = { if (ready) onSave(cat, value) }, enabled = ready, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(18.dp)) {
-            Text(if (ready) "$cat olarak kaydet" else "Tutarı yaz", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+            Text(if (ready) "${catOf(cat).label} olarak kaydet" else "Tutarı yaz", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+// ---------------------------------------------------------------- Settings
+
+@Composable
+fun SettingsSheet(store: Store, onClose: () -> Unit) {
+    var tgt by remember { mutableStateOf(if (store.target > 0) store.target.roundToInt().toString() else "") }
+    Column(
+        Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text("Ayarlar", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
+        AccountSection(store)
+        Spacer(Modifier.height(4.dp))
+        Text("Haftalık plan", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+        OutlinedTextField(
+            tgt, { tgt = it.filter(Char::isDigit) }, label = { Text("Haftalık birikim hedefi ($)") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+            supportingText = { Text(if (store.email != null) "Web uygulamasıyla ortak." else "Giriş yapınca web uygulamasındaki hedefin gelir.") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        )
+        Text("Gelir, vergi ve harcayabileceğin tutar; maaş, Uber kazancı ve giderlerinden web uygulamasıyla aynı şekilde hesaplanır.", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Button(onClick = { store.saveTarget(tgt.toDoubleOrNull() ?: 0.0); onClose() }, modifier = Modifier.fillMaxWidth().height(52.dp), shape = RoundedCornerShape(16.dp)) {
+            Text("Kaydet", fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
 
 @Composable
-fun PlanDialog(income: Double, goal: Double, onDismiss: () -> Unit, onSave: (Double, Double) -> Unit) {
-    var inc by remember { mutableStateOf(if (income > 0) income.roundToInt().toString() else "") }
-    var tgt by remember { mutableStateOf(if (goal > 0) goal.roundToInt().toString() else "") }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Haftalık plan") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OutlinedTextField(inc, { inc = it.filter(Char::isDigit) }, label = { Text("Haftalık net gelir ($)") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
-                OutlinedTextField(tgt, { tgt = it.filter(Char::isDigit) }, label = { Text("Haftalık birikim hedefi ($)") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+fun AccountSection(store: Store) {
+    val scope = rememberCoroutineScope()
+    val email = store.email
+    Column(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surfaceVariant).padding(14.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Text("Hesap ve senkron", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+        if (email == null) {
+            var em by remember { mutableStateOf(store.supa.lastEmail) }
+            var pw by remember { mutableStateOf("") }
+            var busy by remember { mutableStateOf(false) }
+            var msg by remember { mutableStateOf<String?>(null) }
+            Text(
+                "Web uygulamasındaki e-posta ve şifrenle giriş yap; verilerin buraya gelir. Giriş yapmadan bu telefona girdiğin deneme kayıtları bulut verisiyle değiştirilir.",
+                fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            OutlinedTextField(em, { em = it }, label = { Text("E-posta") }, singleLine = true, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
+            OutlinedTextField(pw, { pw = it }, label = { Text("Şifre") }, singleLine = true, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password))
+            msg?.let { Text(it, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.error) }
+            Button(
+                enabled = !busy && em.isNotBlank() && pw.isNotEmpty(), modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(14.dp),
+                onClick = {
+                    busy = true; msg = null
+                    scope.launch {
+                        try { store.signIn(em, pw) } catch (e: Exception) { msg = authErrorMsg(e) } finally { busy = false }
+                    }
+                },
+            ) { Text(if (busy) "Giriş yapılıyor…" else "Giriş yap", fontWeight = FontWeight.Bold) }
+        } else {
+            Text(email, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+            SyncLine(store.syncState)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { scope.launch { store.syncNow() } }, enabled = store.syncState != SyncState.Syncing, modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp)) { Text("Şimdi eşitle") }
+                OutlinedButton(onClick = { store.signOut() }, modifier = Modifier.weight(1f), shape = RoundedCornerShape(14.dp)) { Text("Çıkış yap") }
             }
-        },
-        confirmButton = { TextButton(onClick = { onSave(inc.toDoubleOrNull() ?: 0.0, tgt.toDoubleOrNull() ?: 0.0) }) { Text("Kaydet") } },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Vazgeç") } },
-    )
+        }
+    }
 }
 
 // ---------------------------------------------------------------- Para
 
 @Composable
 fun Para(store: Store) {
-    val income = store.weeklyIncome
-    val kept = store.kept
+    val c = store.plan.c
+    val income = c.income
+    val kept = c.left
     val byCat = store.byCat
     val targets = buildList {
         if (kept > 0) add(Triple("Elinde kalan", kept, Gold))
         byCat.forEachIndexed { i, (n, v) -> add(Triple(n, v, FlowColors[i % FlowColors.size])) }
+        if (c.rec > 0) add(Triple("Tekrarlayan giderler", c.rec, Color(0xFFC4B5FD)))
     }
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 96.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
@@ -431,7 +557,7 @@ fun Para(store: Store) {
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surface).padding(16.dp)) {
                 Text("Elinde kalan", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 CountMoney(kept, fontSize = 40, color = MaterialTheme.colorScheme.onSurface)
-                Text("Gelir ${money(income)} · Gider ${money(store.spent)}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("Net gelir ${usd(income)} · Gider ${usd(c.rec + c.extra)}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         item {
@@ -443,13 +569,17 @@ fun Para(store: Store) {
                 if (targets.isEmpty()) {
                     Text("Gelirini ve ilk giderini girince akış burada görünür.", fontSize = 14.sp, color = HeroInk2)
                 } else {
+                    Text(
+                        "Maaş ${usd(c.salaryNet)}" + (if (c.E > 0) " · Uber net ${usd(c.uberNet)} (brüt ${usd(c.E)})" else "") + (if (c.cashNet > 0) " · Nakit iş ${usd(c.cashNet)}" else ""),
+                        fontSize = 12.sp, color = HeroInk2,
+                    )
                     MoneyFlow(targets, Modifier.fillMaxWidth().height(220.dp))
                     targets.forEach { (name, v, col) ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Box(Modifier.size(10.dp).clip(CircleShape).background(col))
                             Spacer(Modifier.width(8.dp))
                             Text(name, Modifier.weight(1f), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
-                            Text(money(v), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                            Text(usd(v), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
                 }

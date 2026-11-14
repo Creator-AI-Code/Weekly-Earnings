@@ -25,8 +25,9 @@ Format: Now / Next / Later. Each item gets a slug, a goal, and acceptance criter
 - **Decision:** Emre chose a full native rewrite (Kotlin + Jetpack Compose) for personal use, sideloaded, no Play Store.
 - **Where:** `native/`, built by `.github/workflows/native.yml` into the `native-latest` pre-release. App id `app.momentum.next`, so it installs next to the Capacitor app.
 - **M1 (this branch):** Bugün (goal ring, count-up, one-tap expenses, keypad sheet, undo, confetti) and Para (animated money flow). Offline, own local file.
-- **M2:** sign in to Supabase and read/write the existing `money` document, so current data appears.
-- **M3+:** Uber shifts and tax engine (port `weekCalc`, GST/BAS), accounts and pots, weather, home-screen widget, receipts. The web app stays the source of truth until parity.
+- **M2 (done 14 Nov 2026):** sign in to Supabase and read/write the existing `money` document. Writes fetch the latest row, replay only this app's own changes (add/undo an expense, savings target) and save only if `updated_at` still matches, so fields the app does not know are carried over untouched.
+- **M3a (done 14 Nov 2026):** the budget and tax engine ported to `Calc.kt` (`weekCalc`, `calc`, quarter tax, `weekPlan`). `native/parity/web-engine.js` runs the web app's own code in Node; `CalcParityTest` fails if Kotlin and web differ by more than half a cent. Regenerate `native/parity/expected/` whenever the engine in `src/` changes.
+- **M3+:** Uber shifts, BAS screen, accounts and pots, weather, home-screen widget, receipts. The web app stays the source of truth until parity.
 
 ## Next
 

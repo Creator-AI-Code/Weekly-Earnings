@@ -1,0 +1,11 @@
+{
+ "at": "2026-11-16T07:30",
+ "money": {
+  "settings": { "salary": 62000, "saveTarget": "400", "logbookPct": 0, "uberPlan": [{ "wd": 1, "part": "aksam", "h": 3 }] },
+  "weeks": {
+   "2026-11-16": { "start": "2026-11-16", "uberEarn": "", "uberHours": "", "fuel": "", "cashHours": 6, "extras": [], "note": "",
+    "daily": [{ "id": "f1", "date": "2026-11-16", "name": "Yakıt (Uber)", "amount": 40, "cat": "yakit" }, { "id": "f2", "date": "2026-11-16", "name": "Kahve", "amount": 4.5, "cat": "kahve" }] }
+  },
+  "pots": [{ "id": "p1", "name": "Araba", "target": 500, "saved": 100, "due": "2026-11-20", "log": [] }]
+ }
+}

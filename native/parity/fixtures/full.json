@@ -1,0 +1,44 @@
+{
+ "at": "2026-11-14T12:50",
+ "money": {
+  "settings": {
+   "salary": 85000, "fixed": 9000, "weeksPerYear": 46, "cover": false, "fuelDefault": 150, "cashRate": 32, "cashTax": true,
+   "recurring": [{ "name": "Streaming", "amount": 18.99 }, { "name": "Gym", "amount": "25" }],
+   "jobHours": 38, "logbookPct": 72, "saveTarget": 900, "saveFrom": "2026-10-01",
+   "uberPlan": [{ "wd": 6, "part": "aksam", "h": 5 }, { "wd": 0, "part": "gun", "h": 8 }, { "wd": 2, "part": "sabah", "h": 4 }]
+  },
+  "weeks": {
+   "2026-09-28": { "start": "2026-09-28", "uberEarn": 950, "uberHours": 22, "fuel": "", "cashHours": "", "extras": [], "note": "",
+    "daily": [{ "id": "a1", "date": "2026-09-30", "name": "Yakıt (Uber)", "amount": 80, "cat": "yakit" }, { "id": "a2", "date": "2026-10-02", "name": "Yemek", "amount": 20, "cat": "yemek" }] },
+   "2026-10-12": { "start": "2026-10-12", "uberEarn": "820.5", "uberHours": "19.5", "fuel": "", "cashHours": 4, "extras": [], "note": "",
+    "daily": [{ "id": "b1", "date": "2026-10-13", "name": "Market", "amount": 54.3, "cat": "market" }, { "id": "b2", "date": "2026-10-15", "name": "Yakıt (Uber)", "amount": 71.25, "cat": "yakit" }] },
+   "2026-10-26": { "start": "2026-10-26", "uberEarn": "", "uberHours": "", "fuel": "", "cashHours": "", "note": "",
+    "extras": [{ "name": "Hediye", "amount": 30 }],
+    "daily": [{ "id": "c1", "date": "2026-10-27", "name": "Yakıt (Uber)", "amount": 45, "cat": "yakit" }, { "id": "c2", "date": "2026-10-28", "name": "Kahve", "amount": 5.5, "cat": "kahve" }] },
+   "2026-11-02": { "start": "2026-11-02", "uberEarn": 1100, "uberHours": 25, "fuel": 0, "cashHours": "", "extras": [], "note": "",
+    "daily": [{ "id": "d1", "date": "2026-11-03", "name": "Fatura", "amount": 120, "cat": "fatura" }] },
+   "2026-11-09": { "start": "2026-11-09", "uberEarn": 640, "uberHours": 15, "fuel": "", "cashHours": "", "extras": [], "note": "",
+    "daily": [
+     { "id": "e1", "date": "2026-11-09", "name": "Yemek", "amount": 12.5, "cat": "yemek" },
+     { "id": "e2", "date": "2026-11-10", "name": "Kahve", "amount": 4.8, "cat": "kahve" },
+     { "id": "e3", "date": "2026-11-11", "name": "Yakıt (Uber)", "amount": 60, "cat": "yakit" },
+     { "id": "e4", "date": "2026-11-12", "name": "Ayakkabı", "amount": 45, "cat": null, "oneOff": true },
+     { "id": "e5", "date": "2026-11-13", "name": "Market", "amount": "33.2", "cat": "market" }
+    ] }
+  },
+  "uberExpenses": [
+   { "id": "u1", "d": "2026-10-20", "cat": "service", "amount": 240, "gst": true, "bizAuto": true },
+   { "id": "u2", "d": "2026-11-12", "cat": "phone", "amount": 65, "gst": true, "biz": 50 },
+   { "id": "u3", "d": "2026-10-05", "cat": "rego", "amount": 400, "gst": false, "biz": "72" },
+   { "id": "u4", "d": "2026-12-20", "cat": "wash", "amount": 30, "gst": true }
+  ],
+  "taxSummaries": { "2027-Q1": { "grossFares": 1010, "uberFees": 0, "tips": 15 } },
+  "setAsides": [{ "week": "2026-11-02", "q": "2027-Q2", "amount": 100 }],
+  "pots": [
+   { "id": "p1", "name": "Tatil", "target": 1200, "saved": 300, "due": "2026-12-24", "icon": "jar", "log": [{ "d": "2026-11-10", "a": 50 }, { "d": "2026-11-03", "a": 40 }] },
+   { "id": "p2", "name": "Bitti", "target": 100, "saved": 0, "due": "2026-12-01", "done": true, "log": [] }
+  ],
+  "accounts": [{ "id": "k1", "name": "Ana", "type": "main", "bal": 850.4, "log": [] }, { "id": "k2", "name": "Kart", "type": "credit", "bal": -220, "log": [] }],
+  "trips": [], "odo": [], "lb": null, "car": {}, "renewals": [], "uberSums": {}
+ }
+}
