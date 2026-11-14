@@ -94,6 +94,14 @@ class Store(ctx: Context) {
     /** This week's numbers from the ported web engine (Calc.kt): income, tax, what is left, the savings plan. */
     var plan by mutableStateOf(Calc(JSONObject()).weekPlan())
         private set
+    /** The Uber shift that is online now, if any. */
+    var shift by mutableStateOf<Shift?>(null)
+        private set
+    var weekShift by mutableStateOf(WeekShifts(0, 0.0, 0))
+        private set
+    /** The latest odometer reading (km), used as the hint for the next one. */
+    var lastKm by mutableStateOf<Double?>(null)
+        private set
     var syncState by mutableStateOf<SyncState>(SyncState.Off)
         private set
     var email by mutableStateOf(supa.session?.email)
@@ -157,6 +165,23 @@ class Store(ctx: Context) {
 
     fun saveTarget(goal: Double) {
         if (goal != target) change(JSONObject().put("op", "target").put("v", goal))
+    }
+
+    /** Starts ([end] = false) or ends the Uber shift. Returns the reason it was refused, or null when saved. */
+    fun saveShift(end: Boolean, km: Long?, ts: Long): String? {
+        val op = synchronized(lock) {
+            shiftError(doc, end, km, ts, System.currentTimeMillis())?.let { return it }
+            if (end) JSONObject().put("op", "tripEnd").put("id", openShift(doc)!!.id).put("end", ts).put("kmEnd", km)
+            else JSONObject().put("op", "tripStart").put("t", JSONObject().put("id", newId()).put("start", ts).put("kmStart", km))
+        }
+        change(op)
+        return null
+    }
+
+    /** Drops the shift that is still open (started by mistake). */
+    fun cancelShift() {
+        val o = shift ?: return
+        change(JSONObject().put("op", "tripCancel").put("id", o.id))
     }
 
     private fun change(op: JSONObject) {
@@ -305,6 +330,7 @@ class Store(ctx: Context) {
 
     /** Applies one change to a money document. Every change is idempotent, so replaying it after a lost reply is safe. */
     private fun applyOp(d: JSONObject, op: JSONObject) {
+        if (applyTripOp(d, op)) return
         when (op.optString("op")) {
             "add" -> {
                 val wid = op.getString("week")
@@ -352,6 +378,11 @@ class Store(ctx: Context) {
                 }
             }
             t = doc.optJSONObject("settings")?.optDouble("saveTarget", 0.0)?.takeIf { !it.isNaN() } ?: 0.0
+            try {
+                shift = openShift(doc)
+                weekShift = weekShifts(doc, mondayOf(LocalDate.now()))
+                lastKm = lastOdo(doc)?.second
+            } catch (e: Exception) {}
         }
         // newest first; within a day the web app appends, so a later position is newer
         expenses = out.withIndex().sortedWith(compareByDescending<IndexedValue<Expense>> { it.value.date }.thenByDescending { it.index }).map { it.value }

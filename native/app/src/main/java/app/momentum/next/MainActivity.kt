@@ -74,6 +74,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -160,6 +161,7 @@ fun App(store: Store) {
     var tab by remember { mutableStateOf(0) }
     var sheetFor by remember { mutableStateOf<String?>(null) } // category the add-sheet opens with, null = closed
     var settings by remember { mutableStateOf(false) }
+    var shiftSheet by remember { mutableStateOf(false) }
     val snack = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
@@ -195,7 +197,7 @@ fun App(store: Store) {
     ) { pad ->
         Box(Modifier.fillMaxSize().padding(pad)) {
             if (tab == 0) {
-                Today(store, onQuick = { q -> if (q.amount != null) log(q.name, q.cat, q.amount) else sheetFor = q.cat }, onSettings = { settings = true })
+                Today(store, onQuick = { q -> if (q.amount != null) log(q.name, q.cat, q.amount) else sheetFor = q.cat }, onSettings = { settings = true }, onShift = { shiftSheet = true })
             } else {
                 Para(store)
             }
@@ -208,6 +210,15 @@ fun App(store: Store) {
             AddSheet(startCat = open, onSave = { cat, amount -> sheetFor = null; log(catOf(cat).name, cat, amount) })
         }
     }
+    if (shiftSheet) {
+        ModalBottomSheet(onDismissRequest = { shiftSheet = false }, containerColor = MaterialTheme.colorScheme.surface) {
+            ShiftSheet(store, onDone = { msg ->
+                shiftSheet = false
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                scope.launch { snack.currentSnackbarData?.dismiss(); snack.showSnackbar(msg, duration = SnackbarDuration.Short) }
+            })
+        }
+    }
     if (settings) {
         ModalBottomSheet(onDismissRequest = { settings = false }, containerColor = MaterialTheme.colorScheme.surface) {
             SettingsSheet(store, onClose = { settings = false })
@@ -218,7 +229,7 @@ fun App(store: Store) {
 // ---------------------------------------------------------------- Today
 
 @Composable
-fun Today(store: Store, onQuick: (Quick) -> Unit, onSettings: () -> Unit) {
+fun Today(store: Store, onQuick: (Quick) -> Unit, onSettings: () -> Unit, onShift: () -> Unit) {
     val P = store.plan
     val target = P.target
     val pc = if (target > 0) P.pc / 100f else 0f
@@ -292,6 +303,7 @@ fun Today(store: Store, onQuick: (Quick) -> Unit, onSettings: () -> Unit) {
                 }
             }
         }
+        item(key = "shift") { ShiftCard(store, onShift) }
         item(key = "quickTitle") { SectionTitle("Tek dokunuşla ekle", "sık girdiklerin") }
         item(key = "quick") {
             val chips = store.quick
@@ -465,6 +477,116 @@ fun AddSheet(startCat: String, onSave: (String, Double) -> Unit) {
         }
         Button(onClick = { if (ready) onSave(cat, value) }, enabled = ready, modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(18.dp)) {
             Text(if (ready) "${catOf(cat).label} olarak kaydet" else "Tutarı yaz", fontSize = 17.sp, fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+// ---------------------------------------------------------------- Uber shift
+
+/** The current time, refreshed every 30 seconds while on screen. */
+@Composable
+private fun nowTick(): Long {
+    var now by remember { mutableStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(Unit) { while (true) { delay(30_000); now = System.currentTimeMillis() } }
+    return now
+}
+
+@Composable
+fun ShiftCard(store: Store, onShift: () -> Unit) {
+    val o = store.shift
+    val now = nowTick()
+    val stale = isStale(o, now)
+    val w = store.weekShift
+    val amber = Color(0xFFFCD34D)
+    Row(
+        Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surface).padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (o != null) {
+            Box(Modifier.size(10.dp).clip(CircleShape).background(if (stale) amber else Gain))
+            Spacer(Modifier.width(10.dp))
+        }
+        Column(Modifier.weight(1f)) {
+            Text(if (o == null) "Uber vardiyası" else if (stale) "Vardiya açık kaldı" else "Uber'desin", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                when {
+                    o == null && w.n > 0 -> "Bu hafta ${w.n} vardiya · ${fmtKm(w.km)} km · ${String.format(TRL, "%.1f", w.ms / 3_600_000.0)} sa"
+                    o == null -> "Online olunca gösterge km'sini gir"
+                    stale -> "${dayLabel(java.time.Instant.ofEpochMilli(o.start).atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString(), LocalDate.now(), store.weekId)} ${hhmm(o.start)} başladı · bitiş km'sini gir"
+                    else -> "${hhmm(o.start)}'den beri · ${durTxt(now - o.start)} · başlangıç ${fmtKm(o.kmStart ?: 0.0)} km"
+                },
+                fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        Spacer(Modifier.width(10.dp))
+        Button(onClick = onShift, shape = RoundedCornerShape(14.dp), contentPadding = PaddingValues(horizontal = 16.dp)) {
+            Text(if (o == null) "Uber'e başla" else "Bitir", fontWeight = FontWeight.Bold)
+        }
+    }
+}
+
+/** Odometer + time for starting or ending the shift. Which one depends on whether a shift is open. */
+@Composable
+fun ShiftSheet(store: Store, onDone: (String) -> Unit) {
+    val o = remember { store.shift }
+    val end = o != null
+    val opened = remember { System.currentTimeMillis() }
+    // a shift forgotten open: suggest four hours after it began instead of "now"
+    var ts by remember { mutableStateOf(if (o != null && isStale(o, opened)) minOf(opened, o.start + 4 * 3_600_000L) else opened) }
+    var km by remember { mutableStateOf("") }
+    var err by remember { mutableStateOf<String?>(null) }
+    var armed by remember { mutableStateOf(false) }
+    val focus = remember { androidx.compose.ui.focus.FocusRequester() }
+    LaunchedEffect(Unit) { focus.requestFocus() }
+    val at = java.time.Instant.ofEpochMilli(ts).atZone(java.time.ZoneId.systemDefault())
+
+    Column(
+        Modifier.fillMaxWidth().imePadding().verticalScroll(rememberScrollState()).navigationBarsPadding().padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Text(if (end) "Vardiyayı bitir" else "Uber'e başla", fontSize = 22.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onSurface)
+        OutlinedTextField(
+            km, { km = it.filter(Char::isDigit).take(7); err = null }, label = { Text("Gösterge (km)") }, singleLine = true,
+            modifier = Modifier.fillMaxWidth().focusRequester(focus), isError = err != null,
+            placeholder = { Text(fmtKm(store.lastKm ?: 0.0)) },
+            supportingText = {
+                Text(
+                    when {
+                        o != null -> "Başlangıç: ${hhmm(o.start)}, ${fmtKm(o.kmStart ?: 0.0)} km"
+                        store.lastKm != null -> "Son okuma: ${fmtKm(store.lastKm!!)} km"
+                        else -> "Aracın göstergesindeki toplam km"
+                    },
+                )
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        )
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = { ts -= 15 * 60000L; err = null }, shape = RoundedCornerShape(14.dp)) { Text("−15 dk") }
+            Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(if (end) "Offline olduğun saat" else "Online olduğun saat", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    (if (at.toLocalDate() == LocalDate.now()) "Bugün" else at.format(DateTimeFormatter.ofPattern("d MMM", TRL))) + " " + at.format(DateTimeFormatter.ofPattern("HH:mm")),
+                    fontSize = 18.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            OutlinedButton(onClick = { ts = minOf(ts + 15 * 60000L, System.currentTimeMillis()); err = null }, shape = RoundedCornerShape(14.dp)) { Text("+15 dk") }
+        }
+        if (o != null && isStale(o, opened)) Text("Vardiyayı bitirmeyi unutmuşsun; saati gerçek bitiş saatine göre düzelt.", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        err?.let { Text(it, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.error) }
+        Button(
+            onClick = {
+                val k = km.toLongOrNull()
+                err = store.saveShift(end, k, ts)
+                if (err == null && k != null) {
+                    onDone(if (o != null) "Vardiya kaydedildi: ${fmtKm(k - (o.kmStart ?: 0.0))} km · ${durTxt(ts - o.start)}" else "İyi vardiyalar! Başlangıç ${fmtKm(k.toDouble())} km")
+                }
+            },
+            modifier = Modifier.fillMaxWidth().height(56.dp), shape = RoundedCornerShape(18.dp),
+        ) { Text(if (end) "Bitir" else "Başla", fontSize = 17.sp, fontWeight = FontWeight.Bold) }
+        if (end) {
+            TextButton(onClick = { if (armed) { store.cancelShift(); onDone("Vardiya silindi.") } else armed = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(if (armed) "Silmek için tekrar dokun" else "Bu vardiyayı sil", color = MaterialTheme.colorScheme.error)
+            }
         }
     }
 }
