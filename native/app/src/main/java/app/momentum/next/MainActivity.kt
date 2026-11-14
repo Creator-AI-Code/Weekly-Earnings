@@ -74,6 +74,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.runtime.key
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -670,6 +681,7 @@ fun Para(store: Store) {
         byCat.forEachIndexed { i, (n, v) -> add(Triple(n, v, FlowColors[i % FlowColors.size])) }
         if (c.rec > 0) add(Triple("Tekrarlayan giderler", c.rec, Color(0xFFC4B5FD)))
     }
+    var picked by remember { mutableStateOf<Int?>(null) } // the band the user tapped in the money flow
     LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 96.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             Text("Para", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onBackground)
@@ -695,12 +707,19 @@ fun Para(store: Store) {
                         "Maaş ${usd(c.salaryNet)}" + (if (c.E > 0) " · Uber net ${usd(c.uberNet)} (brüt ${usd(c.E)})" else "") + (if (c.cashNet > 0) " · Nakit iş ${usd(c.cashNet)}" else ""),
                         fontSize = 12.sp, color = HeroInk2,
                     )
-                    MoneyFlow(targets, Modifier.fillMaxWidth().height(220.dp))
-                    targets.forEach { (name, v, col) ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                    val sel = picked?.takeIf { it < targets.size }
+                    MoneyFlow(targets, sel, { picked = if (picked == it) null else it }, Modifier.fillMaxWidth().height(220.dp))
+                    targets.forEachIndexed { i, (name, v, col) ->
+                        val on = sel == i
+                        val bg by animateColorAsState(if (on) col.copy(alpha = 0.22f) else Color.Transparent, label = "legend")
+                        val dim by animateFloatAsState(if (sel == null || on) 1f else 0.45f, label = "legendDim")
+                        Row(
+                            Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp)).background(bg).clickable { picked = if (on) null else i }.padding(horizontal = 8.dp, vertical = 7.dp).alpha(dim),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
                             Box(Modifier.size(10.dp).clip(CircleShape).background(col))
                             Spacer(Modifier.width(8.dp))
-                            Text(name, Modifier.weight(1f), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Color.White)
+                            Text(name, Modifier.weight(1f), fontSize = 14.sp, fontWeight = if (on) FontWeight.ExtraBold else FontWeight.SemiBold, color = Color.White)
                             Text(usd(v), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color.White)
                         }
                     }
@@ -712,7 +731,67 @@ fun Para(store: Store) {
 
 /** Income on the left flowing into where it went on the right, with moving dashes along each band. */
 @Composable
-fun MoneyFlow(targets: List<Triple<String, Double, Color>>, modifier: Modifier) {
+fun MoneyFlow(targets: List<Triple<String, Double, Color>>, selected: Int?, onSelect: (Int) -> Unit, modifier: Modifier) {
+    val total = targets.sumOf { it.second }
+    // tapped band: bright, the others fade back
+    val alphas = key(targets.size) {
+        targets.indices.map { i -> animateFloatAsState(if (selected == null) 0.26f else if (selected == i) 0.72f else 0.08f, tween(350), label = "band") }
+    }
+    val current by rememberUpdatedState(targets)
+    Box(modifier) {
+        FlowCanvas(targets, alphas.map { it.value }, selected, Modifier.matchParentSize().pointerInput(Unit) {
+            detectTapGestures { p -> flowHit(current, size.width.toFloat(), size.height.toFloat(), 8.dp.toPx(), 6.dp.toPx(), 4.dp.toPx(), p)?.let(onSelect) }
+        })
+        AnimatedContent(
+            selected, Modifier.align(Alignment.Center),
+            transitionSpec = { (fadeIn(tween(220)) + scaleIn(tween(260), initialScale = 0.8f)) togetherWith fadeOut(tween(150)) }, label = "flowLabel",
+        ) { s ->
+            val t = s?.let { targets.getOrNull(it) }
+            if (t == null) Spacer(Modifier.size(1.dp)) else Column(
+                Modifier.clip(RoundedCornerShape(14.dp)).background(Color(0xE618181B)).padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(t.first, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = t.third)
+                CountMoney(t.second, fontSize = 28, color = Color.White)
+                if (total > 0) Text("gelirin %" + (t.second / total * 100).roundToInt(), fontSize = 12.sp, color = HeroInk2)
+            }
+        }
+    }
+}
+
+/** Which band is under the tap, or null. The same geometry as [FlowCanvas]. */
+private fun flowHit(targets: List<Triple<String, Double, Color>>, w: Float, hgt: Float, nodeW: Float, gap: Float, inset: Float, p: Offset): Int? {
+    val total = targets.sumOf { it.second }
+    if (total <= 0.0) return null
+    val h = hgt - gap * (targets.size - 1)
+    val x0 = nodeW + inset
+    val x1 = w - nodeW - inset
+    val mx = (x0 + x1) / 2
+    // the band edges are cubic curves with both control points at mid-x: find t for the tap's x, then the edge y at that t
+    var lo = 0f
+    var hi = 1f
+    val x = p.x.coerceIn(x0, x1)
+    repeat(20) {
+        val t = (lo + hi) / 2
+        val u = 1 - t
+        if (x0 * u * u * u + 3 * mx * u * u * t + 3 * mx * u * t * t + x1 * t * t * t < x) lo = t else hi = t
+    }
+    val t = (lo + hi) / 2
+    val k = 3 * (1 - t) * t * t + t * t * t // share of the right-hand y in the edge
+    var ly = 0f
+    var ry = 0f
+    targets.forEachIndexed { i, (_, v, _) ->
+        val th = (v / total * h).toFloat()
+        val top = ly + (ry - ly) * k
+        if (p.y >= top - gap / 2 && p.y <= top + th + gap / 2) return i
+        ly += th
+        ry += th + gap
+    }
+    return null
+}
+
+@Composable
+private fun FlowCanvas(targets: List<Triple<String, Double, Color>>, alphas: List<Float>, selected: Int?, modifier: Modifier) {
     val phase by rememberInfiniteTransition(label = "flow").animateFloat(0f, 14f, infiniteRepeatable(tween(900, easing = LinearEasing)), label = "phase")
     var started by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) { started = true }
@@ -731,18 +810,18 @@ fun MoneyFlow(targets: List<Triple<String, Double, Color>>, modifier: Modifier) 
         drawRoundRect(Color(0xFFE4E4E7), Offset(0f, 0f), Size(nodeW, h), r)
         var ly = 0f
         var ry = 0f
-        targets.forEach { (_, v, col) ->
+        targets.forEachIndexed { i, (_, v, col) ->
             val th = (v / total * h).toFloat()
-            drawRoundRect(col, Offset(size.width - nodeW, ry), Size(nodeW, th), r)
+            drawRoundRect(col, Offset(size.width - nodeW, ry), Size(nodeW, th), r, alpha = if (selected == null || selected == i) 1f else 0.35f)
             val band = Path().apply {
                 moveTo(x0, ly); cubicTo(mx, ly, mx, ry, x1, ry)
                 lineTo(x1, ry + th); cubicTo(mx, ry + th, mx, ly + th, x0, ly + th); close()
             }
             val mid = Path().apply { moveTo(x0, ly + th / 2); cubicTo(mx, ly + th / 2, mx, ry + th / 2, x1, ry + th / 2) }
             clipRect(right = size.width * reveal) {
-                drawPath(band, col, alpha = 0.26f)
+                drawPath(band, col, alpha = alphas.getOrElse(i) { 0.26f })
                 drawPath(
-                    mid, col,
+                    mid, col, alpha = if (selected == null || selected == i) 1f else 0.3f,
                     style = Stroke(2.5.dp.toPx(), cap = StrokeCap.Round, pathEffect = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 10.dp.toPx()), -phase.dp.toPx())),
                 )
             }
