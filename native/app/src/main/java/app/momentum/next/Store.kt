@@ -55,6 +55,9 @@ private val TR = Locale("tr", "TR")
 /** Whole dollars, for totals: $1.234 */
 fun usd(v: Double): String = (if (v < -0.5) "−$" else "$") + NumberFormat.getIntegerInstance(TR).format(abs(v).roundToLong())
 
+/** usd2 in src/1-core.js: always two decimals, $1.234,50 */
+fun usd2(v: Double): String = (if (v < 0) "−$" else "$") + NumberFormat.getNumberInstance(TR).apply { minimumFractionDigits = 2; maximumFractionDigits = 2 }.format(abs(v))
+
 /** Entered amounts keep their cents: $4,50 */
 fun money(v: Double): String {
     val c = (abs(v) * 100).roundToLong()
@@ -93,6 +96,9 @@ class Store(ctx: Context) {
         private set
     /** This week's numbers from the ported web engine (Calc.kt): income, tax, what is left, the savings plan. */
     var plan by mutableStateOf(Calc(JSONObject()).weekPlan())
+        private set
+    /** The engine over the current document, for screens that read more than this week (the BAS screen). */
+    var engine by mutableStateOf(Calc(JSONObject()))
         private set
     /** The Uber shift that is online now, if any. */
     var shift by mutableStateOf<Shift?>(null)
@@ -367,7 +373,7 @@ class Store(ctx: Context) {
         val t: Double
         synchronized(lock) {
             // odd data must never stop the screen from drawing: keep the previous numbers if the engine trips
-            try { plan = Calc(doc).weekPlan() } catch (e: Exception) {}
+            try { val c = Calc(doc); plan = c.weekPlan(); engine = c } catch (e: Exception) {}
             val weeks = doc.optJSONObject("weeks")
             if (weeks != null) for (k in weeks.keys()) {
                 val daily = weeks.optJSONObject(k)?.optJSONArray("daily") ?: continue

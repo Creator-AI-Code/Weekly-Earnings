@@ -45,7 +45,21 @@ const code = files.map((f) => fs.readFileSync(path.join(src, f), 'utf8')).join('
   const P = weekPlan(), c = P.c, keep = Math.max(0, P.projected - P.potsFromWeek), A = todayAdvice(P);
   const pc = P.target > 0 ? Math.max(0, Math.min(100, Math.round(keep / P.target * 100))) : 100;
   const bas = nextBas();
+  // the Vergi (BAS) screen: taxFull + the weekly list + the financial year so far, for the quarters around today
+  const basOf = (key) => {
+    const f = taxFull(key), qi = f.qi; let fE = 0, fG = 0, fT = 0, fS = 0;
+    for (let i = 1; i <= qi.q; i++) { const x = taxFull(qi.fy + '-Q' + i); fE += x.gross; fG += x.gst; fT += x.tax; fS += x.saved; }
+    return {
+      key, name: qName(key), range: qi.range, startId: qi.startId, endId: qi.endId, due: idOf(qi.due), days: daysUntil(qi.due),
+      exact: f.exact, nWeeks: f.nWeeks, gross: f.gross, fees: f.fees, g1A: f.g1A, g1B: f.g1B, gst: f.gst, credit: f.credit, exEx: f.exEx,
+      exTotal: f.exTotal, exCount: f.ex.length, profit: f.profit, incTax: f.incTax, mlsTax: f.mlsTax, mlsRate: f.mlsRate, mlsYear: mls(S.salary + f.A, false),
+      tax: f.tax, need: f.need, saved: f.saved, left: f.left, looseTax: f.looseTax, fyGross: fE, fyGst: fG, fyTax: fT, fySaved: fS, logbook: logbook(),
+      weeks: weeksOfQuarter(key).map((id) => { const sa = weekSetAside(id); return { id, tax: r2(calc(getWeek(id)).weekTax), setAside: sa ? +sa.amount || 0 : null }; }),
+    };
+  };
+  const curQ = quarterOf(thisWeekId()).key;
   return {
+    basQ: curQ, bas: [-3, -2, -1, 0, 1].map((d) => basOf(qShift(curQ, d))),
     weekId: P.s.id, daysLeft: P.s.daysLeft, perDaySafe: P.s.perDay,
     E: c.E, H: c.H, fuel: c.fuel, fx: c.fx, gst: c.gst, uberTax: c.uberTax, uberNet: c.uberNet, cashNet: c.cashNet, salaryNet: c.salaryNet,
     rec: c.rec, extra: c.extra, income: c.income, left: c.left, weekTax: c.weekTax, daily: c.daily,

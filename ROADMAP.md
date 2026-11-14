@@ -28,7 +28,8 @@ Format: Now / Next / Later. Each item gets a slug, a goal, and acceptance criter
 - **M2 (done 14 Nov 2026):** sign in to Supabase and read/write the existing `money` document. Writes fetch the latest row, replay only this app's own changes (add/undo an expense, savings target) and save only if `updated_at` still matches, so fields the app does not know are carried over untouched.
 - **M3a (done 14 Nov 2026):** the budget and tax engine ported to `Calc.kt` (`weekCalc`, `calc`, quarter tax, `weekPlan`). `native/parity/web-engine.js` runs the web app's own code in Node; `CalcParityTest` fails if Kotlin and web differ by more than half a cent. Regenerate `native/parity/expected/` whenever the engine in `src/` changes.
 - **M3b (built 14 Nov 2026, live write test pending):** Uber shifts on Bugün: start and end by odometer with the web app's rules (`Shifts.kt`, `ShiftsTest`). Finished shifts are still deleted in the web app only.
-- **M3+:** BAS screen, accounts and pots, weather, home-screen widget, receipts. The web app stays the source of truth until parity.
+- **M3c (built 15 Nov 2026, read-only):** the Vergi (BAS) screen, a port of `paraTax` / `taxWeeksCard` in `src/5-tax.js`: quarter stepper, set-aside hero with the BAS due date, quarter breakdown (sales, 1A, 1B, GST payable, profit, income tax share, MLS), weekly transfers, expense total, financial year so far. Opened from the tax line on Bugün or the Vergi row on Para. Figures come from `Calc.bas(key)`, parity-tested for five quarters per fixture. Still web only: marking a week "Aktardım" (and undo / top-up), manual set-asides, Uber expenses (add, edit, delete, receipt scan), Uber tax summary (PDF upload, manual gross fares and fees), the expense list itself, car and logbook cards.
+- **M3+:** BAS write actions (above), accounts and pots, weather, home-screen widget, receipts. The web app stays the source of truth until parity.
 
 ## Next
 

@@ -83,11 +83,42 @@ data class Quarter(val key: String, val fy: Int, val q: Int, val start: LocalDat
 
 private class TaxBucket(var E: Double = 0.0, var gross: Double = 0.0, var fees: Double = 0.0, var credit: Double = 0.0, var exEx: Double = 0.0)
 
-private class TaxQ(val key: String, val weeks: List<String>, val wk: Map<String, TaxBucket>, val loose: TaxBucket, val gst: Double, val profit: Double)
+private class TaxQ(
+    val key: String, val weeks: List<String>, val wk: Map<String, TaxBucket>, val loose: TaxBucket, val gst: Double, val profit: Double,
+    val exact: Boolean, val gross: Double, val fees: Double, val g1A: Double, val g1B: Double, val credit: Double, val exEx: Double, val exTotal: Double, val exCount: Int,
+)
 
-private class TaxShare(val A: Double, val rInc: Double, val rMls: Double, val tax: Double)
+private class TaxShare(val A: Double, val rInc: Double, val rMls: Double, val tax: Double, val incTax: Double = 0.0, val mlsTax: Double = 0.0, val mlsRate: Double = 0.0)
 
 data class TaxParts(val gst: Double, val profit: Double, val inc: Double, val mls: Double, val tax: Double)
+
+/** One Uber week of a quarter: its tax share (r2 of calc().weekTax) and what was marked as set aside for it, null = not yet. */
+data class BasWeek(val id: String, val tax: Double, val setAside: Double?)
+
+/**
+ * The figures of the web app's Vergi screen (paraTax in src/5-tax.js) for one BAS quarter: taxFull(key), the weekly
+ * set-aside list (taxWeeksCard) and the financial year so far (Q1..this quarter).
+ * gross = sales incl. GST (G1), g1A = GST on sales, g1B = GST credits, gst = g1A − g1B.
+ */
+data class Bas(
+    val key: String, val q: Quarter, val name: String, val range: String, val days: Int,
+    val exact: Boolean, val nWeeks: Int, val gross: Double, val fees: Double, val g1A: Double, val g1B: Double, val gst: Double,
+    val credit: Double, val exEx: Double, val exTotal: Double, val exCount: Int, val profit: Double,
+    val incTax: Double, val mlsTax: Double, val mlsRate: Double, val mlsYear: Double, val tax: Double,
+    val need: Double, val saved: Double, val left: Double, val looseTax: Double, val weeks: List<BasWeek>,
+    val fyGross: Double, val fyGst: Double, val fyTax: Double, val fySaved: Double, val logbook: Double,
+)
+
+/** MONTHS of src/0-i18n.js for tr-TR (short month names without the dot). */
+val MONTHS_TR = listOf("Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara")
+
+/** weekLabel in src/1-core.js: "9–15 Kas" or "28 Eyl – 4 Eki". */
+fun weekLabel(id: String): String {
+    val a = LocalDate.parse(id)
+    val b = a.plusDays(6)
+    return if (a.month == b.month) "${a.dayOfMonth}–${b.dayOfMonth} ${MONTHS_TR[a.monthValue - 1]}"
+    else "${a.dayOfMonth} ${MONTHS_TR[a.monthValue - 1]} – ${b.dayOfMonth} ${MONTHS_TR[b.monthValue - 1]}"
+}
 
 data class PlanShift(val wd: Int, val part: String, val h: Double)
 
@@ -277,7 +308,7 @@ class Calc(src: JSONObject, private val today: LocalDate = LocalDate.now(), priv
         return Quarter(key, fy, q, start, end, due)
     }
 
-    private fun qShift(key: String, d: Int): String {
+    fun qShift(key: String, d: Int): String {
         var (fy, q) = key.split("-Q").map { it.toInt() }
         q += d
         while (q < 1) { q += 4; fy-- }
@@ -333,12 +364,13 @@ class Calc(src: JSONObject, private val today: LocalDate = LocalDate.now(), priv
         val loose = TaxBucket()
         var credit = 0.0
         var exEx = 0.0
+        var exTotal = 0.0
         ex.forEach { (d, amt, bg) ->
             val (biz, hasGst) = bg
             val g = if (hasGst) amt / 11 else 0.0
             val cr = g * biz
             val xx = (amt - g) * biz
-            credit += cr; exEx += xx
+            credit += cr; exEx += xx; exTotal += amt
             val w = nearestUberWeek(ws, d)
             if (w != null) { wk[w]!!.credit += cr; wk[w]!!.exEx += xx } else { loose.credit += cr; loose.exEx += xx }
         }
@@ -350,7 +382,7 @@ class Calc(src: JSONObject, private val today: LocalDate = LocalDate.now(), priv
         val g1A = gross / 11
         val g1B = credit + fees / 11
         val profit = (gross - gross / 11) - (fees - fees / 11) - exEx + (if (exact) jnum(sm.opt("tips")) else 0.0)
-        TaxQ(key, ws, wk, loose, g1A - g1B, profit)
+        TaxQ(key, ws, wk, loose, g1A - g1B, profit, exact, gross, fees, g1A, g1B, credit, exEx, exTotal, ex.size)
     }
 
     private val tsMemo = HashMap<String, TaxShare>()
@@ -366,7 +398,9 @@ class Calc(src: JSONObject, private val today: LocalDate = LocalDate.now(), priv
         if (A <= 0 || tq.profit <= 0) return@getOrPut TaxShare(A, 0.0, 0.0, 0.0)
         val inc = (itax(salary + A) + 0.02 * (salary + A)) - (itax(salary) + 0.02 * salary)
         val mm = mls(salary + A, cover) - mls(salary, cover)
-        TaxShare(A, inc / A, mm / A, inc / A * tq.profit + mm / A * tq.profit)
+        val incTax = inc / A * tq.profit
+        val mlsTax = mm / A * tq.profit
+        TaxShare(A, inc / A, mm / A, incTax + mlsTax, incTax, mlsTax, mls(salary + A, false) / (salary + A))
     }
 
     private fun taxPart(x: TaxBucket, ts: TaxShare): TaxParts {
@@ -387,6 +421,36 @@ class Calc(src: JSONObject, private val today: LocalDate = LocalDate.now(), priv
 
     /** GST still owed for the quarter plus its income tax share (taxFull().need). */
     fun taxNeed(key: String) = taxQuarter(key).gst + taxShare(key).tax
+
+    /** The quarter the web app's Vergi screen opens on: the one this week is in (U.taxQ / go('para', 'vergi')). */
+    val currentQuarter: String get() = quarterOf(thisWeekId)
+
+    private fun savedFor(key: String) = m.optJSONArray("setAsides").objs().filter { it.opt("q") == key }.sumOf { jnum(it.opt("amount")) }
+
+    /** taxFull(key) plus what paraTax and taxWeeksCard in src/5-tax.js derive from it. Reads only. */
+    fun bas(key: String): Bas {
+        val qi = qInfo(key)
+        val tq = taxQuarter(key)
+        val ts = taxShare(key)
+        val need = tq.gst + ts.tax
+        val saved = savedFor(key)
+        var fE = 0.0
+        var fG = 0.0
+        var fT = 0.0
+        var fS = 0.0
+        for (i in 1..qi.q) { val k = "${qi.fy}-Q$i"; fE += taxQuarter(k).gross; fG += taxQuarter(k).gst; fT += taxShare(k).tax; fS += savedFor(k) }
+        val setAsides = m.optJSONArray("setAsides").objs()
+        val sm = intArrayOf(6, 9, 0, 3)[qi.q - 1]
+        return Bas(
+            key, qi, "Q${qi.q} ${qi.fy - 1}–${(qi.fy).toString().drop(2)}", "${MONTHS_TR[sm]}–${MONTHS_TR[(sm + 2) % 12]} ${qi.start.year}",
+            ChronoUnit.DAYS.between(today, qi.due).toInt(),
+            tq.exact, tq.weeks.size, tq.gross, tq.fees, tq.g1A, tq.g1B, tq.gst, tq.credit, tq.exEx, tq.exTotal, tq.exCount, tq.profit,
+            ts.incTax, ts.mlsTax, ts.mlsRate, mls(salary + ts.A, false), ts.tax,
+            need, saved, max(0.0, need - saved), taxPart(tq.loose, ts).tax,
+            tq.weeks.map { id -> BasWeek(id, r2(calc(id).weekTax), setAsides.firstOrNull { it.opt("week") == id }?.let { jnum(it.opt("amount")) }) },
+            fE, fG, fT, fS, logbook,
+        )
+    }
 
     private fun nextBas(): Pair<String, Int>? {
         var q = qShift(quarterOf(thisWeekId), -1)

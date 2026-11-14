@@ -2,6 +2,7 @@ package app.momentum.next
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.animateColorAsState
@@ -36,6 +37,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
@@ -173,6 +177,8 @@ fun App(store: Store) {
     var sheetFor by remember { mutableStateOf<String?>(null) } // category the add-sheet opens with, null = closed
     var settings by remember { mutableStateOf(false) }
     var shiftSheet by remember { mutableStateOf(false) }
+    var bas by remember { mutableStateOf(false) } // the Vergi (BAS) screen, opened from Bugün or Para
+    BackHandler(bas) { bas = false }
     val snack = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
@@ -191,7 +197,7 @@ fun App(store: Store) {
         containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snack) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
+            if (!bas) ExtendedFloatingActionButton(
                 onClick = { sheetFor = CATS[0].key },
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                 text = { Text("Gider ekle", fontWeight = FontWeight.Bold) },
@@ -201,16 +207,18 @@ fun App(store: Store) {
         },
         bottomBar = {
             NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
-                NavigationBarItem(selected = tab == 0, onClick = { tab = 0 }, icon = { Icon(Icons.Filled.Home, contentDescription = null) }, label = { Text("Bugün") })
-                NavigationBarItem(selected = tab == 1, onClick = { tab = 1 }, icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = null) }, label = { Text("Para") })
+                NavigationBarItem(selected = tab == 0, onClick = { tab = 0; bas = false }, icon = { Icon(Icons.Filled.Home, contentDescription = null) }, label = { Text("Bugün") })
+                NavigationBarItem(selected = tab == 1, onClick = { tab = 1; bas = false }, icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = null) }, label = { Text("Para") })
             }
         },
     ) { pad ->
         Box(Modifier.fillMaxSize().padding(pad)) {
-            if (tab == 0) {
-                Today(store, onQuick = { q -> if (q.amount != null) log(q.name, q.cat, q.amount) else sheetFor = q.cat }, onSettings = { settings = true }, onShift = { shiftSheet = true })
+            if (bas) {
+                BasScreen(store, onBack = { bas = false })
+            } else if (tab == 0) {
+                Today(store, onQuick = { q -> if (q.amount != null) log(q.name, q.cat, q.amount) else sheetFor = q.cat }, onSettings = { settings = true }, onShift = { shiftSheet = true }, onBas = { bas = true })
             } else {
-                Para(store)
+                Para(store, onBas = { bas = true })
             }
         }
     }
@@ -240,7 +248,7 @@ fun App(store: Store) {
 // ---------------------------------------------------------------- Today
 
 @Composable
-fun Today(store: Store, onQuick: (Quick) -> Unit, onSettings: () -> Unit, onShift: () -> Unit) {
+fun Today(store: Store, onQuick: (Quick) -> Unit, onSettings: () -> Unit, onShift: () -> Unit, onBas: () -> Unit) {
     val P = store.plan
     val target = P.target
     val pc = if (target > 0) P.pc / 100f else 0f
@@ -307,10 +315,17 @@ fun Today(store: Store, onQuick: (Quick) -> Unit, onSettings: () -> Unit, onShif
                     }
                 }
                 if (P.showTaxLine) {
-                    Text(
-                        (if (P.taxSetAside) "Bu haftanın vergi payı ayrıldı" else "Vergi için ayır: ${usd(P.c.weekTax)} bu hafta") + (P.basDays?.let { " · BAS'a $it gün" } ?: ""),
-                        fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    // the web app's tax line: a button that opens Para → Vergi
+                    Row(
+                        Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(MaterialTheme.colorScheme.surfaceVariant).clickable(onClick = onBas).padding(start = 12.dp, end = 6.dp, top = 9.dp, bottom = 9.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            (if (P.taxSetAside) "Bu haftanın vergi payı ayrıldı" else "Vergi için ayır: ${usd(P.c.weekTax)} bu hafta") + (P.basDays?.let { " · BAS'a $it gün" } ?: ""),
+                            Modifier.weight(1f), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                 }
             }
         }
@@ -384,11 +399,11 @@ fun SectionTitle(title: String, hint: String) {
 
 /** A number that counts to its new value instead of jumping. */
 @Composable
-fun CountMoney(value: Double, fontSize: Int, color: Color) {
+fun CountMoney(value: Double, fontSize: Int, color: Color, cents: Boolean = false) {
     var shown by remember { mutableStateOf(0f) }
     LaunchedEffect(value) { shown = value.toFloat() }
     val v by animateFloatAsState(shown, tween(700, easing = FastOutSlowInEasing), label = "money")
-    Text(usd(v.toDouble()), fontSize = fontSize.sp, fontWeight = FontWeight.ExtraBold, color = color)
+    Text(if (cents) usd2(v.toDouble()) else usd(v.toDouble()), fontSize = fontSize.sp, fontWeight = FontWeight.ExtraBold, color = color)
 }
 
 @Composable
@@ -671,7 +686,7 @@ fun AccountSection(store: Store) {
 // ---------------------------------------------------------------- Para
 
 @Composable
-fun Para(store: Store) {
+fun Para(store: Store, onBas: () -> Unit) {
     val c = store.plan.c
     val income = c.income
     val kept = c.left
@@ -692,6 +707,23 @@ fun Para(store: Store) {
                 Text("Elinde kalan", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 CountMoney(kept, fontSize = 40, color = MaterialTheme.colorScheme.onSurface)
                 Text("Net gelir ${usd(income)} · Gider ${usd(c.rec + c.extra)}", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+        item {
+            // the web app's Para → Vergi segment
+            val b = remember(store.engine) { runCatching { store.engine.bas(store.engine.currentQuarter) }.getOrNull() }
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surface).clickable(onClick = onBas).padding(start = 16.dp, end = 8.dp, top = 14.dp, bottom = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text("Vergi", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
+                    Text(
+                        if (b == null) "BAS çeyreklik" else "${b.name} · Ödenecek GST ${usd2(b.gst)}" + (store.plan.basDays?.let { " · BAS'a $it gün" } ?: ""),
+                        fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
         item {
@@ -726,6 +758,184 @@ fun Para(store: Store) {
                 }
             }
         }
+    }
+}
+
+// ---------------------------------------------------------------- Vergi (BAS)
+
+/**
+ * The web app's Para → Vergi screen (paraTax and taxWeeksCard in src/5-tax.js) for one BAS quarter, read-only:
+ * marking a week as set aside, expenses and Uber's tax summary are still entered in the web app.
+ */
+@Composable
+fun BasScreen(store: Store, onBack: () -> Unit) {
+    val calc = store.engine
+    var key by remember { mutableStateOf(calc.currentQuarter) }
+    val f = remember(calc, key) { runCatching { calc.bas(key) }.getOrNull() }
+    val ink = MaterialTheme.colorScheme.onSurface
+    val ink2 = MaterialTheme.colorScheme.onSurfaceVariant
+    val card = Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surface).padding(16.dp)
+    val pctTr = { v: Double -> "%" + java.text.NumberFormat.getIntegerInstance(TRL).format(v) }
+
+    LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        item(key = "head") {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Geri", tint = MaterialTheme.colorScheme.onBackground) }
+                Column {
+                    Text("Vergi", fontSize = 28.sp, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onBackground)
+                    if (f != null) Text("Logbook ${pctTr(f.logbook)} · BAS çeyreklik", fontSize = 13.sp, color = ink2)
+                }
+            }
+        }
+        if (f == null) return@LazyColumn
+        item(key = "nav") {
+            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(18.dp)).background(MaterialTheme.colorScheme.surface).padding(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = { key = calc.qShift(key, -1) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Önceki çeyrek", tint = ink) }
+                Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(f.name, fontSize = 17.sp, fontWeight = FontWeight.Bold, color = ink)
+                    Text(f.range, fontSize = 12.sp, color = ink2)
+                }
+                IconButton(onClick = { key = calc.qShift(key, 1) }) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Sonraki çeyrek", tint = ink) }
+            }
+        }
+        item(key = "hero") {
+            val pc = if (f.need > 0) minOf(100, (f.saved / f.need * 100).roundToInt()) else 0
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(Hero).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("Kenara ayrılması gereken", Modifier.weight(1f), fontSize = 13.sp, color = HeroInk2)
+                        Text("bu çeyrek", Modifier.clip(RoundedCornerShape(8.dp)).background(HeroTrack).padding(horizontal = 8.dp, vertical = 2.dp), fontSize = 12.sp, color = HeroInk2)
+                    }
+                    CountMoney(f.need, fontSize = 38, color = Color.White, cents = true)
+                    Text("Ödenecek GST ${usd2(f.gst)} + gelir vergisi payı ${usd2(f.tax)}", fontSize = 13.sp, color = HeroInk2)
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    BasTile("Kenara ayırdığın", usd2(f.saved), "%$pc", Modifier.weight(1f), onHero = true)
+                    BasTile("Kalan", usd2(f.left), if (f.need > 0 && f.left <= 0.005) "Tamamı ayrıldı" else "Ayrılacak", Modifier.weight(1f), onHero = true)
+                }
+                Box(Modifier.fillMaxWidth().height(8.dp).clip(CircleShape).background(HeroTrack)) {
+                    Box(Modifier.fillMaxWidth(pc / 100f).height(8.dp).clip(CircleShape).background(Gold))
+                }
+                Text(
+                    "BAS son günü: ${f.q.due.format(DateTimeFormatter.ofPattern("d MMMM yyyy", TRL))} · " + (if (f.days > 0) "${f.days} gün kaldı" else if (f.days == 0) "bugün" else "${-f.days} gün geçti"),
+                    Modifier.clip(RoundedCornerShape(10.dp)).background(HeroTrack).padding(horizontal = 10.dp, vertical = 6.dp),
+                    fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White,
+                )
+            }
+        }
+        item(key = "break") {
+            Column(card, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("Çeyrek dökümü", Modifier.weight(1f), fontSize = 15.sp, fontWeight = FontWeight.Bold, color = ink)
+                    Text(
+                        if (f.exact) "Uber vergi özeti" else "Tahmin",
+                        Modifier.clip(RoundedCornerShape(8.dp)).background(if (f.exact) Gain.copy(alpha = 0.22f) else MaterialTheme.colorScheme.surfaceVariant).padding(horizontal = 8.dp, vertical = 2.dp),
+                        fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = ink,
+                    )
+                }
+                BasRow(if (f.exact) "Yolcu ücretleri (GST dahil)" else "Uber kazancı (${f.nWeeks} hafta)", usd2(f.gross))
+                BasRow("Satışlardaki GST (1A)", usd2(f.g1A))
+                BasRow("GST kredileri (1B)", "−" + usd2(f.g1B))
+                BasRow("Ödenecek GST", usd2(f.gst), strong = true)
+                Box(Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.surfaceVariant))
+                if (f.exact) BasRow("Uber ücretleri (GST hariç)", "−" + usd2(f.fees - f.fees / 11))
+                BasRow("Giderler (GST hariç, iş payı)", "−" + usd2(f.exEx))
+                BasRow("Vergiye tabi kâr", usd2(f.profit))
+                BasRow("Gelir vergisi + Medicare", usd2(f.incTax))
+                if (f.mlsTax > 0.005) BasRow("MLS (hastane sigortası yok)", usd2(f.mlsTax))
+                Box(Modifier.fillMaxWidth().height(1.dp).background(MaterialTheme.colorScheme.surfaceVariant))
+                BasRow("Kenara ayrılması gereken", usd2(f.need), strong = true)
+                if (f.mlsTax > 0.005) {
+                    val r = java.math.BigDecimal(f.mlsRate * 100).setScale(2, java.math.RoundingMode.HALF_UP).stripTrailingZeros().toPlainString().replace('.', ',')
+                    Text(
+                        "Toplam gelirin $105.000 eşiğini geçtiği için tüm gelirine %$r Medicare Levy Surcharge eklenir (yılda yaklaşık ${usd(f.mlsYear)}). Özel hastane sigortan varsa web uygulamasında Ayarlar → Para’da “Var” seç, bu satır kalkar.",
+                        fontSize = 12.sp, color = ink2,
+                    )
+                }
+                Text(
+                    (if (f.exact) "1A, girdiğin yolcu ücretlerinin 1/11’i. Uber ücretlerinin GST’si 1B’ye eklendi."
+                    else "1A, Uber kazancının 1/11’i olarak tahmin edildi. Uber’in vergi özetindeki rakamları girersen kesin hesap yapılır.") +
+                        (if (f.gst < 0) " GST eksi çıktı: bu çeyrekte iade alırsın." else ""),
+                    fontSize = 12.sp, color = ink2,
+                )
+            }
+        }
+        if (f.weeks.isNotEmpty() || kotlin.math.abs(f.looseTax) > 0.005) item(key = "weeks") {
+            Column(card, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SectionTitle("Haftalık aktarımlar", "${f.weeks.count { it.setAside != null }}/${f.weeks.size}")
+                f.weeks.forEach { w ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text(weekLabel(w.id), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = ink)
+                            Text(usd2(w.tax), fontSize = 12.sp, color = ink2)
+                        }
+                        if (w.setAside != null) {
+                            val more = Math.round((w.tax - w.setAside) * 100) / 100.0
+                            Text(
+                                "✓ aktarıldı" + (if (more > 0.5) " · fark ${usd2(more)}" else ""),
+                                Modifier.clip(RoundedCornerShape(8.dp)).background(Gain.copy(alpha = 0.22f)).padding(horizontal = 8.dp, vertical = 3.dp),
+                                fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = ink,
+                            )
+                        }
+                    }
+                }
+                if (kotlin.math.abs(f.looseTax) > 0.005) Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("Haftasız gider", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = ink)
+                        Text(usd2(f.looseTax), fontSize = 12.sp, color = ink2)
+                    }
+                    Text("Uber haftası yok", fontSize = 12.sp, color = ink2)
+                }
+                Text("Haftalık tutarlar o haftanın gerçek kazanç ve giderlerinden hesaplanır; toplamları yukarıdaki çeyrek tutarına eşittir. Gider ekledikçe güncellenir.", fontSize = 12.sp, color = ink2)
+            }
+        }
+        item(key = "exp") {
+            Column(card, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                SectionTitle("Uber giderleri", if (f.exCount > 0) usd2(f.exTotal) else "")
+                Text(
+                    if (f.exCount > 0) "Bu çeyrekte toplam ${usd2(f.exTotal)}. Araç giderlerinde iş payı logbook yüzdesinden gelir (${pctTr(f.logbook)})." else "Bu çeyrekte gider yok",
+                    fontSize = 13.sp, color = ink2,
+                )
+            }
+        }
+        item(key = "fy") {
+            Column(card, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                SectionTitle("${f.name.substringAfter(' ')} mali yılı (şu ana kadar)", "")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    BasTile("Uber kazancı", usd(f.fyGross), if (f.q.q == 1) "Q1" else "Q1–Q${f.q.q}", Modifier.weight(1f))
+                    BasTile("Ödenecek GST", usd(f.fyGst), "BAS", Modifier.weight(1f))
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    BasTile("Gelir vergisi payı", usd(f.fyTax), "Yıl sonu için", Modifier.weight(1f))
+                    BasTile("Ayrılacak / ayrılan", usd(f.fyGst + f.fyTax) + " / " + usd(f.fySaved), "Toplam", Modifier.weight(1f))
+                }
+                Text(
+                    "Gelir vergisi payı: bu mali yılda Uber yaptığın haftaların ortalama kârı, yılda kaç hafta Uber yaptığınla çarpılıp yıllık kâr tahmin edilir. Bu kâr maaşının üstüne eklenince çıkan ek vergi (Medicare %2 ve MLS dahil) oranıyla bu çeyreğin kârı çarpılır. Tahmindir; kesin rakamlar için Uber'in vergi özetini kullan.",
+                    fontSize = 12.sp, color = ink2,
+                )
+            }
+        }
+        item(key = "ro") {
+            Text("Aktarımı işaretleme, gider ve Uber vergi özeti girişi şimdilik web uygulamasında.", Modifier.fillMaxWidth(), fontSize = 12.sp, color = ink2, textAlign = TextAlign.Center)
+        }
+    }
+}
+
+@Composable
+private fun BasRow(label: String, value: String, strong: Boolean = false) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Text(label, Modifier.weight(1f), fontSize = 14.sp, fontWeight = if (strong) FontWeight.Bold else FontWeight.Normal, color = if (strong) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.width(12.dp))
+        Text(value, fontSize = if (strong) 16.sp else 14.sp, fontWeight = if (strong) FontWeight.ExtraBold else FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurface)
+    }
+}
+
+@Composable
+private fun BasTile(label: String, value: String, sub: String, modifier: Modifier, onHero: Boolean = false) {
+    Column(modifier.clip(RoundedCornerShape(14.dp)).background(if (onHero) HeroTrack else MaterialTheme.colorScheme.surfaceVariant).padding(horizontal = 12.dp, vertical = 10.dp)) {
+        Text(label, fontSize = 12.sp, color = if (onHero) HeroInk2 else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+        Text(value, fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = if (onHero) Color.White else MaterialTheme.colorScheme.onSurface)
+        Text(sub, fontSize = 12.sp, color = if (onHero) HeroInk2 else MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
     }
 }
 

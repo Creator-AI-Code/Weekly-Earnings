@@ -1,0 +1,42 @@
+{
+ "at": "2027-02-10T10:20",
+ "money": {
+  "settings": {
+   "salary": 100000, "fixed": 8000, "weeksPerYear": 44, "cover": false, "fuelDefault": 160, "cashRate": 30, "cashTax": false,
+   "recurring": [{ "name": "Internet", "amount": 20 }],
+   "logbookPct": 68, "saveTarget": 500, "bizAutoMig": true,
+   "uberPlan": [{ "wd": 5, "part": "aksam", "h": 6 }]
+  },
+  "weeks": {
+   "2026-07-13": { "start": "2026-07-13", "uberEarn": 1200, "uberHours": 28, "fuel": "", "cashHours": "", "extras": [], "note": "",
+    "daily": [{ "id": "a1", "date": "2026-07-14", "name": "Yakıt (Uber)", "amount": 95.4, "cat": "yakit" }] },
+   "2026-08-24": { "start": "2026-08-24", "uberEarn": "980.75", "uberHours": 24, "fuel": "", "cashHours": "", "extras": [], "note": "",
+    "daily": [{ "id": "b1", "date": "2026-08-26", "name": "Shell", "amount": 88, "cat": "yakit" }] },
+   "2026-09-28": { "start": "2026-09-28", "uberEarn": 700, "uberHours": 17, "fuel": "", "cashHours": "", "extras": [], "note": "",
+    "daily": [{ "id": "c1", "date": "2026-10-02", "name": "Yakıt (Uber)", "amount": 70, "cat": "yakit" }] },
+   "2026-11-23": { "start": "2026-11-23", "uberEarn": 150, "uberHours": 5, "fuel": "", "cashHours": "", "extras": [], "note": "",
+    "daily": [{ "id": "d1", "date": "2026-11-24", "name": "Yakıt (Uber)", "amount": 60, "cat": "yakit" }] },
+   "2027-01-18": { "start": "2027-01-18", "uberEarn": 1340, "uberHours": 30, "fuel": "", "cashHours": "", "extras": [], "note": "",
+    "daily": [{ "id": "e1", "date": "2027-01-20", "name": "Yakıt (Uber)", "amount": 110, "cat": "yakit" }, { "id": "e2", "date": "2027-01-21", "name": "Yemek", "amount": 18, "cat": "yemek" }] },
+   "2027-02-08": { "start": "2027-02-08", "uberEarn": 410, "uberHours": 9, "fuel": "", "cashHours": "", "extras": [], "note": "",
+    "daily": [{ "id": "f1", "date": "2027-02-09", "name": "Kahve", "amount": 5, "cat": "kahve" }] }
+  },
+  "uberExpenses": [
+   { "id": "u1", "d": "2026-07-30", "cat": "service", "amount": 330, "gst": true, "bizAuto": true },
+   { "id": "u2", "d": "2026-08-02", "cat": "phone", "amount": 79, "gst": true, "biz": 50 },
+   { "id": "u3", "d": "2026-09-10", "cat": "rego", "amount": 860.5, "gst": false, "bizAuto": true },
+   { "id": "u4", "d": "2026-11-05", "cat": "tyres", "amount": 1980, "gst": true, "bizAuto": true },
+   { "id": "u5", "d": "2026-12-15", "cat": "fees", "amount": 55, "gst": false },
+   { "id": "u6", "d": "2027-01-06", "cat": "wash", "amount": "44", "gst": true, "biz": 100 },
+   { "id": "u7", "d": "2027-03-02", "cat": "amenities", "amount": 12.6, "gst": true },
+   { "id": "u8", "d": "2027-04-20", "cat": "insurance", "amount": 600, "gst": true, "bizAuto": true }
+  ],
+  "taxSummaries": { "2027-Q1": { "grossFares": 3150.4, "uberFees": 868.2, "tips": 42.5, "src": "pdf" } },
+  "setAsides": [
+   { "id": "s1", "d": "2026-07-20", "week": "2026-07-13", "q": "2027-Q1", "amount": 300 },
+   { "id": "s2", "d": "2026-09-01", "q": "2027-Q1", "amount": "125.5" },
+   { "id": "s3", "d": "2027-01-25", "week": "2027-01-18", "q": "2027-Q3", "amount": 200 }
+  ],
+  "pots": [], "accounts": [], "trips": [], "odo": [], "lb": null, "car": {}, "renewals": [], "uberSums": {}
+ }
+}
